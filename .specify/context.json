@@ -1,0 +1,27 @@
+{
+  "project": "jm-agentic-development-kit",
+  "version": "1.0.0-beta",
+  "stage": "initializing",
+  "tdd": true,
+  "created": "2026-03-21",
+  "branding": {
+    "organization": "MetodologIA",
+    "attribution": "Made with Claude Code and Tons of Love with the Help of Pristino Agent",
+    "fork": "intent-integrity-chain/kit"
+  },
+  "stack": {
+    "frontend": ["html5", "css3", "javascript", "angular", "react"],
+    "backend": ["firebase-functions", "nodejs"],
+    "database": ["firestore", "firebase-rtdb"],
+    "hosting": ["firebase-hosting", "hostinger"],
+    "auth": ["firebase-auth"]
+  },
+  "metacognition": {
+    "min_confidence": 0.95,
+    "protocol": "DECOMPOSE-SOLVE-VERIFY-SYNTHESIZE-REFLECT",
+    "fact_check": true,
+    "socratic_debate": true
+  },
+  "features": {},
+  "assertions": {}
+}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pristino Dashboard — JM Agentic Development Kit</title>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--primary:#3b82f6;--success:#22c55e;--warning:#eab308;--error:#ef4444;--accent:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem}
+.header{text-align:center;margin-bottom:2rem}
+.header h1{font-size:1.5rem;color:var(--primary)}
+.header p{color:var(--muted);font-size:0.875rem;margin-top:0.25rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-bottom:2rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:1.25rem}
+.card h2{font-size:1rem;color:var(--primary);margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem}
+.card h2::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--success)}
+.stat{display:flex;justify-content:space-between;padding:0.375rem 0;border-bottom:1px solid var(--border);font-size:0.875rem}
+.stat:last-child{border-bottom:none}
+.stat .label{color:var(--muted)}
+.stat .value{font-weight:600;font-variant-numeric:tabular-nums}
+.pipeline{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.75rem}
+.phase{padding:0.375rem 0.75rem;border-radius:0.375rem;font-size:0.75rem;font-weight:600;border:1px solid var(--border)}
+.phase.active{background:var(--primary);border-color:var(--primary);color:white}
+.phase.complete{background:var(--success);border-color:var(--success);color:white}
+.phase.pending{opacity:0.4}
+.health{font-size:2rem;font-weight:700;text-align:center;margin:1rem 0}
+.health.green{color:var(--success)}
+.health.yellow{color:var(--warning)}
+.health.red{color:var(--error)}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem}
+.skill-badge{padding:0.25rem 0.5rem;border-radius:0.25rem;font-size:0.7rem;background:var(--surface);border:1px solid var(--border)}
+.footer{text-align:center;margin-top:2rem;color:var(--muted);font-size:0.75rem}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Pristino Dashboard</h1>
+  <p>JM Agentic Development Kit (BETA) · MetodologIA · Made with Claude Code</p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Kit Inventory</h2>
+    <div class="stat"><span class="label">Skills (MOAT)</span><span class="value">101</span></div>
+    <div class="stat"><span class="label">IIC Skills</span><span class="value">12</span></div>
+    <div class="stat"><span class="label">Meta Skills</span><span class="value">6</span></div>
+    <div class="stat"><span class="label">Agents</span><span class="value">101</span></div>
+    <div class="stat"><span class="label">Workflows</span><span class="value">101</span></div>
+    <div class="stat"><span class="label">Rules</span><span class="value">9 (R-001-R-008 + GEMINI)</span></div>
+    <div class="stat"><span class="label">Total Indexed</span><span class="value">142</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Health Score</h2>
+    <div class="health green" id="health-score">100</div>
+    <div class="stat"><span class="label">Critical</span><span class="value">0</span></div>
+    <div class="stat"><span class="label">High</span><span class="value">0</span></div>
+    <div class="stat"><span class="label">Medium</span><span class="value">0</span></div>
+    <div class="stat"><span class="label">Low</span><span class="value">0</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Pipeline Status</h2>
+    <div class="stat"><span class="label">Stage</span><span class="value" id="stage">Initializing</span></div>
+    <div class="stat"><span class="label">Mode</span><span class="value">Dual (MAO + SA)</span></div>
+    <div class="stat"><span class="label">Confidence</span><span class="value">>= 0.95</span></div>
+    <div class="pipeline">
+      <span class="phase complete">G0 Pre-flight</span>
+      <span class="phase active">G1 Analysis</span>
+      <span class="phase pending">G2 Architecture</span>
+      <span class="phase pending">G3 Deploy</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Artifact Log</h2>
+    <div class="stat"><span class="label">Plans</span><span class="value" id="plans-count">0</span></div>
+    <div class="stat"><span class="label">ADRs</span><span class="value" id="adrs-count">0</span></div>
+    <div class="stat"><span class="label">Decisions</span><span class="value" id="decisions-count">0</span></div>
+    <div class="stat"><span class="label">Requirements</span><span class="value" id="reqs-count">0</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Skill Domains</h2>
+  <div class="skills-grid">
+    <div class="skill-badge">Core (001-008) · 8 skills</div>
+    <div class="skill-badge">Analysis (009-023) · 15 skills</div>
+    <div class="skill-badge">Architecture (024-035) · 12 skills</div>
+    <div class="skill-badge">Frontend (036-050) · 15 skills</div>
+    <div class="skill-badge">Backend (051-062) · 12 skills</div>
+    <div class="skill-badge">Data (063-070) · 8 skills</div>
+    <div class="skill-badge">Security (071-078) · 8 skills</div>
+    <div class="skill-badge">Testing (079-087) · 9 skills</div>
+    <div class="skill-badge">DevOps (088-095) · 8 skills</div>
+    <div class="skill-badge">Performance (096-100) · 5 skills</div>
+    <div class="skill-badge">Documentation (101) · 1 skill</div>
+    <div class="skill-badge">IIC Metacognition · 12 skills</div>
+    <div class="skill-badge">Meta Skills · 6 skills</div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>MetodologIA · JM Labs · Javier Montano · 2026</p>
+  <p>Made with Claude Code and Tons of Love with the Help of Pristino Agent</p>
+  <p>Based on intent-integrity-chain/kit + Antigravity Kit</p>
+</div>
+</body>
+</html>
