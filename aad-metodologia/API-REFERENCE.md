@@ -1,0 +1,546 @@
+# Intent Integrity Kit Skills API Reference
+
+**Version**: 1.0.0 | **Last Updated**: 2026-02-02
+
+## Quick Reference
+
+### Utilities (run anytime)
+
+| Skill | Command | Input | Output | Prerequisites |
+|-------|---------|-------|--------|---------------|
+| Core | `/iikit-core` | Subcommand: init, status, help | Project structure, status report | None |
+| Clarify | `/iikit-clarify` | None (reads most recent artifact) | Updated artifact with clarifications | Any artifact |
+| Bugfix | `/iikit-bugfix` | Bug description | `bugs.md`, fix tasks in `tasks.md` | None |
+
+### Workflow Phases
+
+| # | Skill | Command | Input | Output | Prerequisites |
+|---|-------|---------|-------|--------|---------------|
+| 0 | Constitution | `/iikit-00-constitution` | Governance principles (optional) | `CONSTITUTION.md` | None |
+| 1 | Specify | `/iikit-01-specify` | Feature description (required) | `specs/NNN-feature/spec.md` | Constitution (warn if missing) |
+| 2 | Plan | `/iikit-02-plan` | None (reads spec) | `plan.md`, `research.md`, `data-model.md`, `contracts/` | constitution.md, spec.md |
+| 3 | Checklist | `/iikit-03-checklist` | Domain focus (optional) | `checklists/*.md` | spec.md |
+| 4 | Testify | `/iikit-04-testify` | None (reads artifacts) | `tests/features/*.feature` | constitution.md, spec.md, plan.md |
+| 5 | Tasks | `/iikit-05-tasks` | None (reads plan) | `tasks.md` | plan.md |
+| 6 | Analyze | `/iikit-06-analyze` | None (reads all) | Console report | spec.md, plan.md, tasks.md |
+| 7 | Implement | `/iikit-07-implement` | None (reads tasks) | Implementation code | tasks.md, checklists (100%) |
+| 8 | Tasks to Issues | `/iikit-08-taskstoissues` | None (reads tasks) | GitHub Issues | tasks.md, GitHub remote |
+
+---
+
+## Dependency Graph
+
+```
+┌──────────────────┐
+│  00-constitution │ ◄── Optional but recommended first
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐    ┌──────────────────┐
+│   01-specify     │    │  clarify         │ ◄── Utility: runs after any phase
+└────────┬─────────┘    │  (anytime)       │
+         │              └──────────────────┘
+         ▼
+┌──────────────────┐
+│    02-plan       │ ◄── REQUIRES: constitution.md
+└────────┬─────────┘
+         │
+         ├────────────────────┐
+         ▼                    ▼
+┌──────────────────┐  ┌──────────────────┐
+│   04-testify     │  │   03-checklist   │
+│ (optional/TDD)   │  │   (optional)     │
+└────────┬─────────┘  └──────────────────┘
+         │
+         ▼
+┌──────────────────┐
+│    05-tasks      │
+└────────┬─────────┘
+         │
+         ├────────────────────┐
+         ▼                    ▼
+┌──────────────────┐  ┌──────────────────┐
+│   06-analyze     │  │ 08-taskstoissues │
+│   (optional)     │  │   (optional)     │
+└────────┬─────────┘  └──────────────────┘
+         │
+         ▼
+┌──────────────────┐
+│   07-implement   │ ◄── REQUIRES: checklists 100%
+└──────────────────┘
+```
+
+---
+
+## Feature Stages
+
+The feature stage is computed from the artifacts present in the feature directory (see `get_feature_stage` in `common.sh`). The `status` subcommand and the next-step state machine both rely on these stages:
+
+| Stage | Condition | Next Skill |
+|-------|-----------|------------|
+| `specified` | `spec.md` exists, no `plan.md` | `/iikit-02-plan` |
+| `planned` | `plan.md` exists, no `.feature` files and no `tasks.md` | `/iikit-04-testify` or `/iikit-05-tasks` |
+| `testified` | `plan.md` exists and `tests/features/*.feature` files are present, but no `tasks.md` | `/iikit-05-tasks` |
+| `tasks-ready` | `tasks.md` exists, no tasks checked off | `/iikit-07-implement` |
+| `implementing-NN%` | `tasks.md` exists with some tasks checked off | `/iikit-07-implement` (resume) |
+| `complete` | All tasks checked off | Done |
+
+---
+
+## Skill Details
+
+### Core
+
+**Purpose**: Initialize project, check status, display workflow help
+
+**Command**: `/iikit-core [subcommand]`
+
+**Subcommands**:
+
+| Subcommand | Purpose |
+|------------|---------|
+| `init` | Initialize IIKit in current directory |
+| `status` | Show project and feature status |
+| `help` | Display workflow phases and commands |
+
+If no subcommand provided, shows help.
+
+**init Output**:
+- `.specify/` directory
+- `specs/` directory
+- Initializes git if needed
+
+**status Output**:
+```
+╭─────────────────────────────────────────────────────╮
+│  IIKIT STATUS                                       │
+├─────────────────────────────────────────────────────┤
+│  Constitution:  [exists/missing]                    │
+│  Current Feature: NNN-feature-name                  │
+│  Artifacts: spec.md ✓, plan.md ✓, tasks.md ✗       │
+│  Next Step: /iikit-05-tasks                         │
+╰─────────────────────────────────────────────────────╯
+```
+
+**Prerequisites**: None
+
+---
+
+### 00 - Constitution
+
+**Purpose**: Create project governance principles
+
+**Command**: `/iikit-00-constitution [governance description]`
+
+**Input**:
+- Optional: Natural language description of project principles
+- If empty: Uses template, infers from existing repo context
+
+**Output**:
+- `CONSTITUTION.md`
+
+**Prerequisites**: None
+
+**Validation**:
+- Phase separation: No technology-specific content allowed
+- Auto-fixes: Replaces tech references with governance statements
+
+**Example**:
+```
+/iikit-00-constitution We use TDD, all code must have tests before implementation
+```
+
+---
+
+### 01 - Specify
+
+**Purpose**: Create feature specification from natural language
+
+**Command**: `/iikit-01-specify <feature description>`
+
+**Input** (REQUIRED):
+- Feature description in natural language
+- Example: `Add user authentication with OAuth2 support`
+
+**Output**:
+- `specs/NNN-feature-name/spec.md`
+- `specs/NNN-feature-name/checklists/requirements.md`
+- Git branch: `NNN-feature-name` (optional)
+
+**Prerequisites**:
+- Constitution: Warns if missing, continues
+
+**Validation**:
+- Phase separation: No implementation details
+- Maximum 3 `[NEEDS CLARIFICATION]` markers
+
+**User Prompts**:
+- Branch creation: `Create feature branch? [Y/n]`
+
+---
+
+### Clarify (Utility)
+
+**Purpose**: Resolve ambiguities in any artifact at any phase
+
+**Command**: `/iikit-clarify`
+
+**Input**: None (auto-detects most recent artifact)
+
+**Output**:
+- Updated artifact with clarifications section
+- Clarification continues until all critical ambiguities are resolved
+
+**Prerequisites**:
+- Any artifact must exist (spec, plan, checklist, tasks, or constitution)
+
+**Behavior**:
+- Auto-detects the most recently modified artifact
+- Presents one question at a time
+- Provides recommended option for each question
+- Records answers in `## Clarifications` section of the target artifact
+- Can be run after any phase — not tied to a specific workflow position
+
+---
+
+### 02 - Plan
+
+**Purpose**: Create technical implementation plan
+
+**Command**: `/iikit-02-plan`
+
+**Input**: None (reads spec.md, constitution.md)
+
+**Output**:
+- `plan.md` - Technical decisions
+- `research.md` - Research findings, Tessl tiles
+- `data-model.md` - Entity definitions
+- `contracts/` - API specifications
+- `quickstart.md` - Integration scenarios
+- Updated `CLAUDE.md` with tech stack
+
+**Prerequisites** (HARD GATE):
+- `constitution.md` must exist
+- `spec.md` must exist
+
+**Validation**:
+- Spec quality score (1-10)
+- Constitution enforcement rules extracted
+- Phase separation: No governance content
+
+**Tessl Integration**:
+- Searches for tiles matching tech stack
+- Installs discovered tiles
+- Documents in `research.md`
+
+---
+
+### 03 - Checklist
+
+**Purpose**: Generate quality checklists for requirements
+
+**Command**: `/iikit-03-checklist [domain focus]`
+
+**Input**:
+- Optional: Domain focus (UX, API, Security, etc.)
+- If empty: Infers from spec/plan
+
+**Output**:
+- `checklists/[domain].md`
+
+**Prerequisites**:
+- `spec.md` must exist
+
+**Key Concept**: "Unit Tests for English"
+- Validates REQUIREMENTS quality, not implementation
+- Each item checks completeness, clarity, consistency
+- Items marked `[Gap]` trigger interactive resolution
+
+**Item Format**:
+```markdown
+- [ ] CHK001 - Are visual hierarchy requirements defined? [Completeness, Spec SFR-1]
+```
+
+---
+
+### 04 - Testify
+
+**Purpose**: Generate test specifications (TDD support)
+
+**Command**: `/iikit-04-testify`
+
+**Input**: None (reads artifacts automatically)
+
+**Output**:
+- `tests/features/*.feature` (Gherkin BDD scenarios, one file per user story or logical grouping)
+- Assertion hash stored in `.specify/context.json`
+- Assertion hash stored as git note (backup)
+
+**Prerequisites** (HARD GATE):
+- `constitution.md` must exist
+- `spec.md` must exist with acceptance scenarios
+- `plan.md` must exist
+
+**TDD Assessment**:
+Analyzes constitution for TDD requirements:
+- `mandatory`: Constitution requires TDD
+- `optional`: No TDD requirement
+- `forbidden`: Constitution prohibits TDD (skill halts)
+
+**Note**: The `tdd_determination` value is cached in `.specify/context.json` by the constitution skill (`/iikit-00-constitution`). Subsequent skills (testify, implement) read the cached value rather than re-analyzing the constitution.
+
+**Test Types Generated**:
+| Source | Type | Example |
+|--------|------|---------|
+| spec.md | Acceptance | User login scenarios |
+| plan.md | Contract | API endpoint validation |
+| data-model.md | Validation | Entity constraint checks |
+
+**Tamper Protection**:
+- SHA256 hash of all Given/When/Then lines
+- Dual storage: context.json + git note
+- Implementation skill verifies hash before proceeding
+
+---
+
+### 05 - Tasks
+
+**Purpose**: Generate actionable task breakdown
+
+**Command**: `/iikit-05-tasks`
+
+**Input**: None (reads plan.md, spec.md)
+
+**Output**:
+- `tasks.md`
+
+**Prerequisites**:
+- `plan.md` must exist
+
+**Task Format**:
+```markdown
+- [ ] T001 [P] [US1] Description with file path
+```
+
+Components:
+- `T001`: Sequential ID
+- `[P]`: Parallelizable (optional)
+- `[US1]`: User story reference (for story phases)
+- Description: Action with file path
+
+**Phase Structure**:
+1. Setup - Project initialization
+2. Foundational - Blocking prerequisites
+3. User Stories - Priority ordered (P1, P2, P3...)
+4. Polish - Cross-cutting concerns
+
+**Validation**:
+- Circular dependency detection
+- Orphan task detection
+- Critical path analysis
+- Phase boundary validation
+
+---
+
+### 06 - Analyze
+
+**Purpose**: Validate cross-artifact consistency
+
+**Command**: `/iikit-06-analyze`
+
+**Input**: None (reads all artifacts)
+
+**Output**:
+- Console report (no files modified)
+- Optional remediation plan
+
+**Prerequisites** (HARD GATE):
+- `constitution.md` must exist
+- `spec.md` must exist
+- `plan.md` must exist
+- `tasks.md` must exist
+
+**Detection Passes**:
+- Duplication detection
+- Ambiguity detection
+- Underspecification
+- Constitution alignment
+- Phase separation violations
+- Coverage gaps
+- Inconsistency
+
+**Severity Levels**:
+| Level | Criteria |
+|-------|----------|
+| CRITICAL | Constitution violation, phase separation, zero coverage |
+| HIGH | Duplicate/conflicting requirement, ambiguous security |
+| MEDIUM | Terminology drift, missing coverage |
+| LOW | Style improvements |
+
+**Output**: READ-ONLY analysis, no files modified
+
+---
+
+### 07 - Implement
+
+**Purpose**: Execute implementation plan
+
+**Command**: `/iikit-07-implement`
+
+**Input**: None (reads tasks.md)
+
+**Output**:
+- Implementation code
+- Updated `tasks.md` with completion markers
+
+**Prerequisites** (HARD GATES):
+- `constitution.md` must exist
+- `tasks.md` must exist
+- All checklists must be 100% complete (prompts if not)
+- If TDD mandatory: `tests/features/*.feature` files must exist
+- Assertion integrity verification (blocks on tamper)
+
+**Pre-Implementation Validation**:
+```
+╭─────────────────────────────────────────────────────╮
+│  IMPLEMENTATION READINESS                            │
+├─────────────────────────────────────────────────────┤
+│  Artifacts:        X/Y complete              [✓/✗]  │
+│  Spec Coverage:    X% requirements → tasks   [✓/✗]  │
+│  Plan Alignment:   [Aligned/X mismatches]    [✓/✗]  │
+│  Constitution:     [Compliant/X violations]  [✓/✗]  │
+│  Checklists:       X/Y at 100%               [✓/✗]  │
+│  Dependencies:     [Valid/Circular detected] [✓/✗]  │
+╰─────────────────────────────────────────────────────╯
+```
+
+**Step 3 - Install Dependencies**:
+
+Before writing source code, the implement skill installs runtime and dev dependencies from plan.md:
+1. Detect package manager from plan.md Technical Context
+2. Initialize project if no manifest exists (e.g., `npm init -y`, `go mod init`)
+3. Add runtime dependencies listed in plan.md
+4. Add dev dependencies for testing
+5. Commit the manifest and lockfile
+
+**Step 4 - Tessl Tile Installation**:
+
+After installing dependencies, install Tessl documentation tiles for each major dependency:
+1. Search for a tile per dependency: `tessl search <package-name>` or `query_library_docs`
+2. Install available tiles: `tessl install <workspace/tile-name>`
+3. Query tile docs before writing code that uses that library
+4. If no tile exists, rely on the library's built-in documentation
+
+**Tessl Integration** (during execution):
+- Queries documentation tiles before implementing library code
+- Invokes skill tiles when relevant
+- Reports tile usage at completion
+
+**Execution**:
+- Phase-by-phase execution
+- Respects task dependencies
+- Marks completed tasks with `[x]`
+
+---
+
+### 08 - Tasks to Issues
+
+**Purpose**: Export tasks to GitHub Issues
+
+**Command**: `/iikit-08-taskstoissues`
+
+**Input**: None (reads tasks.md)
+
+**Output**:
+- GitHub Issues created via `gh` CLI
+- Cross-references between dependent issues
+
+**Prerequisites**:
+- `tasks.md` must exist
+- Git remote must be GitHub URL
+- `gh` CLI must be installed and authenticated
+
+**Issue Format**:
+```markdown
+## Task Details
+**Task ID**: T012
+**Phase**: Phase 3: User Story 1
+**User Story**: US1
+
+## Description
+[Task description]
+
+## Dependencies
+- Depends on: #[issue-number]
+- Blocks: #[issue-number]
+```
+
+**Labels Created**:
+- `iikit` - All intent-integrity-kit issues
+- `phase-N` - Phase grouping
+- `us-N` - User story grouping
+- `parallel` - Parallelizable tasks
+
+---
+
+## Error Conditions
+
+| Error | Skill(s) | Resolution |
+|-------|----------|------------|
+| `Constitution not found` | 02, 04, 06, 07 | Run `/iikit-00-constitution` |
+| `spec.md not found` | clarify, 02, 03, 04, 05, 06, 07 | Run `/iikit-01-specify` |
+| `plan.md not found` | 04, 05, 06, 07, 08 | Run `/iikit-02-plan` |
+| `tasks.md not found` | 06, 07, 08 | Run `/iikit-05-tasks` |
+| `No acceptance scenarios` | 04 | Run `/iikit-clarify` |
+| `TDD forbidden` | 04 | Constitution prohibits TDD |
+| `Assertion integrity failed` | 07 | Restore `.feature` files or re-run `/iikit-04-testify` |
+| `Checklists incomplete` | 07 | Complete checklists or confirm proceed |
+| `Not a GitHub remote` | 08 | Only works with GitHub repositories |
+| `gh CLI not installed` | 08 | Install GitHub CLI |
+
+---
+
+## Artifacts Summary
+
+| Artifact | Created By | Used By | Location |
+|----------|------------|---------|----------|
+| constitution.md | 00 | All skills | `root (CONSTITUTION.md)` |
+| spec.md | 01 | clarify, 02, 03, 04, 05, 06, 07 | `specs/NNN-feature/` |
+| plan.md | 02 | clarify, 04, 05, 06, 07, 08 | `specs/NNN-feature/` |
+| research.md | 02 | 07 | `specs/NNN-feature/` |
+| data-model.md | 02 | 04, 07 | `specs/NNN-feature/` |
+| contracts/ | 02 | 07 | `specs/NNN-feature/` |
+| quickstart.md | 02 | 07 | `specs/NNN-feature/` |
+| checklists/*.md | 01, 03 | 07 | `specs/NNN-feature/checklists/` |
+| tests/features/*.feature | 04 | 05, 07 | `specs/NNN-feature/tests/features/` |
+| tasks.md | 05 | 06, 07, 08 | `specs/NNN-feature/` |
+| context.json | 00, 04 | 04, 07 | `.specify/` |
+
+---
+
+## Platform Support
+
+All skills support both Unix/macOS/Linux and Windows:
+
+| Component | Unix/macOS | Windows |
+|-----------|------------|---------|
+| Scripts | `.claude/skills/iikit-core/scripts/bash/*.sh` | `.claude/skills/iikit-core/scripts/powershell/*.ps1` |
+| Detection | `command -v` | `Get-Command` |
+| Tessl | `tessl` CLI | `tessl` CLI |
+| GitHub | `gh` CLI | `gh` CLI |
+
+Skills automatically detect platform and use appropriate scripts.
+
+---
+
+## Tessl Integration
+
+When Tessl is installed, skills integrate automatically:
+
+| Skill | Tessl Usage |
+|-------|-------------|
+| 02-plan | Search/install tiles for tech stack |
+| 05-tasks | Query framework conventions |
+| 07-implement | Query docs before implementing, invoke skill tiles |
+
+If Tessl is not installed, skills continue without tile support.

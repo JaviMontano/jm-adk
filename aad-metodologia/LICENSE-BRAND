@@ -1,0 +1,22 @@
+MetodologIA Brand Overlay License (GPL-3.0)
+
+The following files constitute the MetodologIA brand overlay layer:
+- scripts/brand-overlay.sh
+- scripts/verify-brand.sh
+- scripts/sync-upstream.sh
+- .claude-plugin/
+- commands/iic-*.md
+- hooks/
+- references/iic-brand-mapping.md
+- CLAUDE.md (MetodologIA header section)
+- .gitattributes
+- settings.json
+
+Copyright (c) 2026 Javier Montano / MetodologIA
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+The upstream IIC/kit engine remains under its original MIT License (see LICENSE).

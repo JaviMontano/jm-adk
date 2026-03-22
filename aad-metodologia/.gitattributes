@@ -1,0 +1,12 @@
+# Protect MetodologIA brand files during upstream merges
+.claude/skills/*/scripts/dashboard/template.js merge=ours
+scripts/brand-overlay.sh merge=ours
+scripts/verify-brand.sh merge=ours
+scripts/sync-upstream.sh merge=ours
+CLAUDE.md merge=ours
+.claude-plugin/ merge=ours
+commands/ merge=ours
+hooks/ merge=ours
+references/ merge=ours
+settings.json merge=ours
+LICENSE merge=ours

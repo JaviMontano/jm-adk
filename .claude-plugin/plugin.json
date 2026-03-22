@@ -1,0 +1,20 @@
+{
+  "name": "jm-agentic-development-kit",
+  "version": "2.0.0",
+  "description": "JM Agentic Development Kit — Unified marketplace for the full software lifecycle. Sovereign Architect (66 agents, 128 skills, 120 commands), Plugin QA (4 agents, 20 skills, 31 commands), AAD (13 IIKit skills, 3 commands). Governed by Intent Integrity Kit.",
+  "author": {
+    "name": "Javier Montano (JM Labs)",
+    "url": "https://metodologia.info"
+  },
+  "homepage": "https://github.com/JaviMontano/jm-agentic-development-kit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JaviMontano/jm-agentic-development-kit"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agentic-development", "sovereign-architect", "plugin-qa",
+    "intent-integrity", "architecture", "code-review",
+    "bdd-verification", "full-stack", "marketplace"
+  ]
+}

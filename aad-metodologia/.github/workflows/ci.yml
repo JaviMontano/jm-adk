@@ -1,0 +1,279 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Unit & Source Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bats-core
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bats
+
+      - name: Make scripts executable
+        run: |
+          chmod +x tiles/intent-integrity-kit/skills/iikit-core/scripts/bash/*.sh
+          chmod +x tests/*.sh
+
+      - name: Run BATS unit tests
+        run: tests/run-tests.sh
+
+      - name: Run source validation tests
+        run: tests/run-source-tests.sh
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Jest dashboard tests
+        working-directory: tests/dashboard
+        run: npx jest --config jest.config.js --no-cache
+
+      - name: Install test dependencies
+        working-directory: tests/dashboard
+        run: |
+          npm init -y > /dev/null 2>&1
+          npm install --save-dev @playwright/test > /dev/null 2>&1
+          npx playwright install chromium --with-deps
+
+      - name: Run Playwright basic dashboard tests
+        working-directory: tests/dashboard
+        run: npx playwright test --config=playwright.config.js
+
+      - name: Run Playwright visual dashboard tests
+        working-directory: tests/dashboard
+        run: npx playwright test --config=playwright-visual.config.js --update-snapshots
+
+      - name: Commit updated snapshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tests/dashboard/visual/ || true
+          git diff --cached --quiet || git commit -m "ci: update Playwright snapshots for Linux [skip ci]"
+          git push || true
+
+      - name: Verify Playwright visual tests pass
+        working-directory: tests/dashboard
+        run: npx playwright test --config=playwright-visual.config.js
+
+      - name: Install PowerShell
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y powershell
+
+      - name: Run Pester tests (PowerShell parity)
+        run: |
+          pwsh -Command "Install-Module -Name Pester -Force -Scope CurrentUser -MinimumVersion 5.0"
+          pwsh -Command "Invoke-Pester tests/powershell/ -Output Detailed -CI"
+
+      - name: Install tessl CLI
+        run: npm install -g @tessl/cli
+
+      - name: E2E - Fresh install and hash integrity
+        run: |
+          TESTDIR=$(mktemp -d)
+          cd "$TESTDIR"
+          git init && git config user.email "test@test.com" && git config user.name "Test"
+          tessl init
+          tessl install tessl-labs/intent-integrity-kit
+          SCRIPTS=".tessl/tiles/tessl-labs/intent-integrity-kit/skills/iikit-core/scripts/bash"
+          test -f "$SCRIPTS/testify-tdd.sh"
+          test -f "$SCRIPTS/../dashboard/template.js"
+          mkdir -p specs/001-test/tests/features .specify
+          printf 'Feature: Test\n  Scenario: Basic\n    Given a precondition\n    Then a result\n' > specs/001-test/tests/features/test.feature
+          HASH=$(bash "$SCRIPTS/testify-tdd.sh" store-hash "specs/001-test/tests/features")
+          test ${#HASH} -eq 64
+          RESULT=$(bash "$SCRIPTS/testify-tdd.sh" verify-hash "specs/001-test/tests/features")
+          test "$RESULT" = "valid"
+          echo "  Then tampered" >> specs/001-test/tests/features/test.feature
+          RESULT=$(bash "$SCRIPTS/testify-tdd.sh" verify-hash "specs/001-test/tests/features")
+          test "$RESULT" = "invalid"
+          rm -rf "$TESTDIR"
+
+      - name: E2E - Dashboard and verification scripts
+        run: |
+          TESTDIR=$(mktemp -d)
+          cd "$TESTDIR"
+          git init && git config user.email "test@test.com" && git config user.name "Test"
+          tessl init && tessl install tessl-labs/intent-integrity-kit
+          SCRIPTS=".tessl/tiles/tessl-labs/intent-integrity-kit/skills/iikit-core/scripts/bash"
+          DASHBOARD=".tessl/tiles/tessl-labs/intent-integrity-kit/skills/iikit-core/scripts/dashboard"
+          cat > CONSTITUTION.md << 'CONST'
+          # Constitution
+          ## Core Principles
+          ### I. Quality
+          Quality matters.
+          ### II. Testing
+          Tests first.
+          ### III. Simplicity
+          Keep it simple.
+          **Version**: 1.0.0 | **Ratified**: 2026-01-01 | **Last Amended**: 2026-01-01
+          CONST
+          mkdir -p specs/001-test .specify
+          printf '# Spec\n## User Scenarios & Testing\n### User Story 1 - Test (Priority: P1)\n**Given** X, **When** Y, **Then** Z\n## Requirements\n- **FR-001**: Test\n## Success Criteria\n- **SC-001**: Works\n' > specs/001-test/spec.md
+          printf '## Technical Context\n**Language/Version**: Python 3.11\n**Primary Dependencies**: pytest-bdd\n' > specs/001-test/plan.md
+          GEN="$DASHBOARD/src/generate-dashboard.js"
+          test -f "$GEN" || GEN="$DASHBOARD/generate-dashboard.js"
+          node "$GEN" "$TESTDIR"
+          test -f .specify/dashboard.html
+          grep -q "DASHBOARD_DATA" .specify/dashboard.html
+          bash "$SCRIPTS/verify-steps.sh" --json "specs/001-test/tests/features" "specs/001-test/plan.md" 2>/dev/null || true
+          bash "$SCRIPTS/setup-bdd.sh" --json "specs/001-test/tests/features" "specs/001-test/plan.md" | grep -q "SCAFFOLDED\|NO_FRAMEWORK"
+          rm -rf "$TESTDIR"
+
+      - name: E2E - Pre-commit hook blocks tampering
+        run: |
+          TESTDIR=$(mktemp -d)
+          cd "$TESTDIR"
+          git init && git config user.email "test@test.com" && git config user.name "Test"
+          tessl init && tessl install tessl-labs/intent-integrity-kit
+          SCRIPTS=".tessl/tiles/tessl-labs/intent-integrity-kit/skills/iikit-core/scripts/bash"
+          cp "$SCRIPTS/pre-commit-hook.sh" .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+          mkdir -p specs/001-test/tests/features
+          printf 'Feature: Test\n  Scenario: Basic\n    Given a precondition\n    Then a result\n' > specs/001-test/tests/features/test.feature
+          bash "$SCRIPTS/testify-tdd.sh" store-hash "specs/001-test/tests/features"
+          git add -A && git commit --no-verify -m "initial"
+          echo "  Then tampered" >> specs/001-test/tests/features/test.feature
+          git add specs/001-test/tests/features/test.feature
+          if git commit -m "tampered" 2>&1; then
+            echo "FAIL: Hook should have blocked" && exit 1
+          fi
+          rm -rf "$TESTDIR"
+
+      - name: Lint tile manifest
+        run: tessl tile lint tiles/intent-integrity-kit
+
+      - name: Review all skills (threshold 85%)
+        env:
+          TESSL_API_TOKEN: ${{ secrets.TESSL_TOKEN }}
+        run: tests/run-skill-reviews.sh --threshold 85
+
+  test-windows:
+    name: Windows Pester Tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Pester
+        shell: pwsh
+        run: Install-Module -Name Pester -Force -Scope CurrentUser -MinimumVersion 5.0
+
+      - name: Run Windows Pester tests
+        shell: pwsh
+        run: Invoke-Pester tests/powershell/ -Output Detailed -CI
+
+  publish:
+    name: Publish & Verify
+    runs-on: ubuntu-latest
+    needs: [test, test-windows]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if tile version changed
+        id: version
+        run: |
+          NEW=$(jq -r .version tiles/intent-integrity-kit/tile.json)
+          # Compare against latest release tag to handle multi-commit pushes
+          LATEST_TAG=$(git tag -l 'v*' --sort=-v:refname | head -1 | sed 's/^v//')
+          OLD=${LATEST_TAG:-""}
+          echo "old=$OLD" >> "$GITHUB_OUTPUT"
+          echo "new=$NEW" >> "$GITHUB_OUTPUT"
+          if [[ -z "$OLD" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "No previous tag found, publishing $NEW"
+          elif [[ "$NEW" != "$OLD" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Version changed: $OLD → $NEW"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Version unchanged ($NEW), skipping publish"
+          fi
+
+      - name: Resolve symlinks in tile directory
+        if: steps.version.outputs.changed == 'true'
+        run: |
+          # Replace symlinks with real copies so the archive contains real files
+          cd tiles/intent-integrity-kit
+          # Git may check out symlinks as text files (not OS symlinks) on Linux.
+          # Use git ls-files to find all symlink blobs (mode 120000) reliably.
+          git ls-files -s . | grep '^120000' | awk '{print $4}' | while read link; do
+            target=$(readlink -f "$link" 2>/dev/null)
+            # If readlink fails (text file, not OS symlink), read the target path from the file
+            if [ -z "$target" ] || [ ! -e "$target" ]; then
+              target=$(cat "$link")
+              # Resolve relative to the symlink's directory
+              target=$(cd "$(dirname "$link")" && readlink -f "$target")
+            fi
+            if [ -d "$target" ]; then
+              rm "$link"
+              cp -R "$target" "$link"
+              echo "Resolved dir symlink: $link"
+            elif [ -f "$target" ]; then
+              rm "$link"
+              cp "$target" "$link"
+              echo "Resolved file symlink: $link"
+            fi
+          done
+
+      - name: Make skills self-contained
+        if: steps.version.outputs.changed == 'true'
+        run: bash tests/prepare-tile.sh tiles/intent-integrity-kit/skills
+
+      - name: Sync SKILL.md versions to tile version
+        if: steps.version.outputs.changed == 'true'
+        run: |
+          VERSION=${{ steps.version.outputs.new }}
+          for skill in tiles/intent-integrity-kit/skills/*/SKILL.md; do
+            if grep -q 'version:' "$skill"; then
+              sed -i "s/version: \".*\"/version: \"$VERSION\"/" "$skill"
+              echo "Synced $skill to $VERSION"
+            fi
+          done
+
+      - name: Publish tile v${{ steps.version.outputs.new }}
+        if: steps.version.outputs.changed == 'true'
+        uses: tesslio/publish@main
+        with:
+          token: ${{ secrets.TESSL_TOKEN }}
+          path: tiles/intent-integrity-kit
+
+      - uses: actions/setup-node@v4
+        if: steps.version.outputs.changed == 'true'
+        with:
+          node-version: '20'
+
+      - name: Install tessl CLI (for e2e verification)
+        if: steps.version.outputs.changed == 'true'
+        run: npm install -g @tessl/cli
+
+      - name: Make scripts executable
+        if: steps.version.outputs.changed == 'true'
+        run: |
+          chmod +x tiles/intent-integrity-kit/skills/iikit-core/scripts/bash/*.sh
+          chmod +x tests/*.sh
+
+      - name: Verify tile (install from registry + e2e tests)
+        if: steps.version.outputs.changed == 'true'
+        run: tests/run-tile-tests.sh --from-registry
+
+      - name: Tag release
+        if: steps.version.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ steps.version.outputs.new }}"
+          git push --tags
