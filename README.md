@@ -1,189 +1,94 @@
-# JM Agentic Development Kit (BETA)
+# JM Agentic Development Kit
 
-> **Pristino Agent** · Analyze like MAO · Develop like SA · Think with Metacognition
->
-> Made with Claude Code and Tons of Love with the Help of Pristino Agent
+> **From requirements to production** — 3 Claude Code plugins for the full software lifecycle.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-## What is JM-ADK?
+## What's Inside
 
-A **world-class dual-mode agentic development toolkit** powered by Pristino, an AI assistant that combines:
+| Plugin | What It Does | Stats |
+|--------|-------------|-------|
+| **Sovereign Architect** (`/sa:`) | Architecture analysis, code review, scaffolding, evolution, repair | 66 agents, 128 skills, 120 commands |
+| **Plugin QA** (`/pqa:`) | Claude Code plugin development lifecycle: ideate through fix | 4 agents, 20 skills, 31 commands |
+| **AAD MetodologIA** (`/aad:`) | Specification-driven development with cryptographic BDD verification | 13 skills, 3 commands |
 
-- **142 Skills** — From requirements analysis to production deployment
-- **101 Agents** — Specialist AI personas across 13 domains
-- **101 Workflows** — Slash command automation pipelines
-- **12 IIC Metacognition Skills** — Intent integrity with confidence >= 0.95
-- **6 Meta Skills** — Skills that create, review, search, and deploy other skills
+All governed by the **Intent Integrity Kit** — from intent to code with zero drift.
 
-### Stack
+---
 
-| Layer | Technologies |
-|-------|-------------|
-| Frontend | HTML5, CSS3, Vanilla JS, Angular 18+, React 19+ |
-| Backend | Firebase Cloud Functions, Node.js 20 |
-| Database | Firestore, Firebase RTDB |
-| Auth | Firebase Auth, Custom Claims, RBAC |
-| Hosting | Firebase Hosting, Hostinger |
-| CI/CD | GitHub Actions |
-| Google APIs | Sheets, Docs, Calendar, Maps |
-| Metacognition | Intent Integrity Chain (confidence >= 0.95) |
-| MCP | Tessl tile-based capabilities |
+## Install
+
+Add this marketplace to Claude Code:
+
+```bash
+# From Claude Code CLI
+/install-plugin https://github.com/JaviMontano/jm-agentic-development-kit
+```
+
+Or clone locally:
+
+```bash
+git clone https://github.com/JaviMontano/jm-agentic-development-kit.git
+```
 
 ---
 
 ## Quick Start
 
 ```bash
-# 1. Clone the kit
-git clone https://github.com/jmontanoz/jm-agentic-development-kit.git
-cd jm-agentic-development-kit
+# Architecture & code review
+/sa:analyze              # Full 5-phase technical analysis
+/sa:run-express          # Quick 80/20 diagnosis
+/sa:create               # Scaffold new projects
+/sa:review               # Review code quality
 
-# 2. Open with your AI assistant (Claude, Gemini, etc.)
-# Pristino will greet you and start the onboarding protocol automatically.
+# Plugin development
+/pqa:create              # Create a new Claude Code plugin
+/pqa:audit               # Full QA audit of a plugin
+/pqa:validate            # Quick structural check
 
-# 3. Search for skills
-python .agent/scripts/search_skills.py "firebase auth"
-
-# 4. Validate all skills
-python .agent/scripts/validate_skills.py
-
-# 5. View the dashboard
-open .specify/dashboard.html
+# Specification-driven dev
+/aad:status              # Show IIKit pipeline status
+/aad:dashboard           # Generate visual dashboard
 ```
 
 ---
 
-## Pristino — Your Assistant
+## Governance
 
-When you open this project with an AI agent, **Pristino** activates automatically:
+Every claim tagged with evidence: `[CODE]` `[CONFIG]` `[DOC]` `[INFERENCE]` `[ASSUMPTION]`
 
-1. **Greets you** and presents capabilities
-2. **Checks logs** — scans for existing plans, ADRs, decisions, requirements
-3. **Verifies MCP** — checks Tessl configuration
-4. **Certifies skills** — reports kit health (142 skills across 13 domains)
-5. **Converses** — Socratic discovery to understand what you want to build
-6. **Routes** — sets Analysis mode (MAO DNA) or Development mode (SA DNA)
+4 quality gates (G0 pre-flight, G1 analysis, G2 architecture, G3 deploy-ready).
+
+Intent Integrity Kit ensures requirements trace through specs, tests, and code without drift.
 
 ---
 
-## Two Modes of Operation
+## Architecture
 
-**Analysis Mode (MAO DNA)** — Skills 009-023
 ```
-/jm:analyze-requirements → /jm:assess-asis → /jm:map-flows → /jm:write-spec
-```
-
-**Development Mode (SA DNA)** — Skills 024-101
-```
-/jm:scaffold-firebase → /jm:create-component → /jm:test-unit → /jm:deploy-hostinger
-```
-
-**Meta Mode** — Self-improving skills
-```
-/jm:create-skill → /jm:review-skill → /jm:search-skill
+jm-agentic-development-kit/
+├── sovereign-architect/     # Architecture & Code (SA v4.0)
+├── plugin-qa/               # Plugin Lifecycle (PQA v3.0)
+├── aad-metodologia/         # IIKit Governance (AAD v1.0)
+├── CONSTITUTION.md          # Non-negotiable principles
+├── FRAMEWORK-PRINCIPLES.md  # Operating principles
+└── .specify/                # Artifact state (ADRs, plans, decisions)
 ```
 
 ---
 
-## Metacognition (Intent Integrity Chain)
+## Author
 
-Every complex response follows:
-```
-DECOMPOSE → SOLVE → VERIFY → SYNTHESIZE → REFLECT
-```
+**Javier Montano** — PreSales Architect, MetodologIA founder, JM Labs.
 
-- **Minimum confidence**: 0.95
-- **Below threshold**: Socratic debate + internet fact-checking
-- **Hash integrity**: SHA256 locked test assertions prevent requirement drift
-- **Evidence tags**: [CODE] [CONFIG] [DOC] [INFERENCE] [ASSUMPTION]
+- [metodologia.info](https://metodologia.info)
+- Made with Claude Code
 
 ---
-
-## Governance & Artifact Management
-
-| Artifact | Location |
-|----------|----------|
-| Constitution | `CONSTITUTION.md` |
-| Plans | `.specify/plans/plan-YYYY-MM-DD-{task}.md` |
-| ADRs | `.specify/adrs/ADR-NNN-{title}.md` |
-| Decision Logs | `.specify/decisions/DL-NNN-{decision}.md` |
-| Requirement Logs | `.specify/requirements/RQL-NNN-{req}.md` |
-| Health Score | `.specify/score-history.json` |
-| Dashboard | `.specify/dashboard.html` |
-| Quality Gates | G0 → G1 → G2 → G3 |
-
----
-
-## Skill Domains (142 total)
-
-| Domain | Skills | Range |
-|--------|--------|-------|
-| Core & Orchestration | 8 | 001-008 |
-| Analysis & Discovery | 15 | 009-023 |
-| Architecture & Design | 12 | 024-035 |
-| Frontend Development | 15 | 036-050 |
-| Backend Development | 12 | 051-062 |
-| Database & Data | 8 | 063-070 |
-| Auth & Security | 8 | 071-078 |
-| Testing & Quality | 9 | 079-087 |
-| DevOps & Deployment | 8 | 088-095 |
-| Performance & SEO | 5 | 096-100 |
-| Documentation | 1 | 101 |
-| IIC Metacognition | 12 | iic-* |
-| Meta Skills | 6 | meta-* |
-
----
-
-## MCP Configuration
-
-Tessl MCP for enhanced tile-based capabilities:
-
-```json
-{
-  "mcpServers": {
-    "tessl": {
-      "command": "tessl",
-      "args": ["mcp", "start"]
-    }
-  }
-}
-```
-
----
-
-## Commands Cheat Sheet
-
-| Command | What it does |
-|---------|-------------|
-| `/jm:menu` | Show all commands |
-| `/jm:status` | Pipeline status |
-| `/jm:analyze-requirements` | Parse and structure requirements |
-| `/jm:write-spec` | Generate functional spec |
-| `/jm:design-architecture` | Firebase architecture blueprint |
-| `/jm:scaffold-firebase` | Full Firebase project scaffold |
-| `/jm:scaffold-react-firebase` | React + Firebase project |
-| `/jm:create-component` | UI component with tests |
-| `/jm:create-api` | Cloud Function endpoint |
-| `/jm:test-unit` | Generate unit tests |
-| `/jm:deploy-firebase` | Deploy to Firebase Hosting |
-| `/jm:deploy-hostinger` | Deploy to Hostinger |
-| `/jm:create-skill` | Create a new skill |
-| `/jm:search-skill` | Search skills catalog |
-| `/jm:full-lifecycle` | End-to-end pipeline |
-| `/jm:prototype` | Rapid MVP |
-
----
-
-## Credits
-
-- **Author**: Javier Montano · MetodologIA · JM Labs
-- **Assistant**: Pristino Agent
-- **Based on**: [intent-integrity-chain/kit](https://github.com/intent-integrity-chain/kit)
-- **Format**: [Antigravity Kit](https://github.com/vudovn/antigravity-kit)
-- **Analysis DNA**: MAO (MetodologIA)
-- **Development DNA**: SA (Sovereign Architect)
 
 ## License
 
-MIT
+MIT (code) | GPL-3.0 (MetodologIA brand elements in AAD)

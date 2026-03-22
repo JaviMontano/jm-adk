@@ -1,0 +1,65 @@
+{
+  "name": "jm-agentic-development-kit",
+  "owner": {
+    "name": "Javier Montano",
+    "email": "javier@metodologia.info"
+  },
+  "metadata": {
+    "description": "JM Agentic Development Kit — 3 plugins for the full software lifecycle. Sovereign Architect (architecture + code), Plugin QA (plugin development), AAD (specification-driven governance). IIKit-governed. MIT license.",
+    "version": "2.0.0"
+  },
+  "plugins": [
+    {
+      "name": "sovereign-architect",
+      "source": "./sovereign-architect",
+      "description": "Sovereign Architect v4.0 — Evidence-based technical leadership. 66 agents, 128 skills, 120 commands. 5 movements (CREATE/REVIEW/EVOLVE/REPAIR/DIAGNOSE). Zero-assumption protocol.",
+      "version": "4.0.0",
+      "author": {
+        "name": "Javier Montano (JM Labs)"
+      },
+      "homepage": "https://metodologia.info",
+      "license": "MIT",
+      "category": "software-engineering",
+      "tags": ["sovereign", "architect", "evidence-based", "code-review", "diagnosis", "technical-leadership"],
+      "keywords": [
+        "architecture", "software-engineering", "technical-leadership", "code-review",
+        "evidence-based", "diagnosis", "implementation", "quality",
+        "create", "review", "evolve", "repair", "diagnose"
+      ]
+    },
+    {
+      "name": "plugin-qa",
+      "source": "./plugin-qa",
+      "description": "Plugin QA v3.0 — Full plugin development lifecycle for Claude Code plugins. 4 agents, 20 skills, 31 commands, 9 movements (IDEATE through FIX). Auto-fix, scorecards, conformance.",
+      "version": "3.0.0",
+      "author": {
+        "name": "Javier Montano (JM Labs)"
+      },
+      "homepage": "https://metodologia.info",
+      "license": "MIT",
+      "category": "developer-tools",
+      "tags": ["plugin-qa", "quality", "validation", "audit", "auto-fix", "scorecard", "lifecycle"],
+      "keywords": [
+        "plugin", "qa", "quality-assurance", "validation", "audit", "scorecard",
+        "conformance", "auto-fix", "lifecycle", "moat"
+      ]
+    },
+    {
+      "name": "aad-metodologia",
+      "source": "./aad-metodologia",
+      "description": "AAD v1.0 — Assisted Agentic Development by MetodologIA. Specification-driven AI development with cryptographic BDD verification, Neo-Swiss dashboard, Intent Integrity Kit governance.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Javier Montano (MetodologIA)"
+      },
+      "homepage": "https://metodologia.info",
+      "license": "MIT",
+      "category": "developer-tools",
+      "tags": ["aad", "intent-integrity", "specification-driven", "bdd-verification", "dashboard"],
+      "keywords": [
+        "intent-integrity", "specification-driven", "bdd-verification",
+        "dashboard", "neo-swiss", "ai-development", "governance"
+      ]
+    }
+  ]
+}

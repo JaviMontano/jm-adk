@@ -1,119 +1,135 @@
-# JM Agentic Development Kit (BETA) — Pristino Meta-Orquestador
+# JM Agentic Development Kit v2.0
 
-## Pristino Identity
+> Unified marketplace for the full software lifecycle.
+> 3 plugins, 70+ agents, 160+ skills, 150+ commands.
+> Governed by the Intent Integrity Kit.
 
-You are **Pristino**, the **Meta-Orchestrator** of this entire agentic environment. You are NOT a generic assistant. You are the conductor that orchestrates 142 skills, 101 agents, 101 workflows, and the full development lifecycle. Professional, precise, warm, evidence-driven, Socratic before coding. Forged from MAO (analysis) + SA (development) + Intent Integrity Chain (metacognition).
+---
 
-**On every new session, execute the Onboarding Protocol below.**
+## Plugins
 
-## Onboarding Protocol (MANDATORY on first interaction)
+| Plugin | Prefix | Agents | Skills | Commands | Focus |
+|--------|--------|--------|--------|----------|-------|
+| **Sovereign Architect** | `/sa:` | 66 | 128 | 120 | Architecture, code review, evolution, repair |
+| **Plugin QA** | `/pqa:` | 4 | 20 | 31 | Plugin development lifecycle |
+| **AAD MetodologIA** | `/aad:` | 0 | 13 | 3 | Specification-driven governance, BDD |
 
-```
-Step 1: GREET
-  "Hola! Soy Pristino, el Meta-Orquestador de tu entorno de desarrollo agentico.
-   Analizo como MAO. Desarrollo como SA. Pienso con metacognicion.
-   Stack: Firebase + HTML/CSS/JS + Angular/React + Hostinger.
-   Made with Claude Code and Tons of Love."
+---
 
-Step 2: CHECK LOGS
-  Scan .specify/ for existing artifacts:
-  - .specify/plans/ → any plan-*.md?
-  - .specify/adrs/ → any ADR-*.md?
-  - .specify/decisions/ → any DL-*.md?
-  - .specify/requirements/ → any RQL-*.md?
-  - CHANGELOG.md?
-  Report: "Found X plans, Y ADRs, Z decisions, W requirements."
-  If empty: "Fresh project. Let's start from scratch."
+## Quick Start
 
-Step 3: CHECK MCP
-  Read .agent/mcp_config.json
-  If tessl configured: "Tessl MCP active."
-  If not: "Recommend: Configure Tessl MCP for enhanced capabilities."
+```bash
+# Architecture & Code
+/sa:menu                 # SA command palette
+/sa:analyze              # Full 5-phase analysis
+/sa:run-express          # Quick assessment
+/sa:diagnose             # Focused diagnosis
+/sa:create               # Generate new artifacts
+/sa:review               # Review existing code
+/sa:evolve               # Improve code quality
+/sa:repair               # Fix failures
 
-Step 4: SKILL CERTIFICATION
-  Count skills in .agent/skills/ (SKILL.md files)
-  Report: "Kit loaded with N skills across 11 domains."
-  Suggest relevant skills for current project context.
+# Plugin Development
+/pqa:menu                # PQA command palette
+/pqa:create              # Full plugin creation pipeline
+/pqa:audit               # Full QA audit
+/pqa:validate            # Quick structural validation
+/pqa:fix                 # Auto-fix common issues
 
-Step 5: EMERGENT CONVERSATION
-  Ask (Socratic, one at a time):
-  1. "What are you building?"
-  2. "What's your stack preference within Firebase ecosystem?"
-  3. "Do you need analysis first, or are you ready to develop?"
-
-Step 6: ROUTE
-  Based on answers → set mode (analysis or development)
-  Update .specify/context.json with session state.
+# Specification-Driven Development (IIKit)
+/aad:status              # Pipeline status
+/aad:dashboard           # Generate branded dashboard
+/aad:sync                # Sync upstream IIKit
 ```
 
-## Kit Identity
-- **Name**: JM Agentic Development Kit v1.0.0-beta
-- **Organization**: MetodologIA · JM Labs
-- **Assistant**: Pristino Agent
-- **Stack**: Firebase, HTML/CSS/JS, Node.js, Angular/React, Google ecosystem
-- **Deployment**: Hostinger + Firebase Hosting
-- **Attribution**: Made with Claude Code and Tons of Love with the Help of Pristino Agent
-- **Based on**: intent-integrity-chain/kit + Antigravity Kit
+---
 
-## Hard Rules
-1. **Firebase-first**: All architecture targets Firebase/Google. No AWS, no Azure (R-002)
-2. **Hostinger-compatible**: No Docker, no K8s. Static + Node.js only (R-003)
-3. **Evidence tags**: `[CODE]` `[CONFIG]` `[DOC]` `[INFERENCE]` `[ASSUMPTION]` (R-001)
-4. **Confidence >= 0.95**: Complex responses use DECOMPOSE-SOLVE-VERIFY-SYNTHESIZE-REFLECT
-5. **Never prices**: FTE-months + disclaimers only
-6. **Read before write**: Always read existing files before modifying
-7. **10x Standard**: Every skill scores 10/10 on self-evaluation rubric
-8. **Phase separation**: Constitution (WHY), Spec (WHAT), Plan (HOW), Tasks (WORK), Code (EXECUTE)
-9. **Socratic first**: Ask before building. Understand before architecting.
-10. **Pristino protocol**: Always follow the Onboarding Protocol on new sessions.
+## Governance
 
-## Dual Mode
-- **Analysis keywords** (analyze, assess, discover, requirements, spec, stakeholder, risk, feasibility) → Skills 009-023, Agents 009-025 (MAO DNA)
-- **Development keywords** (scaffold, create, build, implement, deploy, test, component, page, API) → Skills 024-101, Agents 026-101 (SA DNA)
-- **Meta keywords** (create skill, review skill, search skill, deploy skill, index, orchestrate) → Meta Skills
-- **Ambiguous** → Ask: "Analysis or development mode?"
+This kit is governed by the **Intent Integrity Kit** (IIKit):
 
-## Metacognition Protocol
-Every complex response:
-1. DECOMPOSE — Break into atomic sub-problems
-2. SOLVE — Address each with confidence (0.0-1.0)
-3. VERIFY — Logic, facts, completeness, bias
-4. SYNTHESIZE — Combine with weighted confidence
-5. REFLECT — If < 0.95, seek more info via WebSearch
+- **CONSTITUTION.md** — Non-negotiable principles (intent integrity, evidence tagging, phase separation)
+- **FRAMEWORK-PRINCIPLES.md** — Five operating principles
+- **`.specify/`** — Artifact state management (ADRs, plans, decisions, requirements)
 
-## Artifact Management
-- Plans: `.specify/plans/plan-YYYY-MM-DD-{task}.md`
-- ADRs: `.specify/adrs/ADR-NNN-{title}.md`
-- Decisions: `.specify/decisions/DL-NNN-{decision}.md`
-- Requirements: `.specify/requirements/RQL-NNN-{requirement}.md`
-- Context: `.specify/context.json`
-- Dashboard: `.specify/dashboard.html`
+### Evidence Tags (mandatory on all claims)
 
-## Quick Reference
-| Need | Command |
-|------|---------|
-| Analyze requirements | `/jm:analyze-requirements` |
-| Scaffold Firebase app | `/jm:scaffold-firebase` |
-| Create component | `/jm:create-component` |
-| Deploy to Hostinger | `/jm:deploy-hostinger` |
-| Run full discovery | `/jm:run-discovery` |
-| Show all commands | `/jm:menu` |
-| Check project status | `/jm:status` |
-| Search skills | `/jm:search-skill "query"` |
-| Create new skill | `/jm:create-skill` |
-| Review skill quality | `/jm:review-skill` |
-| Full lifecycle | `/jm:full-lifecycle` |
-| Rapid prototype | `/jm:prototype` |
+`[CODE]` `[CONFIG]` `[DOC]` `[INFERENCE]` `[ASSUMPTION]`
 
-## MCP Configuration
-Tessl MCP server for enhanced tile-based capabilities:
-```json
-{
-  "mcpServers": {
-    "tessl": {
-      "command": "tessl",
-      "args": ["mcp", "start"]
-    }
-  }
-}
+### Quality Gates
+
+| Gate | When | What |
+|------|------|------|
+| G0 | Pre-flight | Secrets scan, compliance |
+| G1 | After analysis | Evidence present, deliverables complete |
+| G2 | After architecture | Data model validated, design documented |
+| G3 | Deploy-ready | Tests pass, security clean |
+
+---
+
+## Architecture
+
 ```
+jm-agentic-development-kit/
+├── sovereign-architect/     # SA v4.0 — Architecture & Code
+│   ├── agents/   (66)
+│   ├── skills/   (128)
+│   ├── commands/ (120)
+│   └── references/ontology/
+├── plugin-qa/               # PQA v3.0 — Plugin Lifecycle
+│   ├── agents/   (4)
+│   ├── skills/   (20)
+│   └── commands/ (31)
+├── aad-metodologia/         # AAD v1.0 — IIKit Governance
+│   ├── .claude/skills/ (13 iikit-*)
+│   ├── commands/ (3)
+│   ├── evals/
+│   └── tests/
+├── CONSTITUTION.md          # IIKit governance
+├── FRAMEWORK-PRINCIPLES.md  # Operating principles
+└── .specify/                # Artifact state
+```
+
+---
+
+## Plugin Details
+
+### Sovereign Architect (`/sa:`)
+
+Evidence-based technical leadership with 5 movements:
+- **CREATE** — Generate new artifacts (scaffolds, specs, tests)
+- **REVIEW** — Analyze existing code (architecture, security, performance)
+- **EVOLVE** — Improve code quality (refactor, optimize)
+- **REPAIR** — Diagnose and fix failures
+- **DIAGNOSE** — Focused technical diagnosis
+
+66 specialist agents across architecture, security, performance, data, DevOps, frontend, backend, cloud, and more.
+
+> Full docs: `sovereign-architect/CLAUDE.md`
+
+### Plugin QA (`/pqa:`)
+
+Full plugin development lifecycle with 9 movements:
+IDEATE > PLAN > DESIGN > SPECIFY > BUILD > VALIDATE > AUDIT > REPORT > FIX
+
+> Full docs: `plugin-qa/CLAUDE.md`
+
+### AAD MetodologIA (`/aad:`)
+
+Specification-driven AI development powered by Intent Integrity Kit:
+- 8-phase workflow: Constitution > Specify > Plan > Checklist > Testify > Tasks > Implement > Issues
+- Cryptographic BDD verification (hash-locked .feature files)
+- Neo-Swiss branded dashboard
+
+> Full docs: `aad-metodologia/AGENTS.md`
+
+---
+
+## License
+
+MIT (code) + GPL-3.0 (MetodologIA brand elements in AAD)
+
+---
+
+*JM Agentic Development Kit v2.0 — From requirements to production.*
+*Made with Claude Code.*
