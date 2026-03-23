@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDD — Spec Driven Development by metodologIA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    /* ── Layout ─────────────────────────────────────────────── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 5rem 0; }
+    .section-title {
+      font-family: var(--font-heading); font-weight: 700;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      text-align: center; margin-bottom: 0.5rem;
+    }
+    .section-sub {
+      text-align: center; color: var(--text-muted);
+      max-width: 600px; margin: 0 auto 3rem;
+    }
+
+    /* ── Hero ───────────────────────────────────────────────── */
+    .hero {
+      min-height: 85vh; display: flex; align-items: center; justify-content: center;
+      text-align: center; position: relative; overflow: hidden;
+      padding: 6rem 1.5rem 4rem;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 20%, rgba(18,37,98,0.5), transparent),
+        radial-gradient(ellipse 40% 30% at 80% 60%, rgba(19,125,197,0.12), transparent);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 800px; }
+    .hero-badge {
+      display: inline-block; padding: 4px 14px; border-radius: 9999px;
+      background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.25);
+      color: var(--brand-gold); font-size: 0.8rem; font-weight: 600;
+      font-family: var(--font-heading); margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+    }
+    .hero h1 {
+      font-size: clamp(3rem, 7vw, 5rem); font-weight: 900;
+      line-height: 1.05; margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #E2E8F0 0%, #FFD700 50%, #137DC5 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem; color: var(--text-muted); margin-bottom: 0.25rem;
+    }
+    .hero .subtitle span { color: var(--brand-gold); font-weight: 600; }
+    .hero .tagline {
+      font-size: clamp(1rem, 2.5vw, 1.35rem); color: var(--text-muted);
+      max-width: 540px; margin: 1rem auto 2.5rem; line-height: 1.5;
+    }
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    /* ── How It Works ──────────────────────────────────────── */
+    .steps-row {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 2rem; position: relative;
+    }
+    .steps-row::before {
+      content: ''; position: absolute; top: 40px;
+      left: 12.5%; right: 12.5%; height: 2px;
+      background: linear-gradient(90deg, var(--brand-gold), var(--brand-blue), var(--brand-gold));
+      opacity: 0.3;
+    }
+    .step-card {
+      text-align: center; position: relative; z-index: 1;
+      padding: 1.5rem 1rem;
+    }
+    .step-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(255,215,0,0.08); border: 2px solid var(--border-gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin: 0 auto 1rem;
+      transition: all var(--transition-normal);
+    }
+    .step-card:hover .step-icon {
+      background: rgba(255,215,0,0.15);
+      box-shadow: var(--shadow-glow-gold);
+    }
+    .step-card h3 {
+      font-family: var(--font-heading); font-size: 1rem; font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .step-card p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* ── Features Grid ─────────────────────────────────────── */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--bg-card); backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-card);
+      padding: 2rem; transition: all var(--transition-normal);
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-glow-gold);
+      border-color: var(--border-gold);
+    }
+    .feature-icon {
+      font-size: 1.75rem; margin-bottom: 1rem;
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(255,215,0,0.06);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .feature-card h3 {
+      font-family: var(--font-heading); font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .feature-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* Heartbeat pulse animation */
+    .pulse-dot {
+      display: inline-block; width: 10px; height: 10px;
+      background: var(--brand-gold); border-radius: 50%;
+      animation: pulse-ring 1.5s ease-out infinite;
+      position: relative; vertical-align: middle; margin-left: 6px;
+    }
+    .pulse-dot::after {
+      content: ''; position: absolute; inset: -4px;
+      border: 2px solid var(--brand-gold); border-radius: 50%;
+      animation: pulse-expand 1.5s ease-out infinite;
+    }
+    @keyframes pulse-ring {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes pulse-expand {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    /* ── Pipeline Visualization ────────────────────────────── */
+    .pipeline-section { background: var(--bg-surface); border-radius: var(--radius-card); padding: 3rem 2rem; }
+    .pipeline-track {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; overflow-x: auto; padding: 2rem 0;
+      position: relative;
+    }
+    .pipeline-node {
+      display: flex; flex-direction: column; align-items: center;
+      min-width: 72px; position: relative; z-index: 1;
+    }
+    .pipeline-circle {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(255,215,0,0.1); border: 2px solid var(--brand-gold);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700;
+      color: var(--brand-gold);
+      transition: all var(--transition-normal);
+    }
+    .pipeline-circle:hover {
+      background: rgba(255,215,0,0.2);
+      box-shadow: 0 0 16px rgba(255,215,0,0.3);
+    }
+    .pipeline-gate {
+      width: 36px; height: 36px; transform: rotate(45deg);
+      background: rgba(19,125,197,0.15); border: 2px solid var(--brand-blue);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 4px;
+    }
+    .pipeline-gate span {
+      transform: rotate(-45deg);
+      font-family: var(--font-mono); font-size: 0.6rem; font-weight: 700;
+      color: var(--brand-blue);
+    }
+    .pipeline-label {
+      font-size: 0.65rem; color: var(--text-muted);
+      margin-top: 0.5rem; text-align: center; max-width: 64px;
+      font-family: var(--font-body);
+    }
+    .pipeline-connector {
+      width: 24px; height: 2px;
+      background: linear-gradient(90deg, var(--brand-gold), rgba(255,215,0,0.3));
+      flex-shrink: 0;
+    }
+
+    /* ── CTA Cards ─────────────────────────────────────────── */
+    .cta-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .cta-card {
+      background: var(--bg-card); backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-card);
+      padding: 2rem; text-decoration: none; color: inherit;
+      transition: all var(--transition-normal); display: block;
+    }
+    .cta-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-glow-gold);
+      border-color: var(--border-gold);
+      color: inherit;
+    }
+    .cta-card h3 {
+      font-family: var(--font-heading); font-size: 1.15rem;
+      margin-bottom: 0.5rem; color: var(--text-primary);
+    }
+    .cta-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; }
+    .cta-card .arrow { color: var(--brand-gold); font-weight: 700; font-size: 0.9rem; }
+
+    /* ── Stats ─────────────────────────────────────────────── */
+    .stats-row {
+      display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+      padding: 3rem 0;
+    }
+    .stat-item { text-align: center; }
+    .stat-number {
+      font-family: var(--font-heading); font-weight: 900;
+      font-size: clamp(2rem, 4vw, 3rem);
+      background: linear-gradient(135deg, var(--brand-gold), var(--brand-gold-dark));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .steps-row { grid-template-columns: repeat(2, 1fr); }
+      .steps-row::before { display: none; }
+      .pipeline-track { justify-content: flex-start; }
+      .stats-row { gap: 2rem; }
+    }
+    @media (max-width: 480px) {
+      .steps-row { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <script src="shared/nav.js"></script>
+
+  <!-- ════════════════════════════════════════════════════════
+       HERO
+       ════════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">v3.0 &mdash; Spec Driven Development</div>
+      <h1>SDD</h1>
+      <p class="subtitle">by metodolog<span>IA</span></p>
+      <p class="tagline">
+        Specification-driven development with cryptographic BDD verification
+        and ambient intelligence. From intent to implementation, nothing is lost.
+      </p>
+      <div class="hero-actions">
+        <a href="quickstart.html" class="btn-gold">Get Started &rarr;</a>
+        <a href="prompts.html" class="btn-outline">View Prompts</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       HOW IT WORKS
+       ════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-sub">Four phases take you from idea to deployed software with full traceability.</p>
+      <div class="steps-row">
+        <div class="step-card">
+          <div class="step-icon">&#9881;</div>
+          <h3>Init</h3>
+          <p>Bootstrap project governance and pipeline state</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#9998;</div>
+          <h3>Specify</h3>
+          <p>Turn natural language into traceable requirements</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#9874;</div>
+          <h3>Build</h3>
+          <p>Plan, test, implement with gate-verified quality</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#9889;</div>
+          <h3>Ship</h3>
+          <p>Export to GitHub Issues, deploy with confidence</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       FEATURES GRID
+       ════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Built-In Intelligence</h2>
+      <p class="section-sub">Every SDD project ships with ambient monitoring, knowledge tracing, and a full command center.</p>
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div class="feature-icon">&#9654;</div>
+          <h3>9-Phase Pipeline</h3>
+          <p>Constitution through implementation, with three quality gates that halt on violations. Never skip a phase.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">&#10084;</div>
+          <h3>Heartbeat Sentinel <span class="pulse-dot"></span></h3>
+          <p>Per-prompt ambient monitoring detects stale artifacts, missing files, and health regression in under 100ms.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">&#9741;</div>
+          <h3>Knowledge Graph</h3>
+          <p>Traces every principle to requirements, tests, and tasks. Orphan detection ensures nothing falls through the cracks.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">&#9783;</div>
+          <h3>Command Center</h3>
+          <p>11-view micro-frontend dashboard with health gauge, pipeline board, Sankey diagrams, and force-directed graphs.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">&#128451;</div>
+          <h3>RAG Memory</h3>
+          <p>Session inputs captured as indexed memory files. Cross-session knowledge with full-text search and tagging.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">&#127891;</div>
+          <h3>Guided Tour</h3>
+          <p>8-step interactive onboarding walkthrough. Demo project generation with realistic multi-feature data.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       PIPELINE VISUALIZATION
+       ════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">The SDD Pipeline</h2>
+      <p class="section-sub">9 phases, 3 quality gates. Each diamond is a hard stop requiring verification.</p>
+      <div class="pipeline-section">
+        <div class="pipeline-track">
+          <!-- Phase 0 -->
+          <div class="pipeline-node">
+            <div class="pipeline-circle">P0</div>
+            <div class="pipeline-label">Constitution</div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <!-- Phase 1 -->
+          <div class="pipeline-node">
+            <div class="pipeline-circle">P1</div>
+            <div class="pipeline-label">Specify</div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <!-- Phase 2 -->
+          <div class="pipeline-node">
+            <div class="pipeline-circle">P2</div>
+            <div class="pipeline-label">Plan</div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <!-- Gate 1 -->
+          <div class="pipeline-node">
+            <div class="pipeline-gate"><span>G1</span></div>
+            <div class="pipeline-label">Gate 1</div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <!-- Phase 3 -->
+          <div class="pipeline-node">
+            <div class="pipeline-circle">P3</div>
+            <div class="pipeline-label">Checklist</div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <!-- Phase 4 -->
+          <div class="pipeline-node">
+            <div class="pipeline-circle">P4</div>
+            <div class="pipeline-label">Testify</div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <!-- Phase 5 -->
+          <div class="pipeline-node">
+            <div class="pipeline-circle">P5</div>
+            <div class="pipeline-label">Tasks</div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <!-- Phase 6 -->
+          <div class="pipeline-node">
+            <div class="pipeline-circle">P6</div>
+            <div class="pipeline-label">Analyze</div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <!-- Gate 2 -->
+          <div class="pipeline-node">
+            <div class="pipeline-gate"><span>G2</span></div>
+            <div class="pipeline-label">Gate 2</div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <!-- Phase 7 -->
+          <div class="pipeline-node">
+            <div class="pipeline-circle">P7</div>
+            <div class="pipeline-label">Implement</div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <!-- Gate 3 -->
+          <div class="pipeline-node">
+            <div class="pipeline-gate"><span>G3</span></div>
+            <div class="pipeline-label">Gate 3</div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <!-- Phase 8 -->
+          <div class="pipeline-node">
+            <div class="pipeline-circle">P8</div>
+            <div class="pipeline-label">Issues</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       SEE IT IN ACTION
+       ════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">See It In Action</h2>
+      <p class="section-sub">Explore guides, prompts, and real artifacts generated by SDD.</p>
+      <div class="cta-grid">
+        <a href="quickstart.html" class="cta-card">
+          <h3>&#9654; Quickstart Guide</h3>
+          <p>5-minute walkthrough from init to dashboard. Step-by-step with terminal mockups.</p>
+          <span class="arrow">Start now &rarr;</span>
+        </a>
+        <a href="prompts.html" class="cta-card">
+          <h3>&#128172; Prompt Catalog</h3>
+          <p>Browse all 37 commands with examples, aliases, and natural language alternatives.</p>
+          <span class="arrow">View prompts &rarr;</span>
+        </a>
+        <a href="artifacts.html" class="cta-card">
+          <h3>&#128196; Artifact Gallery</h3>
+          <p>See what SDD generates: specs, plans, checklists, Gherkin tests, knowledge graphs.</p>
+          <span class="arrow">Browse artifacts &rarr;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       STATS
+       ════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="container">
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-number">37</div>
+          <div class="stat-label">Commands</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">21</div>
+          <div class="stat-label">Scripts</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">4</div>
+          <div class="stat-label">Hooks</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">12</div>
+          <div class="stat-label">Skills</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="shared/footer.js"></script>
+</body>
+</html>

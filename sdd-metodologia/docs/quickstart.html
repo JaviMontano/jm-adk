@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5-Minute Quickstart — SDD by metodologIA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    /* ── Layout ─────────────────────────────────────────────── */
+    .container { max-width: 860px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 3rem 0; }
+
+    /* ── Page Header ───────────────────────────────────────── */
+    .page-header {
+      text-align: center; padding: 5rem 1.5rem 3rem;
+      position: relative; overflow: hidden;
+    }
+    .page-header::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 50% 50% at 50% 30%, rgba(18,37,98,0.4), transparent);
+      pointer-events: none;
+    }
+    .page-header-content { position: relative; z-index: 1; }
+    .page-header h1 {
+      font-family: var(--font-heading); font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 0.5rem;
+    }
+    .page-header h1 span { color: var(--brand-gold); }
+    .page-header p {
+      color: var(--text-muted); font-size: 1.1rem;
+      max-width: 520px; margin: 0 auto;
+    }
+    .time-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 9999px; padding: 4px 14px; margin-bottom: 1.5rem;
+      font-family: var(--font-heading); font-size: 0.8rem;
+      color: var(--brand-gold); font-weight: 600;
+    }
+
+    /* ── Step ───────────────────────────────────────────────── */
+    .step { margin-bottom: 4rem; position: relative; }
+    .step-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+    .step-number {
+      width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--brand-gold), var(--brand-gold-dark));
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-heading); font-weight: 900; font-size: 1.25rem;
+      color: #000;
+    }
+    .step-header h2 {
+      font-family: var(--font-heading); font-weight: 700;
+      font-size: clamp(1.25rem, 3vw, 1.5rem);
+    }
+
+    /* ── Terminal Mockup ───────────────────────────────────── */
+    .terminal {
+      background: #0F172A; border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card); overflow: hidden;
+      margin-bottom: 1.25rem; position: relative;
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 14px; background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .terminal-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .terminal-dot.r { background: #EF4444; }
+    .terminal-dot.y { background: var(--brand-gold); }
+    .terminal-dot.b { background: var(--brand-blue); }
+    .terminal-title {
+      margin-left: auto; font-family: var(--font-mono);
+      font-size: 0.7rem; color: var(--text-dim);
+    }
+    .terminal-body {
+      padding: 1.25rem 1.5rem; font-family: var(--font-mono);
+      font-size: 0.82rem; line-height: 1.7; overflow-x: auto;
+      color: var(--text-primary);
+    }
+    .terminal-body .prompt { color: var(--brand-gold); font-weight: 700; }
+    .terminal-body .cmd { color: #E2E8F0; font-weight: 600; }
+    .terminal-body .dim { color: var(--text-dim); }
+    .terminal-body .blue { color: var(--brand-blue); }
+    .terminal-body .gold { color: var(--brand-gold); }
+    .terminal-body .muted { color: var(--text-muted); }
+    .terminal-body .box-line { color: var(--brand-gold); }
+
+    /* Copy button */
+    .copy-btn {
+      position: absolute; top: 44px; right: 12px;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm); padding: 4px 10px;
+      font-family: var(--font-mono); font-size: 0.7rem;
+      color: var(--text-muted); cursor: pointer;
+      transition: all var(--transition-fast); z-index: 2;
+    }
+    .copy-btn:hover {
+      background: rgba(255,215,0,0.1); color: var(--brand-gold);
+      border-color: var(--border-gold);
+    }
+    .copy-btn.copied { color: var(--brand-blue); }
+
+    /* ── Callout ────────────────────────────────────────────── */
+    .callout {
+      background: var(--bg-card); backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--brand-gold);
+      border-radius: var(--radius-card); padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .callout-label {
+      font-family: var(--font-heading); font-weight: 700;
+      font-size: 0.8rem; color: var(--brand-gold);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      margin-bottom: 0.5rem;
+    }
+    .callout p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+    .callout code {
+      background: rgba(255,215,0,0.08); padding: 1px 6px;
+      border-radius: 4px; font-size: 0.85em; color: var(--brand-gold);
+    }
+
+    /* ── Preview Card ──────────────────────────────────────── */
+    .preview-card {
+      background: var(--bg-card); backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card); padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .preview-card h4 {
+      font-family: var(--font-heading); font-size: 0.9rem;
+      margin-bottom: 0.75rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .preview-card h4 .icon { color: var(--brand-gold); }
+    .preview-content {
+      font-family: var(--font-mono); font-size: 0.78rem;
+      line-height: 1.65; color: var(--text-muted);
+    }
+    .preview-content .heading { color: var(--brand-gold); font-weight: 700; }
+    .preview-content .label { color: var(--brand-blue); font-weight: 600; }
+    .preview-content .value { color: var(--text-primary); }
+
+    /* ── Dashboard Mockup ──────────────────────────────────── */
+    .dash-mockup {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; margin-top: 1rem;
+    }
+    .dash-tile {
+      background: var(--bg-card); backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card); padding: 1.25rem;
+      text-align: center;
+    }
+    .dash-tile-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .dash-tile h5 {
+      font-family: var(--font-heading); font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+    }
+    .dash-tile p { font-size: 0.75rem; color: var(--text-dim); }
+    .dash-gauge {
+      width: 60px; height: 60px; border-radius: 50%;
+      border: 4px solid var(--brand-gold);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 0.5rem;
+      font-family: var(--font-heading); font-weight: 900;
+      font-size: 1.1rem; color: var(--brand-gold);
+    }
+
+    /* ── Connector Line (between steps) ────────────────────── */
+    .step-connector {
+      width: 2px; height: 32px; margin: 0 auto;
+      background: linear-gradient(180deg, var(--brand-gold), transparent);
+      opacity: 0.3;
+    }
+
+    /* ── What's Next ───────────────────────────────────────── */
+    .next-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem; margin-top: 2rem;
+    }
+    .next-card {
+      background: var(--bg-card); backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-card);
+      padding: 1.5rem; text-decoration: none; color: inherit;
+      transition: all var(--transition-normal); display: block;
+    }
+    .next-card:hover {
+      transform: translateY(-3px); box-shadow: var(--shadow-glow-gold);
+      border-color: var(--border-gold); color: inherit;
+    }
+    .next-card h4 {
+      font-family: var(--font-heading); font-size: 1rem;
+      margin-bottom: 0.4rem;
+    }
+    .next-card p { font-size: 0.85rem; color: var(--text-muted); }
+    .next-card .arrow {
+      color: var(--brand-gold); font-weight: 700; font-size: 0.85rem;
+      margin-top: 0.75rem; display: inline-block;
+    }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .terminal-body { font-size: 0.72rem; padding: 1rem; }
+      .step-header h2 { font-size: 1.15rem; }
+      .step-number { width: 40px; height: 40px; font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <script src="shared/nav.js"></script>
+
+  <!-- ════════════════════════════════════════════════════════
+       PAGE HEADER
+       ════════════════════════════════════════════════════════ -->
+  <header class="page-header">
+    <div class="page-header-content">
+      <div class="time-badge">&#9201; ~5 minutes</div>
+      <h1><span>5-Minute</span> Quickstart</h1>
+      <p>Go from zero to a fully tracked specification project with ambient intelligence in five steps.</p>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- ══════════════════════════════════════════════════════
+         STEP 1: INITIALIZE
+         ══════════════════════════════════════════════════════ -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-number">1</div>
+        <h2>Initialize Your Project</h2>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span>
+          <span class="terminal-dot y"></span>
+          <span class="terminal-dot b"></span>
+          <span class="terminal-title">terminal</span>
+        </div>
+        <button class="copy-btn" onclick="copyCmd(this, '/sdd:init')">Copy</button>
+        <div class="terminal-body">
+<span class="prompt">&gt;</span> <span class="cmd">/sdd:init</span>
+
+<span class="box-line">&#9556;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9559;</span>
+<span class="box-line">&#9553;</span>  <span class="gold">SDD &mdash; Spec Driven Development</span>                        <span class="box-line">&#9553;</span>
+<span class="box-line">&#9553;</span>  <span class="muted">by metodolog</span><span class="gold">IA</span>                                        <span class="box-line">&#9553;</span>
+<span class="box-line">&#9562;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9565;</span>
+
+<span class="muted">Step 1:</span> Running upstream IIC/kit init...
+<span class="muted">Step 2:</span> Created <span class="gold">.specify/context.json</span>
+<span class="muted">Step 3:</span> No CONSTITUTION.md &mdash; run <span class="blue">/sdd:00-constitution</span>
+<span class="muted">Step 4:</span> No PREMISE.md &mdash; run <span class="blue">/sdd:core init</span>
+<span class="muted">Step 6:</span> No git repo
+<span class="muted">Step 8:</span> SDD sentinel initialized
+
+<span class="gold">Next Steps:</span>
+  <span class="muted">1.</span> <span class="blue">/sdd:00-constitution</span>
+  <span class="muted">2.</span> <span class="blue">/sdd:spec</span>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">What happened</div>
+        <p>SDD created the <code>.specify/</code> directory with pipeline state, initialized the heartbeat sentinel, and detected that governance files are missing. It tells you exactly what to run next.</p>
+      </div>
+    </div>
+
+    <div class="step-connector"></div>
+
+    <!-- ══════════════════════════════════════════════════════
+         STEP 2: GOVERNANCE
+         ══════════════════════════════════════════════════════ -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-number">2</div>
+        <h2>Define Governance</h2>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span>
+          <span class="terminal-dot y"></span>
+          <span class="terminal-dot b"></span>
+          <span class="terminal-title">terminal</span>
+        </div>
+        <button class="copy-btn" onclick="copyCmd(this, '/sdd:00-constitution')">Copy</button>
+        <div class="terminal-body">
+<span class="prompt">&gt;</span> <span class="cmd">/sdd:00-constitution</span>
+
+<span class="dim">User: "I'm building a fintech API. Security-first, TDD mandatory,</span>
+<span class="dim">       REST API with OpenAPI spec, PostgreSQL database."</span>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">What happened</div>
+        <p>SDD creates <code>CONSTITUTION.md</code> with principles derived from your description. It maps "security-first" to input sanitization rules, "TDD mandatory" to test-before-code requirements. Every principle gets a traceable ID (P-I, P-II, ...).</p>
+      </div>
+
+      <!-- CONSTITUTION.md preview -->
+      <div class="preview-card">
+        <h4><span class="icon">&#128220;</span> CONSTITUTION.md preview</h4>
+        <div class="preview-content">
+<span class="heading"># Project Constitution</span>
+<span class="heading">## Principles</span>
+
+<span class="label">P-I.</span> <span class="value">Security First</span>
+<span class="dim">    All inputs sanitized. OWASP Top 10 compliance mandatory.</span>
+<span class="dim">    Auth via JWT with refresh rotation.</span>
+
+<span class="label">P-II.</span> <span class="value">Test-Driven Development</span>
+<span class="dim">    Tests written before implementation. &ge;80% coverage gate.</span>
+<span class="dim">    BDD Gherkin for acceptance criteria.</span>
+
+<span class="label">P-III.</span> <span class="value">API-First Design</span>
+<span class="dim">    OpenAPI 3.1 spec precedes implementation.</span>
+<span class="dim">    Breaking changes require version bump.</span>
+
+<span class="label">P-IV.</span> <span class="value">Data Integrity</span>
+<span class="dim">    PostgreSQL with migrations. No raw SQL in app layer.</span>
+<span class="dim">    Audit trail on all financial operations.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-connector"></div>
+
+    <!-- ══════════════════════════════════════════════════════
+         STEP 3: SPECIFY
+         ══════════════════════════════════════════════════════ -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-number">3</div>
+        <h2>Specify Your First Feature</h2>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span>
+          <span class="terminal-dot y"></span>
+          <span class="terminal-dot b"></span>
+          <span class="terminal-title">terminal</span>
+        </div>
+        <button class="copy-btn" onclick="copyCmd(this, '/sdd:spec')">Copy</button>
+        <div class="terminal-body">
+<span class="prompt">&gt;</span> <span class="cmd">/sdd:spec</span>
+
+<span class="dim">User: "Create a feature for user authentication with email/password,</span>
+<span class="dim">       OAuth2 Google, and MFA via TOTP."</span>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">What happened</div>
+        <p>SDD generates <code>specs/001-user-auth/spec.md</code> with FR-001 to FR-005 (functional requirements), US-001 to US-003 (user stories), and SC-001 to SC-003 (success criteria). Each requirement is traceable back to your constitution principles.</p>
+      </div>
+
+      <!-- spec.md preview -->
+      <div class="preview-card">
+        <h4><span class="icon">&#128220;</span> specs/001-user-auth/spec.md preview</h4>
+        <div class="preview-content">
+<span class="heading"># Feature: User Authentication</span>
+
+<span class="heading">## Functional Requirements</span>
+<span class="label">FR-001</span> <span class="value">Email/password registration with bcrypt hashing</span>
+<span class="label">FR-002</span> <span class="value">Email/password login returning JWT access + refresh tokens</span>
+<span class="label">FR-003</span> <span class="value">OAuth2 Google sign-in with account linking</span>
+<span class="label">FR-004</span> <span class="value">TOTP-based MFA enrollment and verification</span>
+<span class="label">FR-005</span> <span class="value">Password reset via time-limited email token</span>
+
+<span class="heading">## User Stories</span>
+<span class="label">US-001</span> <span class="value">As a user, I can register with my email so I have an account</span>
+<span class="label">US-002</span> <span class="value">As a user, I can sign in with Google for faster access</span>
+<span class="label">US-003</span> <span class="value">As a user, I can enable MFA to secure my account</span>
+
+<span class="heading">## Success Criteria</span>
+<span class="label">SC-001</span> <span class="value">Login &lt;200ms p95 latency</span>
+<span class="label">SC-002</span> <span class="value">Failed login locks after 5 attempts for 15 min</span>
+<span class="label">SC-003</span> <span class="value">100% of auth endpoints covered by integration tests</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-connector"></div>
+
+    <!-- ══════════════════════════════════════════════════════
+         STEP 4: PLAN & VERIFY
+         ══════════════════════════════════════════════════════ -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-number">4</div>
+        <h2>Plan, Verify, and Test</h2>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span>
+          <span class="terminal-dot y"></span>
+          <span class="terminal-dot b"></span>
+          <span class="terminal-title">terminal</span>
+        </div>
+        <button class="copy-btn" onclick="copyCmd(this, '/sdd:plan && /sdd:check && /sdd:test')">Copy</button>
+        <div class="terminal-body">
+<span class="prompt">&gt;</span> <span class="cmd">/sdd:plan</span>
+<span class="muted">  &#10003; Technical design document created</span>
+<span class="muted">  &#10003; Architecture decisions recorded</span>
+<span class="muted">  &#10003; Dependency graph generated</span>
+<span class="blue">  GATE 1 PASSED</span> &mdash; plan is consistent with spec
+
+<span class="prompt">&gt;</span> <span class="cmd">/sdd:check</span>
+<span class="muted">  &#10003; Quality checklist generated (14 items)</span>
+<span class="muted">  &#10003; Security items: 4 | Performance items: 3 | Coverage items: 7</span>
+
+<span class="prompt">&gt;</span> <span class="cmd">/sdd:test</span>
+<span class="muted">  &#10003; BDD Gherkin scenarios generated</span>
+<span class="muted">  &#10003; 8 scenarios across 3 feature files</span>
+<span class="muted">  &#10003; Assertion hashes locked:</span>
+<span class="dim">      TS-001 sha256:a3f2...</span>
+<span class="dim">      TS-002 sha256:9c1b...</span>
+<span class="dim">      TS-003 sha256:d4e7...</span>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">What happened</div>
+        <p>Three phases executed in sequence. The <strong>plan</strong> created a technical design and passed Gate 1. The <strong>checklist</strong> generated quality verification items. The <strong>test</strong> phase produced BDD Gherkin scenarios with cryptographic assertion hashes &mdash; if anyone changes a test without updating the hash, SDD detects the tampering.</p>
+      </div>
+    </div>
+
+    <div class="step-connector"></div>
+
+    <!-- ══════════════════════════════════════════════════════
+         STEP 5: DASHBOARD
+         ══════════════════════════════════════════════════════ -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-number">5</div>
+        <h2>See Your Dashboard</h2>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span>
+          <span class="terminal-dot y"></span>
+          <span class="terminal-dot b"></span>
+          <span class="terminal-title">terminal</span>
+        </div>
+        <button class="copy-btn" onclick="copyCmd(this, '/sdd:dashboard')">Copy</button>
+        <div class="terminal-body">
+<span class="prompt">&gt;</span> <span class="cmd">/sdd:dashboard</span>
+
+<span class="muted">  Generating Command Center...</span>
+<span class="muted">  &#10003; Health gauge: <span class="gold">72%</span></span>
+<span class="muted">  &#10003; Pipeline: Phase 4 of 8 complete</span>
+<span class="muted">  &#10003; Knowledge graph: 4 principles, 5 requirements, 8 tests</span>
+<span class="muted">  &#10003; Dashboard written to <span class="gold">.specify/dashboard/</span></span>
+<span class="muted">  &#10003; 7 HTML pages generated</span>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">What happened</div>
+        <p>The Command Center generated 7 HTML pages in <code>.specify/dashboard/</code> with health gauge, pipeline visualization, knowledge graph, and more. Open <code>index.html</code> in your browser to explore.</p>
+      </div>
+
+      <!-- Dashboard mockup -->
+      <div class="dash-mockup">
+        <div class="dash-tile">
+          <div class="dash-gauge">72</div>
+          <h5>Health Score</h5>
+          <p>Overall project health</p>
+        </div>
+        <div class="dash-tile">
+          <div class="dash-tile-icon">&#9654;</div>
+          <h5>Pipeline</h5>
+          <p>Phase 4 / 8 complete</p>
+        </div>
+        <div class="dash-tile">
+          <div class="dash-tile-icon">&#9741;</div>
+          <h5>Knowledge Graph</h5>
+          <p>17 nodes &middot; 12 edges</p>
+        </div>
+        <div class="dash-tile">
+          <div class="dash-tile-icon">&#128202;</div>
+          <h5>Specs</h5>
+          <p>5 FR &middot; 3 US &middot; 3 SC</p>
+        </div>
+        <div class="dash-tile">
+          <div class="dash-tile-icon">&#10003;</div>
+          <h5>Quality</h5>
+          <p>14 checks &middot; 8 tests</p>
+        </div>
+        <div class="dash-tile">
+          <div class="dash-tile-icon">&#128269;</div>
+          <h5>Workspace</h5>
+          <p>File explorer + RAG</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         WHAT'S NEXT
+         ══════════════════════════════════════════════════════ -->
+    <section style="padding-top: 2rem;">
+      <h2 style="font-family:var(--font-heading);font-weight:700;font-size:1.75rem;text-align:center;margin-bottom:0.5rem;">What's Next?</h2>
+      <p style="text-align:center;color:var(--text-muted);margin-bottom:2rem;">You're up and running. Explore the rest of SDD.</p>
+
+      <div class="next-grid">
+        <a href="prompts.html" class="next-card">
+          <h4>&#128172; Prompt Catalog</h4>
+          <p>Browse all 37 commands with examples, aliases, and natural language alternatives.</p>
+          <span class="arrow">View prompts &rarr;</span>
+        </a>
+        <a href="workspace.html" class="next-card">
+          <h4>&#128193; Workspace</h4>
+          <p>Learn about file structure, pipeline state, and RAG memory system.</p>
+          <span class="arrow">Explore workspace &rarr;</span>
+        </a>
+        <a href="artifacts.html" class="next-card">
+          <h4>&#128196; Artifact Gallery</h4>
+          <p>See real examples of specs, plans, checklists, Gherkin tests, and dashboards.</p>
+          <span class="arrow">Browse artifacts &rarr;</span>
+        </a>
+      </div>
+    </section>
+
+  </div><!-- /.container -->
+
+  <script src="shared/footer.js"></script>
+
+  <script>
+    function copyCmd(btn, cmd) {
+      navigator.clipboard.writeText(cmd).then(function() {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+  </script>
+</body>
+</html>

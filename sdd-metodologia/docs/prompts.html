@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Catalog — SDD by metodologIA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    /* ── Hero ─────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 4rem 1.5rem 2.5rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: 2.75rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--brand-gold), var(--brand-gold-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.75rem;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ── Filter Tabs ─────────────────────────────────────────── */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0 1.5rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .filter-btn {
+      padding: 0.5rem 1.1rem;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--border-subtle);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+    .filter-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--border-medium);
+      background: rgba(255,255,255,0.03);
+    }
+    .filter-btn.active {
+      color: var(--text-inverse);
+      background: linear-gradient(135deg, var(--brand-gold), var(--brand-gold-dark));
+      border-color: var(--brand-gold);
+    }
+
+    /* ── Prompt Grid ─────────────────────────────────────────── */
+    .prompt-grid {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ── Prompt Card ─────────────────────────────────────────── */
+    .prompt-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      padding: var(--space-lg);
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+    .prompt-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-glow-gold);
+    }
+    .prompt-card.hidden { display: none; }
+
+    .prompt-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .prompt-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(255,215,0,0.1);
+      color: var(--brand-gold);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .phase-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+    .cmd-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      background: rgba(255,215,0,0.12);
+      color: var(--brand-gold);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: auto;
+    }
+
+    /* ── Code Block ──────────────────────────────────────────── */
+    .prompt-code-wrapper {
+      position: relative;
+      margin-bottom: 0.75rem;
+    }
+    .prompt-code {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 1rem 3rem 1rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: all var(--transition-fast);
+    }
+    .copy-btn:hover {
+      background: rgba(255,215,0,0.12);
+      color: var(--brand-gold);
+      border-color: var(--border-gold);
+    }
+    .copy-btn.copied {
+      background: rgba(19,125,197,0.15);
+      color: var(--brand-blue);
+      border-color: var(--brand-blue);
+    }
+
+    /* ── Expected Output ─────────────────────────────────────── */
+    .prompt-output {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .prompt-output .arrow {
+      color: var(--brand-blue);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2rem; }
+      .prompt-header { flex-direction: column; align-items: flex-start; }
+      .cmd-badge { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ Hero ═══ -->
+  <section class="hero">
+    <h1>Prompt Catalog</h1>
+    <p>What to say to SDD at each phase. Copy a prompt, paste it, and let the pipeline do the work.</p>
+  </section>
+
+  <!-- ═══ Filter Tabs ═══ -->
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="constitution">Constitution</button>
+    <button class="filter-btn" data-filter="specify">Specify</button>
+    <button class="filter-btn" data-filter="plan">Plan</button>
+    <button class="filter-btn" data-filter="quality">Quality</button>
+    <button class="filter-btn" data-filter="tasks">Tasks</button>
+    <button class="filter-btn" data-filter="execute">Execute</button>
+    <button class="filter-btn" data-filter="intelligence">Intelligence</button>
+    <button class="filter-btn" data-filter="workspace">Workspace</button>
+  </div>
+
+  <!-- ═══ Prompt Grid ═══ -->
+  <div class="prompt-grid" id="promptGrid">
+
+    <!-- ── Phase 0: Constitution ─────────────────────────────── -->
+    <div class="prompt-card" data-phase="constitution">
+      <div class="prompt-header">
+        <span class="prompt-number">1</span>
+        <span class="phase-label">Phase 0 &mdash; Constitution</span>
+        <span class="cmd-badge">/sdd:00-constitution</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Define governance for a fintech API with security-first, TDD mandatory</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>Creates CONSTITUTION.md with security principles, TDD enforcement, and rate-limiting governance rules.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="constitution">
+      <div class="prompt-header">
+        <span class="prompt-number">2</span>
+        <span class="phase-label">Phase 0 &mdash; Constitution</span>
+        <span class="cmd-badge">/sdd:00-constitution</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Create constitution for an EdTech platform following WCAG 2.1 AA and FERPA compliance</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>Constitution with accessibility standards, student data privacy principles, and compliance gates.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="constitution">
+      <div class="prompt-header">
+        <span class="prompt-number">3</span>
+        <span class="phase-label">Phase 0 &mdash; Constitution</span>
+        <span class="cmd-badge">/sdd:00-constitution</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">I want TDD, clean architecture, and TypeScript strict mode</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>Constitution enforcing type safety, test-first development, and layered architecture boundaries.</span>
+      </div>
+    </div>
+
+    <!-- ── Phase 1: Specify ──────────────────────────────────── -->
+    <div class="prompt-card" data-phase="specify">
+      <div class="prompt-header">
+        <span class="prompt-number">4</span>
+        <span class="phase-label">Phase 1 &mdash; Specify</span>
+        <span class="cmd-badge">/sdd:spec</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Create a feature spec for user authentication with OAuth2 + MFA</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>spec.md with FR-001 to FR-005, user stories, acceptance criteria, and OAuth2 flow diagrams.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="specify">
+      <div class="prompt-header">
+        <span class="prompt-number">5</span>
+        <span class="phase-label">Phase 1 &mdash; Specify</span>
+        <span class="cmd-badge">/sdd:spec</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Specify a real-time notification system with WebSocket fallback to SSE</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>spec.md with connection upgrade logic, SSE fallback strategy, and delivery guarantee requirements.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="specify">
+      <div class="prompt-header">
+        <span class="prompt-number">6</span>
+        <span class="phase-label">Phase 1 &mdash; Specify</span>
+        <span class="cmd-badge">/sdd:spec</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">I need a file upload feature: S3 storage, virus scanning, 100MB max</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>spec.md with storage requirements, file validation rules, and malware scanning integration.</span>
+      </div>
+    </div>
+
+    <!-- ── Phase 2: Plan ─────────────────────────────────────── -->
+    <div class="prompt-card" data-phase="plan">
+      <div class="prompt-header">
+        <span class="prompt-number">7</span>
+        <span class="phase-label">Phase 2 &mdash; Plan</span>
+        <span class="cmd-badge">/sdd:plan</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Generate technical plan for the auth feature using Supabase</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>plan.md with data model, API endpoints, Supabase RLS policies, and auth flow sequence diagram.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="plan">
+      <div class="prompt-header">
+        <span class="prompt-number">8</span>
+        <span class="phase-label">Phase 2 &mdash; Plan</span>
+        <span class="cmd-badge">/sdd:plan</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Plan the notification system using Redis pub/sub and Vercel Edge Functions</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>plan.md with architecture diagram, Redis channel design, edge function routing, and scaling strategy.</span>
+      </div>
+    </div>
+
+    <!-- ── Phase 3-4: Quality ────────────────────────────────── -->
+    <div class="prompt-card" data-phase="quality">
+      <div class="prompt-header">
+        <span class="prompt-number">9</span>
+        <span class="phase-label">Phase 3 &mdash; Quality</span>
+        <span class="cmd-badge">/sdd:check</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Generate quality checklist for the auth spec</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>checklist.md with requirement-level quality tests, edge cases, and security validation items.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="quality">
+      <div class="prompt-header">
+        <span class="prompt-number">10</span>
+        <span class="phase-label">Phase 4 &mdash; Testify</span>
+        <span class="cmd-badge">/sdd:test</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Create BDD test scenarios for user registration</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>.feature files with Given/When/Then scenarios, @TS-NNN and @FR-NNN traceability tags.</span>
+      </div>
+    </div>
+
+    <!-- ── Phase 5: Tasks ────────────────────────────────────── -->
+    <div class="prompt-card" data-phase="tasks">
+      <div class="prompt-header">
+        <span class="prompt-number">11</span>
+        <span class="phase-label">Phase 5 &mdash; Tasks</span>
+        <span class="cmd-badge">/sdd:tasks</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Break down the auth plan into implementable tasks</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>tasks.md with T-001 to T-015, dependency graph, parallel execution markers, and effort estimates.</span>
+      </div>
+    </div>
+
+    <!-- ── Phase 6-8: Execute ────────────────────────────────── -->
+    <div class="prompt-card" data-phase="execute">
+      <div class="prompt-header">
+        <span class="prompt-number">12</span>
+        <span class="phase-label">Phase 6 &mdash; Analyze</span>
+        <span class="cmd-badge">/sdd:analyze</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Analyze cross-artifact consistency</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>analysis.md with coverage percentages, conflict detection, orphan identification, and fix suggestions.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="execute">
+      <div class="prompt-header">
+        <span class="prompt-number">13</span>
+        <span class="phase-label">Phase 7 &mdash; Implement</span>
+        <span class="cmd-badge">/sdd:impl</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Start implementing the auth feature</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>Code generation following tasks.md order, with test-first approach and traceability comments.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="execute">
+      <div class="prompt-header">
+        <span class="prompt-number">14</span>
+        <span class="phase-label">Phase 8 &mdash; Issues</span>
+        <span class="cmd-badge">/sdd:issues</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Export tasks to GitHub Issues</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>GitHub Issues created with labels, milestone assignments, and dependency references.</span>
+      </div>
+    </div>
+
+    <!-- ── Intelligence ──────────────────────────────────────── -->
+    <div class="prompt-card" data-phase="intelligence">
+      <div class="prompt-header">
+        <span class="prompt-number">15</span>
+        <span class="phase-label">Intelligence</span>
+        <span class="cmd-badge">/sdd:sentinel</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">What's the project health? Any risks?</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>Health score (0-100), findings table, risk indicators, and actionable recommendations.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="intelligence">
+      <div class="prompt-header">
+        <span class="prompt-number">16</span>
+        <span class="phase-label">Intelligence</span>
+        <span class="cmd-badge">/sdd:graph</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Build the knowledge graph</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>knowledge-graph.json with Principle, Requirement, Test, and Task nodes, edges, and orphan detection.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="intelligence">
+      <div class="prompt-header">
+        <span class="prompt-number">17</span>
+        <span class="phase-label">Intelligence</span>
+        <span class="cmd-badge">/sdd:dashboard</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Show me the dashboard</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>Command Center HTML with health gauge, pipeline board, quality Sankey, and knowledge graph views.</span>
+      </div>
+    </div>
+
+    <!-- ── Workspace ─────────────────────────────────────────── -->
+    <div class="prompt-card" data-phase="workspace">
+      <div class="prompt-header">
+        <span class="prompt-number">18</span>
+        <span class="phase-label">Workspace</span>
+        <span class="cmd-badge">/sdd:capture</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">I have specs in workspace/2026-03-23-crm-specs/</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>RAG memory files created from each file in the directory, indexed in rag-index.json.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="workspace">
+      <div class="prompt-header">
+        <span class="prompt-number">19</span>
+        <span class="phase-label">Workspace</span>
+        <span class="cmd-badge">/sdd:capture</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Capture this PDF as RAG memory</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>rag-memory-of-report.md with frontmatter, abstract, key takeaways, and full content extraction.</span>
+      </div>
+    </div>
+
+    <div class="prompt-card" data-phase="workspace">
+      <div class="prompt-header">
+        <span class="prompt-number">20</span>
+        <span class="phase-label">Workspace</span>
+        <span class="cmd-badge">/sdd:capture --scan</span>
+      </div>
+      <div class="prompt-code-wrapper">
+        <pre class="prompt-code">Process all files in .specify/inputs/</pre>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-output">
+        <span class="arrow">&rarr;</span>
+        <span>Batch scan: all files indexed as RAG memory with auto-detected types and cross-references.</span>
+      </div>
+    </div>
+
+  </div><!-- /prompt-grid -->
+
+  <!-- ═══ Scripts ═══ -->
+  <script>
+    // ── Copy to clipboard ───────────────────────────────────
+    function copyPrompt(btn) {
+      const code = btn.parentElement.querySelector('.prompt-code');
+      const text = code.textContent.trim();
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1800);
+      });
+    }
+
+    // ── Filter logic ────────────────────────────────────────
+    const filterBar = document.getElementById('filterBar');
+    const cards = document.querySelectorAll('.prompt-card');
+
+    filterBar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+
+      filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const phase = btn.dataset.filter;
+      cards.forEach(card => {
+        if (phase === 'all' || card.dataset.phase === phase) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  </script>
+
+  <script src="shared/nav.js"></script>
+  <script src="shared/footer.js"></script>
+</body>
+</html>

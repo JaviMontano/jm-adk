@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artifact Gallery — SDD by metodologIA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    /* ── Hero ─────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 4rem 1.5rem 2.5rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: 2.75rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--brand-gold), var(--brand-gold-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.75rem;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ── Artifact Grid ───────────────────────────────────────── */
+    .artifact-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    @media (max-width: 840px) {
+      .artifact-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Artifact Card ───────────────────────────────────────── */
+    .artifact-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+    .artifact-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-glow-gold);
+    }
+
+    .artifact-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .artifact-title {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      background: rgba(255,215,0,0.12);
+      color: var(--brand-gold);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    /* ── Preview Panel ───────────────────────────────────────── */
+    .artifact-preview {
+      background: #0F172A;
+      padding: var(--space-md) var(--space-lg);
+      max-height: 220px;
+      overflow: hidden;
+      position: relative;
+      transition: max-height 0.4s ease;
+    }
+    .artifact-preview.expanded {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .artifact-preview pre {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      white-space: pre;
+      margin: 0;
+      overflow-x: auto;
+    }
+    /* Syntax highlighting */
+    .artifact-preview .hl-heading { color: var(--brand-gold); font-weight: 700; }
+    .artifact-preview .hl-tag     { color: var(--brand-blue); }
+    .artifact-preview .hl-key     { color: var(--brand-purple); }
+    .artifact-preview .hl-string  { color: #E2E8F0; }
+    .artifact-preview .hl-comment { color: var(--text-dim); font-style: italic; }
+    .artifact-preview .hl-check   { color: var(--brand-blue); }
+    .artifact-preview .hl-uncheck { color: var(--text-dim); }
+    .artifact-preview .hl-number  { color: var(--brand-gold-dark); }
+
+    /* Fade overlay when collapsed */
+    .artifact-preview:not(.expanded)::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(transparent, #0F172A);
+      pointer-events: none;
+    }
+
+    /* ── Expand Button ───────────────────────────────────────── */
+    .artifact-footer {
+      padding: var(--space-sm) var(--space-lg);
+      display: flex;
+      justify-content: flex-end;
+    }
+    .expand-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 4px 12px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .expand-btn:hover {
+      background: rgba(255,215,0,0.08);
+      color: var(--brand-gold);
+      border-color: var(--border-gold);
+    }
+
+    /* ── SVG Graph Card ──────────────────────────────────────── */
+    .artifact-preview svg {
+      width: 100%;
+      height: auto;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ Hero ═══ -->
+  <section class="hero">
+    <h1>Artifact Gallery</h1>
+    <p>What SDD produces at each phase. Real previews of every artifact type in the pipeline.</p>
+  </section>
+
+  <!-- ═══ Artifact Grid ═══ -->
+  <div class="artifact-grid">
+
+    <!-- ── 1. CONSTITUTION.md ────────────────────────────────── -->
+    <div class="artifact-card">
+      <div class="artifact-header">
+        <span class="artifact-title">CONSTITUTION.md</span>
+        <span class="phase-badge">Phase 0</span>
+      </div>
+      <div class="artifact-preview" id="prev-constitution">
+        <pre><span class="hl-heading"># Constitution &mdash; FinTech API Platform</span>
+
+<span class="hl-heading">## I. Security-First</span>
+<span class="hl-string">All endpoints require authentication.
+Input sanitized at boundary layer.
+Rate limiting: 100 req/min per user.
+OWASP Top 10 compliance mandatory.</span>
+
+<span class="hl-heading">## II. Test-Driven Development</span>
+<span class="hl-string">Tests written before implementation.
+Hash-locked .feature files (SHA-256).
+Minimum 80% code coverage enforced.</span>
+
+<span class="hl-heading">## III. Clean Architecture</span>
+<span class="hl-string">Domain layer has zero external deps.
+Ports &amp; adapters pattern required.
+No framework imports in business logic.</span>
+
+<span class="hl-heading">## IV. TypeScript Strict Mode</span>
+<span class="hl-string">strict: true, noImplicitAny: true
+No @ts-ignore without justification.
+All public APIs fully typed.</span></pre>
+      </div>
+      <div class="artifact-footer">
+        <button class="expand-btn" onclick="toggleExpand('prev-constitution', this)">Expand</button>
+      </div>
+    </div>
+
+    <!-- ── 2. spec.md ────────────────────────────────────────── -->
+    <div class="artifact-card">
+      <div class="artifact-header">
+        <span class="artifact-title">spec.md</span>
+        <span class="phase-badge">Phase 1</span>
+      </div>
+      <div class="artifact-preview" id="prev-spec">
+        <pre><span class="hl-heading"># Feature: User Authentication</span>
+
+<span class="hl-heading">## Requirements</span>
+<span class="hl-tag">- FR-001:</span> <span class="hl-string">Register with email/password</span>
+<span class="hl-tag">- FR-002:</span> <span class="hl-string">Login returns JWT (1h expiry, RS256)</span>
+<span class="hl-tag">- FR-003:</span> <span class="hl-string">OAuth2 Google sign-in (PKCE flow)</span>
+<span class="hl-tag">- FR-004:</span> <span class="hl-string">MFA via TOTP (RFC 6238)</span>
+<span class="hl-tag">- FR-005:</span> <span class="hl-string">Password reset via email token</span>
+
+<span class="hl-heading">## User Stories</span>
+<span class="hl-tag">- US-001:</span> <span class="hl-string">As a user, I want to register
+  with my email so I can access the platform</span>
+<span class="hl-tag">- US-002:</span> <span class="hl-string">As a user, I want to enable MFA
+  so my account is more secure</span>
+<span class="hl-tag">- US-003:</span> <span class="hl-string">As a user, I want to sign in
+  with Google for faster onboarding</span>
+
+<span class="hl-heading">## Success Criteria</span>
+<span class="hl-string">- Login latency &lt; 200ms (p95)
+- MFA setup completes in &lt; 60 seconds
+- Password reset token valid for 15 min</span></pre>
+      </div>
+      <div class="artifact-footer">
+        <button class="expand-btn" onclick="toggleExpand('prev-spec', this)">Expand</button>
+      </div>
+    </div>
+
+    <!-- ── 3. plan.md ────────────────────────────────────────── -->
+    <div class="artifact-card">
+      <div class="artifact-header">
+        <span class="artifact-title">plan.md</span>
+        <span class="phase-badge">Phase 2</span>
+      </div>
+      <div class="artifact-preview" id="prev-plan">
+        <pre><span class="hl-heading"># Technical Plan: User Authentication</span>
+
+<span class="hl-heading">## Architecture</span>
+<span class="hl-string">Provider: Supabase Auth + custom JWT
+Pattern: Ports &amp; Adapters
+Edge: Vercel Middleware (token verify)</span>
+
+<span class="hl-heading">## Data Model</span>
+<span class="hl-key">table</span> <span class="hl-string">users</span>
+  <span class="hl-tag">id</span>         <span class="hl-string">uuid PRIMARY KEY</span>
+  <span class="hl-tag">email</span>      <span class="hl-string">text UNIQUE NOT NULL</span>
+  <span class="hl-tag">mfa_secret</span> <span class="hl-string">text ENCRYPTED</span>
+  <span class="hl-tag">created_at</span> <span class="hl-string">timestamptz DEFAULT now()</span>
+
+<span class="hl-heading">## API Endpoints</span>
+<span class="hl-key">POST</span> <span class="hl-string">/api/auth/register</span>  <span class="hl-comment">&rarr; FR-001</span>
+<span class="hl-key">POST</span> <span class="hl-string">/api/auth/login</span>     <span class="hl-comment">&rarr; FR-002</span>
+<span class="hl-key">GET</span>  <span class="hl-string">/api/auth/callback</span>  <span class="hl-comment">&rarr; FR-003</span>
+<span class="hl-key">POST</span> <span class="hl-string">/api/auth/mfa/setup</span> <span class="hl-comment">&rarr; FR-004</span>
+<span class="hl-key">POST</span> <span class="hl-string">/api/auth/reset</span>     <span class="hl-comment">&rarr; FR-005</span>
+
+<span class="hl-heading">## RLS Policies</span>
+<span class="hl-string">Users can only read/update own row.
+Service role bypasses for admin ops.</span></pre>
+      </div>
+      <div class="artifact-footer">
+        <button class="expand-btn" onclick="toggleExpand('prev-plan', this)">Expand</button>
+      </div>
+    </div>
+
+    <!-- ── 4. checklist.md ───────────────────────────────────── -->
+    <div class="artifact-card">
+      <div class="artifact-header">
+        <span class="artifact-title">checklist.md</span>
+        <span class="phase-badge">Phase 3</span>
+      </div>
+      <div class="artifact-preview" id="prev-checklist">
+        <pre><span class="hl-heading"># Quality Checklist: User Authentication</span>
+
+<span class="hl-heading">## Functional Completeness</span>
+<span class="hl-check">[x]</span> <span class="hl-tag">FR-001</span> <span class="hl-string">Registration creates user record</span>
+<span class="hl-check">[x]</span> <span class="hl-tag">FR-002</span> <span class="hl-string">JWT includes correct claims</span>
+<span class="hl-check">[x]</span> <span class="hl-tag">FR-003</span> <span class="hl-string">Google OAuth callback handled</span>
+<span class="hl-uncheck">[ ]</span> <span class="hl-tag">FR-004</span> <span class="hl-string">TOTP verification within window</span>
+<span class="hl-check">[x]</span> <span class="hl-tag">FR-005</span> <span class="hl-string">Reset token expires after 15 min</span>
+
+<span class="hl-heading">## Security Validation</span>
+<span class="hl-check">[x]</span> <span class="hl-string">Password hashed with bcrypt (12 rounds)</span>
+<span class="hl-check">[x]</span> <span class="hl-string">SQL injection prevention verified</span>
+<span class="hl-uncheck">[ ]</span> <span class="hl-string">Rate limiting on login endpoint</span>
+<span class="hl-check">[x]</span> <span class="hl-string">CORS configured for allowed origins</span>
+
+<span class="hl-heading">## Edge Cases</span>
+<span class="hl-check">[x]</span> <span class="hl-string">Duplicate email returns 409</span>
+<span class="hl-uncheck">[ ]</span> <span class="hl-string">Expired JWT returns 401 + refresh hint</span>
+<span class="hl-check">[x]</span> <span class="hl-string">Invalid MFA code after 3 tries locks out</span></pre>
+      </div>
+      <div class="artifact-footer">
+        <button class="expand-btn" onclick="toggleExpand('prev-checklist', this)">Expand</button>
+      </div>
+    </div>
+
+    <!-- ── 5. auth.feature ───────────────────────────────────── -->
+    <div class="artifact-card">
+      <div class="artifact-header">
+        <span class="artifact-title">auth.feature</span>
+        <span class="phase-badge">Phase 4</span>
+      </div>
+      <div class="artifact-preview" id="prev-feature">
+        <pre><span class="hl-tag">@TS-001</span> <span class="hl-tag">@FR-001</span>
+<span class="hl-key">Feature:</span> <span class="hl-string">User Registration</span>
+
+  <span class="hl-key">Scenario:</span> <span class="hl-string">Successful email registration</span>
+    <span class="hl-key">Given</span> <span class="hl-string">the user is on the registration page</span>
+    <span class="hl-key">When</span>  <span class="hl-string">they submit valid email and password</span>
+    <span class="hl-key">Then</span>  <span class="hl-string">a user record is created in the database</span>
+    <span class="hl-key">And</span>   <span class="hl-string">a confirmation email is sent</span>
+    <span class="hl-key">And</span>   <span class="hl-string">response status is 201</span>
+
+  <span class="hl-tag">@TS-002</span> <span class="hl-tag">@FR-001</span>
+  <span class="hl-key">Scenario:</span> <span class="hl-string">Duplicate email rejection</span>
+    <span class="hl-key">Given</span> <span class="hl-string">a user with "alice@example.com" exists</span>
+    <span class="hl-key">When</span>  <span class="hl-string">another registration uses that email</span>
+    <span class="hl-key">Then</span>  <span class="hl-string">response status is 409</span>
+    <span class="hl-key">And</span>   <span class="hl-string">error message says "Email already in use"</span>
+
+  <span class="hl-tag">@TS-003</span> <span class="hl-tag">@FR-004</span>
+  <span class="hl-key">Scenario:</span> <span class="hl-string">MFA setup with TOTP</span>
+    <span class="hl-key">Given</span> <span class="hl-string">the user is authenticated</span>
+    <span class="hl-key">When</span>  <span class="hl-string">they request MFA setup</span>
+    <span class="hl-key">Then</span>  <span class="hl-string">a QR code with TOTP secret is returned</span>
+    <span class="hl-key">And</span>   <span class="hl-string">the secret is stored encrypted</span></pre>
+      </div>
+      <div class="artifact-footer">
+        <button class="expand-btn" onclick="toggleExpand('prev-feature', this)">Expand</button>
+      </div>
+    </div>
+
+    <!-- ── 6. tasks.md ───────────────────────────────────────── -->
+    <div class="artifact-card">
+      <div class="artifact-header">
+        <span class="artifact-title">tasks.md</span>
+        <span class="phase-badge">Phase 5</span>
+      </div>
+      <div class="artifact-preview" id="prev-tasks">
+        <pre><span class="hl-heading"># Tasks: User Authentication</span>
+
+<span class="hl-heading">## Critical Path</span>
+<span class="hl-tag">T-001</span> <span class="hl-string">Set up Supabase project + schema</span>
+       <span class="hl-comment">deps: none | effort: 2h | parallel: no</span>
+<span class="hl-tag">T-002</span> <span class="hl-string">Create users table with RLS policies</span>
+       <span class="hl-comment">deps: T-001 | effort: 1h | parallel: no</span>
+<span class="hl-tag">T-003</span> <span class="hl-string">Implement registration endpoint</span>
+       <span class="hl-comment">deps: T-002 | effort: 3h | parallel: yes</span>
+<span class="hl-tag">T-004</span> <span class="hl-string">Implement login + JWT issuance</span>
+       <span class="hl-comment">deps: T-002 | effort: 3h | parallel: yes</span>
+<span class="hl-tag">T-005</span> <span class="hl-string">Write TS-001, TS-002 test assertions</span>
+       <span class="hl-comment">deps: T-003 | effort: 2h | parallel: yes</span>
+
+<span class="hl-heading">## OAuth &amp; MFA Track</span>
+<span class="hl-tag">T-006</span> <span class="hl-string">Configure Google OAuth2 provider</span>
+       <span class="hl-comment">deps: T-001 | effort: 2h | parallel: yes</span>
+<span class="hl-tag">T-007</span> <span class="hl-string">Implement OAuth callback handler</span>
+       <span class="hl-comment">deps: T-006 | effort: 2h | parallel: no</span>
+<span class="hl-tag">T-008</span> <span class="hl-string">Implement TOTP MFA setup endpoint</span>
+       <span class="hl-comment">deps: T-004 | effort: 3h | parallel: no</span>
+
+<span class="hl-comment">Total: 15 tasks | 32h estimated | 3 parallel</span></pre>
+      </div>
+      <div class="artifact-footer">
+        <button class="expand-btn" onclick="toggleExpand('prev-tasks', this)">Expand</button>
+      </div>
+    </div>
+
+    <!-- ── 7. analysis.md ────────────────────────────────────── -->
+    <div class="artifact-card">
+      <div class="artifact-header">
+        <span class="artifact-title">analysis.md</span>
+        <span class="phase-badge">Phase 6</span>
+      </div>
+      <div class="artifact-preview" id="prev-analysis">
+        <pre><span class="hl-heading"># Cross-Artifact Analysis</span>
+
+<span class="hl-heading">## Traceability Coverage</span>
+<span class="hl-string">Requirements traced to tests:</span>  <span class="hl-number">92%</span>
+<span class="hl-string">Tests traced to tasks:</span>        <span class="hl-number">87%</span>
+<span class="hl-string">Principles to requirements:</span>   <span class="hl-number">100%</span>
+<span class="hl-string">Overall coverage score:</span>       <span class="hl-number">93/100</span>
+
+<span class="hl-heading">## Conflicts Found</span>
+<span class="hl-tag">CONFLICT-001:</span> <span class="hl-string">FR-004 specifies RFC 6238
+  but plan.md references RFC 4226 (HOTP).
+  Resolution: Update plan to RFC 6238.</span>
+
+<span class="hl-heading">## Orphan Detection</span>
+<span class="hl-tag">ORPHAN:</span> <span class="hl-string">FR-005 has no test scenario.
+  Recommendation: Add TS-004 for password reset.</span>
+<span class="hl-tag">ORPHAN:</span> <span class="hl-string">T-012 has no requirement link.
+  Recommendation: Link to FR-003 or remove.</span>
+
+<span class="hl-heading">## Gate Decision</span>
+<span class="hl-string">Status:</span> <span class="hl-tag">CONDITIONAL PASS</span>
+<span class="hl-string">Fix 2 orphans before implementation.</span></pre>
+      </div>
+      <div class="artifact-footer">
+        <button class="expand-btn" onclick="toggleExpand('prev-analysis', this)">Expand</button>
+      </div>
+    </div>
+
+    <!-- ── 8. knowledge-graph.json ───────────────────────────── -->
+    <div class="artifact-card">
+      <div class="artifact-header">
+        <span class="artifact-title">knowledge-graph.json</span>
+        <span class="phase-badge">Intelligence</span>
+      </div>
+      <div class="artifact-preview" id="prev-graph" style="display:flex;align-items:center;justify-content:center;min-height:220px;">
+        <svg viewBox="0 0 400 220" style="max-width:380px;">
+          <!-- Edges -->
+          <line x1="80" y1="50" x2="200" y2="50" stroke="#FFD700" stroke-width="1.5" opacity="0.4"/>
+          <line x1="80" y1="50" x2="200" y2="110" stroke="#FFD700" stroke-width="1.5" opacity="0.4"/>
+          <line x1="200" y1="50" x2="320" y2="50" stroke="#137DC5" stroke-width="1.5" opacity="0.4"/>
+          <line x1="200" y1="110" x2="320" y2="50" stroke="#137DC5" stroke-width="1.5" opacity="0.4"/>
+          <line x1="320" y1="50" x2="320" y2="170" stroke="#8B5CF6" stroke-width="1.5" opacity="0.4"/>
+          <line x1="200" y1="50" x2="200" y2="170" stroke="#8B5CF6" stroke-width="1.5" opacity="0.4"/>
+          <line x1="200" y1="170" x2="320" y2="170" stroke="#94A3B8" stroke-width="1.5" opacity="0.3"/>
+          <!-- Principle node -->
+          <circle cx="80" cy="50" r="22" fill="#122562" stroke="#FFD700" stroke-width="2"/>
+          <text x="80" y="54" text-anchor="middle" fill="#FFD700" font-size="10" font-family="JetBrains Mono">P-I</text>
+          <!-- Requirement nodes -->
+          <circle cx="200" cy="50" r="22" fill="#122562" stroke="#137DC5" stroke-width="2"/>
+          <text x="200" y="54" text-anchor="middle" fill="#137DC5" font-size="9" font-family="JetBrains Mono">FR-001</text>
+          <circle cx="200" cy="110" r="18" fill="#122562" stroke="#137DC5" stroke-width="1.5"/>
+          <text x="200" y="114" text-anchor="middle" fill="#137DC5" font-size="9" font-family="JetBrains Mono">FR-002</text>
+          <!-- Test node -->
+          <circle cx="320" cy="50" r="22" fill="#122562" stroke="#8B5CF6" stroke-width="2"/>
+          <text x="320" y="54" text-anchor="middle" fill="#8B5CF6" font-size="9" font-family="JetBrains Mono">TS-001</text>
+          <!-- Task nodes -->
+          <rect x="180" y="155" width="40" height="28" rx="6" fill="#122562" stroke="#94A3B8" stroke-width="1.5"/>
+          <text x="200" y="173" text-anchor="middle" fill="#94A3B8" font-size="9" font-family="JetBrains Mono">T-003</text>
+          <rect x="300" y="155" width="40" height="28" rx="6" fill="#122562" stroke="#94A3B8" stroke-width="1.5"/>
+          <text x="320" y="173" text-anchor="middle" fill="#94A3B8" font-size="9" font-family="JetBrains Mono">T-005</text>
+          <!-- Legend -->
+          <circle cx="30" cy="200" r="5" fill="#FFD700"/>
+          <text x="40" y="203" fill="#94A3B8" font-size="8" font-family="Montserrat">Principle</text>
+          <circle cx="110" cy="200" r="5" fill="#137DC5"/>
+          <text x="120" y="203" fill="#94A3B8" font-size="8" font-family="Montserrat">Requirement</text>
+          <circle cx="210" cy="200" r="5" fill="#8B5CF6"/>
+          <text x="220" y="203" fill="#94A3B8" font-size="8" font-family="Montserrat">Test</text>
+          <rect x="285" y="196" width="10" height="8" rx="2" fill="#94A3B8"/>
+          <text x="300" y="203" fill="#94A3B8" font-size="8" font-family="Montserrat">Task</text>
+        </svg>
+      </div>
+      <div class="artifact-footer">
+        <button class="expand-btn" onclick="toggleExpand('prev-graph', this)">Expand</button>
+      </div>
+    </div>
+
+    <!-- ── 9. HEARTBEAT-REPORT.md ────────────────────────────── -->
+    <div class="artifact-card">
+      <div class="artifact-header">
+        <span class="artifact-title">HEARTBEAT-REPORT.md</span>
+        <span class="phase-badge">Intelligence</span>
+      </div>
+      <div class="artifact-preview" id="prev-heartbeat">
+        <pre><span class="hl-heading"># Heartbeat Report</span>
+<span class="hl-comment">Generated: 2026-03-23T14:32:00Z</span>
+
+<span class="hl-heading">## Health Score: <span class="hl-number">87/100</span></span>
+
+<span class="hl-heading">## Findings</span>
+<span class="hl-string">| # | Severity | Finding                    |
+|---|----------|----------------------------|
+| 1 | WARN     | spec.md modified 3 days ago|
+| 2 | INFO     | 2 tasks not yet started    |
+| 3 | WARN     | checklist 78% complete     |
+| 4 | OK       | All .feature files hashed  |</span>
+
+<span class="hl-heading">## Health Trend</span>
+<span class="hl-string">  92 &#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;
+  87 &#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;    <span class="hl-tag">&larr; now</span>
+  85 &#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;
+     Mon  Tue  Wed</span>
+
+<span class="hl-heading">## Recommendations</span>
+<span class="hl-tag">1.</span> <span class="hl-string">Complete checklist items (2 remaining)</span>
+<span class="hl-tag">2.</span> <span class="hl-string">Run /sdd:analyze before implementation</span>
+<span class="hl-tag">3.</span> <span class="hl-string">Add missing test for FR-005</span></pre>
+      </div>
+      <div class="artifact-footer">
+        <button class="expand-btn" onclick="toggleExpand('prev-heartbeat', this)">Expand</button>
+      </div>
+    </div>
+
+    <!-- ── 10. rag-memory-of-api-spec.md ─────────────────────── -->
+    <div class="artifact-card">
+      <div class="artifact-header">
+        <span class="artifact-title">rag-memory-of-api-spec.md</span>
+        <span class="phase-badge">Workspace</span>
+      </div>
+      <div class="artifact-preview" id="prev-rag">
+        <pre><span class="hl-comment">---</span>
+<span class="hl-key">source:</span>   <span class="hl-string">workspace/api-spec.pdf</span>
+<span class="hl-key">type:</span>     <span class="hl-string">pdf</span>
+<span class="hl-key">size:</span>     <span class="hl-string">245KB</span>
+<span class="hl-key">pages:</span>    <span class="hl-number">12</span>
+<span class="hl-key">tags:</span>     <span class="hl-string">[api, rest, openapi, auth]</span>
+<span class="hl-key">captured:</span> <span class="hl-string">2026-03-23T10:15:00Z</span>
+<span class="hl-comment">---</span>
+
+<span class="hl-heading"># RAG Memory: API Specification</span>
+
+<span class="hl-heading">## Abstract</span>
+<span class="hl-string">OpenAPI 3.1 specification for the FinTech
+platform REST API. Defines 23 endpoints
+across 4 resource groups: auth, users,
+transactions, and admin.</span>
+
+<span class="hl-heading">## Key Takeaways</span>
+<span class="hl-tag">-</span> <span class="hl-string">Bearer token auth on all endpoints</span>
+<span class="hl-tag">-</span> <span class="hl-string">Rate limit headers: X-RateLimit-*</span>
+<span class="hl-tag">-</span> <span class="hl-string">Pagination via cursor, not offset</span>
+<span class="hl-tag">-</span> <span class="hl-string">Webhook callbacks for async operations</span>
+
+<span class="hl-heading">## Relevant Insights</span>
+<span class="hl-string">The /transactions endpoint requires
+idempotency keys (Idempotency-Key header).
+Error responses follow RFC 7807.</span></pre>
+      </div>
+      <div class="artifact-footer">
+        <button class="expand-btn" onclick="toggleExpand('prev-rag', this)">Expand</button>
+      </div>
+    </div>
+
+  </div><!-- /artifact-grid -->
+
+  <!-- ═══ Scripts ═══ -->
+  <script>
+    function toggleExpand(id, btn) {
+      const el = document.getElementById(id);
+      const expanded = el.classList.toggle('expanded');
+      btn.textContent = expanded ? 'Collapse' : 'Expand';
+    }
+  </script>
+
+  <script src="shared/nav.js"></script>
+  <script src="shared/footer.js"></script>
+</body>
+</html>

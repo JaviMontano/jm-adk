@@ -1,0 +1,159 @@
+/* ============================================================
+   SDD Command Center — Design Tokens
+   Spec Driven Development by metodologIA
+   ============================================================ */
+
+:root {
+  /* Backgrounds */
+  --bg-body: #020617;
+  --bg-surface: #0F172A;
+  --bg-raised: #1E293B;
+  --bg-card: rgba(255,255,255,0.03);
+  --bg-overlay: rgba(2,6,23,0.85);
+
+  /* Brand */
+  --brand-navy: #122562;
+  --brand-gold: #FFD700;
+  --brand-gold-dark: #FFA000;
+  --brand-blue: #137DC5;
+  --brand-purple: #8B5CF6;
+  --brand-cyan: #00FFFF;
+  --brand-green: #22C55E;
+  --brand-red: #EF4444;
+  --brand-orange: #F97316;
+
+  /* Text */
+  --text-primary: #E2E8F0;
+  --text-muted: #94A3B8;
+  --text-dim: #64748B;
+  --text-inverse: #020617;
+
+  /* Borders */
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-medium: rgba(255,255,255,0.12);
+  --border-gold: rgba(255,215,0,0.25);
+
+  /* Effects */
+  --glass: blur(16px) saturate(180%);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.5);
+  --shadow-glow-gold: 0 0 20px rgba(255,215,0,0.15);
+  --shadow-glow-blue: 0 0 20px rgba(19,125,197,0.15);
+  --radius-card: 16px;
+  --radius-sm: 8px;
+  --radius-full: 9999px;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* Fonts */
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Montserrat', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.35s ease;
+}
+
+/* Light theme overrides */
+body.light {
+  --bg-body: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-raised: #F1F5F9;
+  --bg-card: rgba(0,0,0,0.02);
+  --text-primary: #0F172A;
+  --text-muted: #475569;
+  --text-dim: #94A3B8;
+  --border-subtle: rgba(0,0,0,0.06);
+  --border-medium: rgba(0,0,0,0.12);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+/* ── Base Resets ────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--brand-gold); text-decoration: none; transition: color var(--transition-fast); }
+a:hover { color: var(--brand-gold-dark); }
+
+h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: 700; line-height: 1.25; }
+code, pre { font-family: var(--font-mono); }
+
+/* ── Utility Classes ───────────────────────────────────────── */
+
+.card {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass);
+  -webkit-backdrop-filter: var(--glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: var(--space-lg);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+.card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--shadow-glow-gold);
+}
+
+.btn-gold {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: linear-gradient(135deg, #FFD700, #FFA000);
+  color: #000; font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border: none; border-radius: var(--radius-sm);
+  cursor: pointer; font-family: var(--font-heading);
+  transition: box-shadow var(--transition-normal), transform var(--transition-normal);
+}
+.btn-gold:hover { box-shadow: var(--shadow-glow-gold); transform: translateY(-2px); }
+
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: transparent;
+  color: var(--brand-gold); font-weight: 600;
+  padding: 0.65rem 1.25rem;
+  border: 1.5px solid var(--border-gold);
+  border-radius: var(--radius-sm);
+  cursor: pointer; font-family: var(--font-heading);
+  transition: all var(--transition-normal);
+}
+.btn-outline:hover { background: rgba(255,215,0,0.08); transform: translateY(-1px); }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 12px;
+  font-size: 0.75rem; font-weight: 600;
+}
+.badge-gold   { background: rgba(255,215,0,0.12);   color: var(--brand-gold); }
+.badge-blue   { background: rgba(19,125,197,0.12);   color: var(--brand-blue); }
+.badge-green  { background: rgba(34,197,94,0.12);    color: var(--brand-green); }
+.badge-red    { background: rgba(239,68,68,0.12);    color: var(--brand-red); }
+.badge-purple { background: rgba(139,92,246,0.12);   color: var(--brand-purple); }
+
+.text-muted { color: var(--text-muted); }
+.text-dim   { color: var(--text-dim); }
+.text-gold  { color: var(--brand-gold); }
+.text-mono  { font-family: var(--font-mono); font-size: 0.85em; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}

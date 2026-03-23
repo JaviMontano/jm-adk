@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How the Workspace Works — SDD by metodologIA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    /* ── Layout ─────────────────────────────────────────────── */
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 3rem 0 2rem; }
+    section + section { border-top: 1px solid var(--border-subtle); }
+
+    /* ── Hero ───────────────────────────────────────────────── */
+    .hero { text-align: center; padding: 5rem 0 3rem; }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; margin-bottom: 0.75rem; }
+    .hero h1 .accent { color: var(--brand-gold); }
+    .hero p { color: var(--text-muted); font-size: 1.1rem; max-width: 640px; margin: 0 auto; }
+
+    /* ── Section headings ──────────────────────────────────── */
+    .section-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--brand-blue); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .section-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 1rem; }
+
+    /* ── Directory Tree ─────────────────────────────────────── */
+    .tree { font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.9; padding: var(--space-lg); background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-card); overflow-x: auto; }
+    .tree ul { list-style: none; padding-left: 1.5rem; position: relative; }
+    .tree > ul { padding-left: 0; }
+    .tree li { position: relative; cursor: default; }
+    .tree li::before { content: ''; position: absolute; left: -1.1rem; top: 0; height: 100%; border-left: 1px solid var(--border-medium); }
+    .tree li::after { content: ''; position: absolute; left: -1.1rem; top: 0.9em; width: 0.9rem; border-bottom: 1px solid var(--border-medium); }
+    .tree li:last-child::before { height: 0.9em; }
+    .tree > ul > li::before,
+    .tree > ul > li::after { display: none; }
+
+    .tree .node { display: inline-flex; align-items: center; gap: 0.5rem; padding: 1px 6px; border-radius: 4px; transition: background var(--transition-fast); position: relative; }
+    .tree .node:hover { background: rgba(255, 215, 0, 0.06); }
+    .tree .node .icon { flex-shrink: 0; width: 1rem; text-align: center; }
+    .tree .node .name { color: var(--text-primary); }
+    .tree .node .desc { color: var(--text-dim); font-size: 0.75rem; margin-left: 0.5rem; }
+    .tree .node .name.dir { color: var(--brand-gold); font-weight: 600; }
+    .tree .node .name.special { color: var(--brand-blue); }
+
+    /* Collapsible */
+    .tree .toggle { cursor: pointer; user-select: none; }
+    .tree .toggle > .caret { display: inline-block; width: 0.8rem; text-align: center; color: var(--text-dim); transition: transform var(--transition-fast); font-size: 0.7rem; }
+    .tree .toggle.closed > .caret { transform: rotate(-90deg); }
+    .tree .toggle.closed + ul { display: none; }
+
+    /* ── Method Cards ──────────────────────────────────────── */
+    .methods-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .method-card { position: relative; overflow: hidden; }
+    .method-card .method-num { font-family: var(--font-heading); font-weight: 900; font-size: 3rem; color: rgba(255, 215, 0, 0.08); position: absolute; top: -0.25rem; right: 0.75rem; line-height: 1; pointer-events: none; }
+    .method-card h3 { font-size: 1.05rem; color: var(--brand-gold); margin-bottom: 0.35rem; }
+    .method-card .badge { margin-bottom: 0.75rem; }
+    .method-card pre { background: rgba(0, 0, 0, 0.35); border-radius: var(--radius-sm); padding: 0.85rem 1rem; font-size: 0.78rem; overflow-x: auto; margin: 0.75rem 0; line-height: 1.65; color: var(--text-primary); border: 1px solid var(--border-subtle); }
+    .method-card .explain { color: var(--text-muted); font-size: 0.85rem; line-height: 1.55; }
+
+    /* ── Flow Diagram ──────────────────────────────────────── */
+    .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem; justify-content: center; padding: 2rem 1rem; }
+    .flow-step { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.6rem 1rem; font-family: var(--font-mono); font-size: 0.8rem; text-align: center; white-space: nowrap; }
+    .flow-step.highlight { border-color: var(--brand-gold); box-shadow: var(--shadow-glow-gold); color: var(--brand-gold); font-weight: 600; }
+    .flow-arrow { color: var(--text-dim); font-size: 1.2rem; flex-shrink: 0; }
+    .flow-down { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+    .flow-down .flow-arrow { transform: rotate(90deg); }
+
+    .types-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+    .type-card { padding: var(--space-md); }
+    .type-card h4 { font-size: 0.9rem; color: var(--brand-blue); margin-bottom: 0.35rem; }
+    .type-card p { color: var(--text-muted); font-size: 0.82rem; line-height: 1.5; }
+
+    /* ── Heartbeat Terminal ─────────────────────────────────── */
+    .terminal { background: #0c0c14; border: 1px solid var(--border-subtle); border-radius: var(--radius-card); overflow: hidden; }
+    .terminal-bar { background: rgba(255, 255, 255, 0.04); padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-subtle); }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal-dot.r { background: #EF4444; }
+    .terminal-dot.y { background: #FFD700; }
+    .terminal-dot.b { background: #137DC5; }
+    .terminal-title { color: var(--text-dim); font-size: 0.75rem; font-family: var(--font-mono); margin-left: auto; }
+    .terminal-body { padding: 1.25rem; font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.8; }
+    .terminal-body .prompt { color: var(--brand-gold); }
+    .terminal-body .output { color: var(--text-primary); }
+    .terminal-body .dim { color: var(--text-dim); }
+    .terminal-body .warn { color: #F97316; }
+    .terminal-body .ok { color: var(--brand-blue); }
+
+    /* ── Git Sync Section ──────────────────────────────────── */
+    .sync-examples { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; }
+
+    /* ── Reference Table ───────────────────────────────────── */
+    .ref-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .ref-table th { text-align: left; font-family: var(--font-heading); font-weight: 600; color: var(--brand-gold); padding: 0.75rem 1rem; border-bottom: 2px solid var(--border-gold); }
+    .ref-table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); vertical-align: top; }
+    .ref-table tr:hover td { background: rgba(255, 215, 0, 0.03); }
+    .ref-table code { background: rgba(255, 255, 255, 0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; color: var(--brand-gold); }
+    .ref-table .managed { color: var(--text-muted); font-size: 0.8rem; }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .hero { padding: 3rem 0 2rem; }
+      .flow { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+  <script src="shared/nav.js"></script>
+
+  <div class="page-wrap">
+
+    <!-- ════════════════════════════════════════════════════════
+         SECTION 1 — HERO
+         ════════════════════════════════════════════════════════ -->
+    <section class="hero">
+      <h1>How the <span class="accent">Workspace</span> Works</h1>
+      <p>Understanding SDD's project structure, input methods, and ambient intelligence</p>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         SECTION 2 — PROJECT STRUCTURE
+         ════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="section-label">Structure</div>
+      <h2 class="section-title">Project Anatomy</h2>
+      <p style="color:var(--text-muted);margin-bottom:1.5rem;">Click any folder to expand or collapse. Every file has a purpose in the SDD pipeline.</p>
+
+      <div class="tree" id="project-tree"></div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         SECTION 3 — THREE WAYS TO LOAD SPECS
+         ════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="section-label">Input Methods</div>
+      <h2 class="section-title">Three Ways to Load Specs</h2>
+
+      <div class="methods-grid">
+        <!-- Method 1 -->
+        <div class="card method-card">
+          <span class="method-num">1</span>
+          <span class="badge badge-gold">Recommended</span>
+          <h3>By Chat</h3>
+          <pre><span style="color:var(--text-dim)">User:</span> "Create a feature for user authentication
+       with OAuth2, MFA, and password reset"
+
+<span style="color:var(--brand-gold)">SDD:</span>  Creates specs/001-user-auth/spec.md with:
+      - FR-001: Email/password registration
+      - FR-002: OAuth2 Google sign-in
+      - FR-003: MFA via TOTP
+      - FR-004: Password reset via email
+      - US-001 to US-003
+      - SC-001 to SC-003</pre>
+          <p class="explain">Just describe what you need. SDD generates formal specs with FR/US/SC identifiers. Best for new features and rapid ideation.</p>
+        </div>
+
+        <!-- Method 2 -->
+        <div class="card method-card">
+          <span class="method-num">2</span>
+          <span class="badge badge-blue">Batch</span>
+          <h3>Dated Folder</h3>
+          <pre><span style="color:var(--text-dim)">1.</span> Create: workspace/2026-03-23-crm-specs/
+<span style="color:var(--text-dim)">2.</span> Drop your files (PDF, YAML, HTML, images)
+<span style="color:var(--text-dim)">3.</span> Run: <span style="color:var(--brand-gold)">/sdd:capture --scan</span>
+<span style="color:var(--text-dim)">4.</span> SDD creates rag-memory-of-*.md per file
+<span style="color:var(--text-dim)">5.</span> Then: <span style="color:var(--brand-gold)">/sdd:spec</span> (uses RAG memory as context)</pre>
+          <p class="explain">Best when you have existing requirements documents. The dated folder (YYYY-MM-DD-slug) keeps inputs organized. The workspace/ directory is gitignored.</p>
+        </div>
+
+        <!-- Method 3 -->
+        <div class="card method-card">
+          <span class="method-num">3</span>
+          <span class="badge badge-purple">Direct</span>
+          <h3>File Capture</h3>
+          <pre><span style="color:var(--brand-gold)">/sdd:capture</span> /path/to/requirements.pdf
+<span style="color:var(--brand-gold)">/sdd:capture</span> /path/to/api-spec.yaml
+<span style="color:var(--brand-gold)">/sdd:capture</span> https://docs.example.com/api</pre>
+          <p class="explain">Point SDD at any file or URL. It auto-detects the type (text, HTML, image, audio, PDF, slides), then creates a RAG memory with abstract, key takeaways, and full content.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         SECTION 4 — HOW SDD PROCESSES INPUTS
+         ════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="section-label">Processing</div>
+      <h2 class="section-title">How SDD Processes Inputs</h2>
+
+      <div class="flow">
+        <div class="flow-step">Input File</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">MIME Detection</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">RAG Capture</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step highlight">rag-memory-of-*.md</div>
+      </div>
+      <div class="flow" style="padding-top:0">
+        <span class="flow-arrow" style="transform:rotate(90deg);margin-bottom:0.5rem">&darr;</span>
+      </div>
+      <div class="flow" style="padding-top:0">
+        <div class="flow-step">rag-index.json</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step highlight">Context for /sdd:spec, /sdd:plan, etc.</div>
+      </div>
+
+      <div class="types-grid">
+        <div class="card type-card">
+          <h4>Text / Code</h4>
+          <p>Verbatim copy in fenced code block, up to 1000 lines. Language auto-detected.</p>
+        </div>
+        <div class="card type-card">
+          <h4>HTML</h4>
+          <p>Structure summary: title, CSS tokens, headings hierarchy, scripts. Truncated source appended.</p>
+        </div>
+        <div class="card type-card">
+          <h4>Image</h4>
+          <p>Description placeholder generated by LLM when /sdd:capture executes. Dimensions and format noted.</p>
+        </div>
+        <div class="card type-card">
+          <h4>Audio</h4>
+          <p>Transcription placeholder. Duration and codec noted. Full text generated at capture time.</p>
+        </div>
+        <div class="card type-card">
+          <h4>PDF</h4>
+          <p>Page count, section titles extracted, table of contents reconstructed. Content indexed per-section.</p>
+        </div>
+        <div class="card type-card">
+          <h4>Slides</h4>
+          <p>Slide-by-slide recap placeholder. Title, bullet points, and speaker notes per slide.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         SECTION 5 — HEARTBEAT IN ACTION
+         ════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="section-label">Ambient Intelligence</div>
+      <h2 class="section-title">Heartbeat in Action</h2>
+      <p style="color:var(--text-muted);margin-bottom:1.5rem;">The heartbeat runs in under 100ms on every prompt. It stays silent when healthy (30-minute suppression after a clean run). It only speaks when it finds issues.</p>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span>
+          <span class="terminal-dot y"></span>
+          <span class="terminal-dot b"></span>
+          <span class="terminal-title">claude &mdash; my-project</span>
+        </div>
+        <div class="terminal-body">
+          <div><span class="prompt">User:</span> <span class="output">"Show me the pipeline status"</span></div>
+          <br>
+          <div><span class="warn">&#9889; SDD: 3 stale, 1 missing &mdash; /sdd:sentinel</span></div>
+          <br>
+          <div class="dim">This ambient alert was injected by the heartbeat (UserPromptSubmit hook).</div>
+          <div class="dim">It detected:</div>
+          <div class="dim">&nbsp;&nbsp;- 3 artifacts older than 7 days (specs/002-notifications/)</div>
+          <div class="dim">&nbsp;&nbsp;- PREMISE.md is missing</div>
+          <br>
+          <div class="output">Run <span style="color:var(--brand-gold)">/sdd:sentinel</span> for full details, or <span style="color:var(--brand-gold)">/sdd:insights</span> for recommendations.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem">
+        <div class="card" style="padding:var(--space-md)">
+          <h4 style="font-size:0.9rem;color:var(--brand-gold);margin-bottom:0.25rem">Under 100ms</h4>
+          <p style="color:var(--text-muted);font-size:0.82rem">Pure shell script, zero LLM calls. Checks file timestamps and structure only.</p>
+        </div>
+        <div class="card" style="padding:var(--space-md)">
+          <h4 style="font-size:0.9rem;color:var(--brand-gold);margin-bottom:0.25rem">Silent When Healthy</h4>
+          <p style="color:var(--text-muted);font-size:0.82rem">30-minute suppression after a clean sentinel run. Never interrupts your flow.</p>
+        </div>
+        <div class="card" style="padding:var(--space-md)">
+          <h4 style="font-size:0.9rem;color:var(--brand-gold);margin-bottom:0.25rem">Per-Prompt Hook</h4>
+          <p style="color:var(--text-muted);font-size:0.82rem">UserPromptSubmit fires on every input. Context injected before the LLM sees your message.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         SECTION 6 — GITHUB SYNC
+         ════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="section-label">Version Control</div>
+      <h2 class="section-title">GitHub Sync</h2>
+      <p style="color:var(--text-muted);margin-bottom:1.5rem;">SDD detects your Git remote during initialization and monitors sync status on every sentinel run.</p>
+
+      <div class="sync-examples">
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span>
+            <span class="terminal-dot y"></span>
+            <span class="terminal-dot b"></span>
+            <span class="terminal-title">Synced</span>
+          </div>
+          <div class="terminal-body">
+            <div><span class="prompt">&gt;</span> <span style="color:var(--brand-gold)">/sdd:init</span></div>
+            <br>
+            <div class="dim">Step 6: Git repo with remote: github.com/user/my-project</div>
+            <div>&nbsp;&nbsp;<span class="ok">&#10003; Sync OK</span> <span class="dim">&mdash; local matches remote</span></div>
+            <br>
+            <div class="dim">Step 7: .gitignore created with SDD defaults</div>
+          </div>
+        </div>
+
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span>
+            <span class="terminal-dot y"></span>
+            <span class="terminal-dot b"></span>
+            <span class="terminal-title">Diverged</span>
+          </div>
+          <div class="terminal-body">
+            <div><span class="prompt">&gt;</span> <span style="color:var(--brand-gold)">/sdd:init</span></div>
+            <br>
+            <div class="dim">Step 6: Git repo with remote: github.com/user/my-project</div>
+            <div>&nbsp;&nbsp;<span class="warn">&#9888; Diverged:</span> <span class="output">2 ahead, 3 behind remote</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         SECTION 7 — QUICK REFERENCE
+         ════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="section-label">Reference</div>
+      <h2 class="section-title">Quick Reference</h2>
+
+      <div style="overflow-x:auto">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Directory</th>
+              <th>Purpose</th>
+              <th>Managed by</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>specs/NNN-feature/</code></td>
+              <td>Feature artifacts: spec, plan, tasks, checklists, tests</td>
+              <td class="managed">User + SDD</td>
+            </tr>
+            <tr>
+              <td><code>.specify/</code></td>
+              <td>Pipeline state, health scores, knowledge graph</td>
+              <td class="managed">SDD (auto)</td>
+            </tr>
+            <tr>
+              <td><code>.specify/rag-memory/</code></td>
+              <td>Captured session inputs as structured memory files</td>
+              <td class="managed">/sdd:capture</td>
+            </tr>
+            <tr>
+              <td><code>.specify/dashboard/</code></td>
+              <td>Command Center HTML micro-frontend</td>
+              <td class="managed">/sdd:dashboard</td>
+            </tr>
+            <tr>
+              <td><code>workspace/</code></td>
+              <td>User inputs: PDFs, images, specs (gitignored)</td>
+              <td class="managed">User</td>
+            </tr>
+            <tr>
+              <td><code>CONSTITUTION.md</code></td>
+              <td>Governance principles and coding standards</td>
+              <td class="managed">/sdd:00-constitution</td>
+            </tr>
+            <tr>
+              <td><code>PREMISE.md</code></td>
+              <td>Project premise: what, who, why, domain, scope</td>
+              <td class="managed">/sdd:init</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div><!-- .page-wrap -->
+
+  <script src="shared/footer.js"></script>
+
+  <!-- ══════════════════════════════════════════════════════════
+       Interactive Directory Tree
+       ══════════════════════════════════════════════════════════ -->
+  <script>
+  (function(){
+    // Tree data: [name, icon, description, children?]
+    const TREE = [
+      ['my-project/', '\u{1F4C2}', 'Project root', [
+        ['CONSTITUTION.md', '\u{1F3DB}', 'Governance principles', null],
+        ['PREMISE.md', '\u{1F4CB}', 'What, who, why, domain, scope', null],
+        ['specs/', '\u{1F4C1}', 'Feature specifications', [
+          ['001-user-auth/', '\u2705', 'Complete feature', [
+            ['spec.md', '\u{1F4DD}', 'Requirements (FR/US/SC)', null],
+            ['plan.md', '\u{1F6E0}', 'Technical design', null],
+            ['tasks.md', '\u2611', 'Implementation tasks', null],
+            ['checklists/', '\u2714', 'Quality verification', [
+              ['CL-001.md', '\u{1F9FE}', 'Checklist instance', null]
+            ]],
+            ['tests/', '\u{1F9EA}', 'Test specifications', [
+              ['features/', '\u{1F4C2}', 'BDD Gherkin files', [
+                ['auth.feature', '\u{1F512}', 'BDD Gherkin (hash-locked)', null]
+              ]]
+            ]]
+          ]],
+          ['002-notifications/', '\u{1F6A7}', 'Feature in progress', [
+            ['spec.md', '\u{1F4DD}', 'Requirements (in progress)', null]
+          ]]
+        ]],
+        ['.specify/', '\u2699', 'SDD state (auto-managed)', [
+          ['context.json', '\u{1F4CA}', 'Pipeline state per feature', null],
+          ['knowledge-graph.json', '\u{1F578}', 'Traceability graph', null],
+          ['health-history.json', '\u{1F4C8}', 'Health score trend', null],
+          ['sentinel-state.json', '\u{1F6E1}', 'Heartbeat state', null],
+          ['rag-memory/', '\u{1F9E0}', 'Captured session inputs', [
+            ['rag-memory-of-api-spec.md', '\u{1F4C4}', 'Captured API specification', null],
+            ['rag-memory-of-brand-guide.md', '\u{1F4C4}', 'Captured brand guidelines', null]
+          ]],
+          ['rag-index.json', '\u{1F50D}', 'Memory index', null],
+          ['session-log.json', '\u{1F4DC}', 'Activity log', null],
+          ['dashboard/', '\u{1F4BB}', 'Command Center HTML', [
+            ['index.html', '\u{1F3E0}', 'Dashboard entry point', null],
+            ['shared/', '\u{1F4C2}', 'Shared assets (CSS, JS)', null]
+          ]]
+        ]],
+        ['workspace/', '\u{1F4E5}', 'YOUR inputs (gitignored)', [
+          ['2026-03-23-crm-specs/', '\u{1F4C5}', 'Dated input folder', [
+            ['requirements.pdf', '\u{1F4D1}', 'Requirements document', null],
+            ['wireframes.png', '\u{1F5BC}', 'UI wireframes', null],
+            ['api-spec.yaml', '\u{1F310}', 'API specification', null]
+          ]]
+        ]]
+      ]]
+    ];
+
+    function buildTree(items) {
+      const ul = document.createElement('ul');
+      items.forEach(([name, icon, desc, children]) => {
+        const li = document.createElement('li');
+        const isDir = children !== null;
+        const node = document.createElement('span');
+        node.className = 'node' + (isDir ? ' toggle' : '');
+        const nameClass = isDir ? 'dir' : (name.startsWith('.') ? 'special' : '');
+        node.innerHTML =
+          (isDir ? '<span class="caret">\u25BC</span> ' : '') +
+          '<span class="icon">' + icon + '</span>' +
+          '<span class="name ' + nameClass + '">' + name + '</span>' +
+          '<span class="desc">' + desc + '</span>';
+        li.appendChild(node);
+        if (isDir) {
+          node.addEventListener('click', function() { this.classList.toggle('closed'); });
+          li.appendChild(buildTree(children));
+        }
+        ul.appendChild(li);
+      });
+      return ul;
+    }
+
+    document.getElementById('project-tree').appendChild(buildTree(TREE));
+  })();
+  </script>
+</body>
+</html>
