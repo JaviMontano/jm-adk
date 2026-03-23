@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JM Agentic Development Kit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #020617;
+      --surface: #0F172A;
+      --card-bg: rgba(255,255,255,0.03);
+      --card-border: rgba(255,255,255,0.06);
+      --gold: #FFD700;
+      --blue: #137DC5;
+      --navy: #122562;
+      --purple: #8B5CF6;
+      --text: #E2E8F0;
+      --muted: #94A3B8;
+      --radius: 16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* ───── HERO ───── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--bg) 50%, #0a0e2a 100%);
+      animation: heroShift 12s ease-in-out infinite alternate;
+      z-index: 0;
+    }
+
+    @keyframes heroShift {
+      0%   { background-position: 0% 50%; opacity: 1; }
+      50%  { background-position: 100% 50%; opacity: .85; }
+      100% { background-position: 0% 50%; opacity: 1; }
+    }
+
+    .hero-content { position: relative; z-index: 1; max-width: 820px; }
+
+    .hero h1 {
+      font-weight: 900;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      background: linear-gradient(90deg, var(--text), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero .subtitle {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .hero .stats {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      color: var(--gold);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 40px;
+    }
+
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-4px) scale(1.01);
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #020617;
+      box-shadow: 0 4px 24px rgba(255,215,0,0.25);
+    }
+
+    .btn-gold:hover {
+      box-shadow: 0 8px 40px rgba(255,215,0,0.45);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--gold);
+      box-shadow: 0 4px 20px rgba(255,215,0,0.15);
+    }
+
+    /* ───── SECTION SHARED ───── */
+    section { padding: 100px 24px; }
+
+    .section-title {
+      font-weight: 700;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      text-align: center;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 56px;
+      font-size: 1.05rem;
+    }
+
+    /* ───── PLUGIN CARDS ───── */
+    .plugins-section { background: var(--bg); }
+
+    .plugin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .plugin-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+    }
+
+    .plugin-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 24px;
+      bottom: 24px;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .plugin-card.gold-accent::before   { background: var(--gold); }
+    .plugin-card.blue-accent::before    { background: var(--blue); }
+    .plugin-card.purple-accent::before  { background: var(--purple); }
+
+    .plugin-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 12px 40px rgba(255,215,0,0.08);
+    }
+
+    .card-icon {
+      font-size: 2.2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .plugin-card h3 {
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+
+    .plugin-card .prefix {
+      font-family: 'Montserrat', monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: rgba(255,255,255,0.06);
+      padding: 2px 10px;
+      border-radius: 6px;
+    }
+
+    .plugin-card p {
+      color: var(--muted);
+      margin: 10px 0 20px;
+      font-size: 0.95rem;
+    }
+
+    .card-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .stat-pill {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+    }
+
+    .badge-new {
+      display: inline-block;
+      background: var(--gold);
+      color: #020617;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 100px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* ───── SDD SPOTLIGHT ───── */
+    .spotlight-section {
+      background: var(--surface);
+    }
+
+    .spotlight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto 48px;
+    }
+
+    .spotlight-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .spotlight-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 8px 30px rgba(139,92,246,0.12);
+    }
+
+    .spotlight-icon {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .spotlight-card h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .spotlight-card p {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .heartbeat-pulse {
+      display: inline-block;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(1.25); }
+    }
+
+    .spotlight-link {
+      display: block;
+      text-align: center;
+      color: var(--purple);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1.05rem;
+      transition: color 0.2s;
+    }
+
+    .spotlight-link:hover { color: var(--gold); }
+
+    /* ───── GOVERNANCE ───── */
+    .governance-section { background: var(--bg); }
+
+    .governance-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .iik-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,215,0,0.08);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 100px;
+      padding: 10px 28px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--gold);
+      margin-bottom: 36px;
+    }
+
+    .evidence-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 48px;
+    }
+
+    .evidence-tag {
+      font-family: 'Montserrat', monospace;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .tag-code       { background: rgba(19,125,197,0.15); color: var(--blue); border: 1px solid rgba(19,125,197,0.3); }
+    .tag-config     { background: rgba(139,92,246,0.12); color: var(--purple); border: 1px solid rgba(139,92,246,0.25); }
+    .tag-doc        { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid rgba(255,215,0,0.25); }
+    .tag-inference  { background: rgba(226,232,240,0.06); color: var(--text); border: 1px solid rgba(226,232,240,0.12); }
+    .tag-assumption { background: rgba(148,163,184,0.1); color: var(--muted); border: 1px solid rgba(148,163,184,0.2); }
+
+    .gates {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .gate-dot {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #020617;
+      position: relative;
+    }
+
+    .gate-line {
+      width: 48px;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.06));
+    }
+
+    .gate-g0 { background: var(--muted); }
+    .gate-g1 { background: var(--blue); }
+    .gate-g2 { background: var(--purple); }
+    .gate-g3 { background: var(--gold); }
+
+    .gates-label {
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* ───── INSTALL ───── */
+    .install-section { background: var(--surface); }
+
+    .install-box {
+      max-width: 700px;
+      margin: 0 auto;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .install-box code {
+      font-family: 'Montserrat', monospace;
+      font-size: 0.88rem;
+      color: var(--gold);
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .copy-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: background 0.2s, transform 0.2s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,215,0,0.1);
+      transform: translateY(-2px);
+    }
+
+    .copy-btn.copied {
+      background: rgba(255,215,0,0.15);
+      color: var(--gold);
+    }
+
+    /* ───── FOOTER ───── */
+    footer {
+      background: var(--navy);
+      border-top: 3px solid var(--gold);
+      padding: 48px 24px;
+      text-align: center;
+    }
+
+    footer h4 {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    footer p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 4px;
+    }
+
+    footer .license {
+      display: inline-block;
+      margin-top: 12px;
+      font-family: 'Montserrat', monospace;
+      font-size: 0.75rem;
+      padding: 4px 14px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+    }
+
+    /* ───── RESPONSIVE ───── */
+    @media (max-width: 768px) {
+      .plugin-grid { grid-template-columns: 1fr; }
+      .spotlight-grid { grid-template-columns: repeat(2, 1fr); }
+      .install-box { flex-direction: column; text-align: center; }
+      .gates { gap: 0; }
+      .gate-line { width: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════ HERO ════════ -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>JM Agentic Development Kit</h1>
+      <p class="subtitle">From requirements to production</p>
+      <p class="stats">3 plugins &middot; 188 commands &middot; 70+ agents &middot; 160+ skills</p>
+      <div class="hero-buttons">
+        <a href="#install" class="btn btn-gold">Get Started</a>
+        <a href="https://github.com/JaviMontano/jm-agentic-development-kit" class="btn btn-outline" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ PLUGINS ════════ -->
+  <section class="plugins-section">
+    <div class="container">
+      <h2 class="section-title">Three Plugins, One Kit</h2>
+      <p class="section-sub">Enterprise architecture, quality assurance, and spec-driven development &mdash; unified under a single agentic framework.</p>
+      <div class="plugin-grid">
+
+        <!-- Sovereign Architect -->
+        <div class="plugin-card gold-accent">
+          <span class="card-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 3L22 10L30 11.5L24 18L25.5 26L18 22.5L10.5 26L12 18L6 11.5L14 10L18 3Z" fill="#FFD700" opacity="0.9"/>
+            </svg>
+          </span>
+          <div class="card-header">
+            <h3>Sovereign Architect</h3>
+            <span class="prefix">/sa:</span>
+          </div>
+          <p>Architecture, code review, evolution, repair</p>
+          <div class="card-stats">
+            <span class="stat-pill">66 agents</span>
+            <span class="stat-pill">128 skills</span>
+            <span class="stat-pill">120 commands</span>
+          </div>
+        </div>
+
+        <!-- Plugin QA -->
+        <div class="plugin-card blue-accent">
+          <span class="card-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="18" cy="18" r="14" stroke="#137DC5" stroke-width="2.5" fill="none"/>
+              <path d="M12 18L16 22L24 14" stroke="#137DC5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <div class="card-header">
+            <h3>Plugin QA</h3>
+            <span class="prefix">/pqa:</span>
+          </div>
+          <p>Full plugin development lifecycle</p>
+          <div class="card-stats">
+            <span class="stat-pill">4 agents</span>
+            <span class="stat-pill">20 skills</span>
+            <span class="stat-pill">31 commands</span>
+          </div>
+        </div>
+
+        <!-- SDD MetodologIA -->
+        <div class="plugin-card purple-accent">
+          <span class="card-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="7" y="4" width="22" height="28" rx="3" stroke="#8B5CF6" stroke-width="2.2" fill="none"/>
+              <line x1="12" y1="12" x2="24" y2="12" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"/>
+              <line x1="12" y1="17" x2="24" y2="17" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"/>
+              <line x1="12" y1="22" x2="20" y2="22" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <div class="card-header">
+            <h3>SDD MetodologIA</h3>
+            <span class="prefix">/sdd:</span>
+            <span class="badge-new">NEW v3.0</span>
+          </div>
+          <p>Spec Driven Development with ambient intelligence</p>
+          <div class="card-stats">
+            <span class="stat-pill">12 skills</span>
+            <span class="stat-pill">37 commands</span>
+            <span class="stat-pill">4 hooks</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ SDD SPOTLIGHT ════════ -->
+  <section class="spotlight-section">
+    <div class="container">
+      <h2 class="section-title">SDD v3.0 Spotlight</h2>
+      <p class="section-sub">Ambient intelligence meets spec-driven development &mdash; six pillars powering the next-gen workflow.</p>
+      <div class="spotlight-grid">
+
+        <div class="spotlight-card">
+          <span class="spotlight-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M4 16h5l3-8 4 16 3-8h5" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          </span>
+          <h4>Pipeline</h4>
+          <p>9 sequential phases</p>
+        </div>
+
+        <div class="spotlight-card">
+          <span class="spotlight-icon heartbeat-pulse">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 28s-10-7.35-10-14A6 6 0 0116 8.5 6 6 0 0126 14c0 6.65-10 14-10 14z" fill="#FFD700" opacity="0.85"/></svg>
+          </span>
+          <h4>Heartbeat</h4>
+          <p>Animated health pulse</p>
+        </div>
+
+        <div class="spotlight-card">
+          <span class="spotlight-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="4" fill="#137DC5"/><circle cx="8" cy="8" r="2.5" fill="#8B5CF6"/><circle cx="24" cy="8" r="2.5" fill="#8B5CF6"/><circle cx="8" cy="24" r="2.5" fill="#8B5CF6"/><circle cx="24" cy="24" r="2.5" fill="#8B5CF6"/><line x1="14" y1="14" x2="10" y2="10" stroke="#94A3B8" stroke-width="1.2"/><line x1="18" y1="14" x2="22" y2="10" stroke="#94A3B8" stroke-width="1.2"/><line x1="14" y1="18" x2="10" y2="22" stroke="#94A3B8" stroke-width="1.2"/><line x1="18" y1="18" x2="22" y2="22" stroke="#94A3B8" stroke-width="1.2"/></svg>
+          </span>
+          <h4>Knowledge Graph</h4>
+          <p>Entity relationships</p>
+        </div>
+
+        <div class="spotlight-card">
+          <span class="spotlight-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="5" y="8" width="22" height="16" rx="2" stroke="#FFD700" stroke-width="2" fill="none"/><line x1="5" y1="13" x2="27" y2="13" stroke="#FFD700" stroke-width="1.5"/><circle cx="9" cy="10.5" r="1" fill="#FFD700"/><circle cx="13" cy="10.5" r="1" fill="#FFD700"/></svg>
+          </span>
+          <h4>Command Center</h4>
+          <p>Unified CLI dashboard</p>
+        </div>
+
+        <div class="spotlight-card">
+          <span class="spotlight-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 24V12a2 2 0 012-2h4l2-3h4l2 3h4a2 2 0 012 2v12a2 2 0 01-2 2H8a2 2 0 01-2-2z" stroke="#8B5CF6" stroke-width="2" fill="none"/><circle cx="16" cy="17" r="4" stroke="#8B5CF6" stroke-width="1.8" fill="none"/></svg>
+          </span>
+          <h4>RAG Memory</h4>
+          <p>Persistent context</p>
+        </div>
+
+        <div class="spotlight-card">
+          <span class="spotlight-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 6l2.5 5.5L24 12l-4 4 1 6-5-2.8L11 22l1-6-4-4 5.5-.5z" fill="#FFD700" opacity="0.8"/></svg>
+          </span>
+          <h4>Guided Tour</h4>
+          <p>Interactive onboarding</p>
+        </div>
+
+      </div>
+      <a href="https://github.com/JaviMontano/sdd-metodologia" class="spotlight-link" target="_blank" rel="noopener">Explore SDD &rarr;</a>
+    </div>
+  </section>
+
+  <!-- ════════ GOVERNANCE ════════ -->
+  <section class="governance-section">
+    <div class="container">
+      <div class="governance-inner">
+        <h2 class="section-title">Governance</h2>
+        <p class="section-sub">Built-in integrity checks and evidence-based reasoning across every plugin.</p>
+
+        <div class="iik-badge">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 1l2.5 5L18 7l-4 4 1 5.5-5-2.8L5 16.5l1-5.5-4-4 5.5-1z" fill="#FFD700"/></svg>
+          Intent Integrity Kit
+        </div>
+
+        <div class="evidence-tags">
+          <span class="evidence-tag tag-code">[CODE]</span>
+          <span class="evidence-tag tag-config">[CONFIG]</span>
+          <span class="evidence-tag tag-doc">[DOC]</span>
+          <span class="evidence-tag tag-inference">[INFERENCE]</span>
+          <span class="evidence-tag tag-assumption">[ASSUMPTION]</span>
+        </div>
+
+        <div class="gates">
+          <div class="gate-dot gate-g0">G0</div>
+          <div class="gate-line"></div>
+          <div class="gate-dot gate-g1">G1</div>
+          <div class="gate-line"></div>
+          <div class="gate-dot gate-g2">G2</div>
+          <div class="gate-line"></div>
+          <div class="gate-dot gate-g3">G3</div>
+        </div>
+        <p class="gates-label">Quality Gates &mdash; progressive validation from draft to production</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ INSTALL ════════ -->
+  <section class="install-section" id="install">
+    <div class="container">
+      <h2 class="section-title">Get Started</h2>
+      <p class="section-sub">Clone the kit and start building with agentic plugins in seconds.</p>
+      <div class="install-box">
+        <code id="install-cmd">git clone https://github.com/JaviMontano/jm-agentic-development-kit.git</code>
+        <button class="copy-btn" onclick="copyInstall()" id="copy-btn">Copy</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ FOOTER ════════ -->
+  <footer>
+    <div class="container">
+      <h4>JM Agentic Development Kit v3.0</h4>
+      <p>by Javier Montano &middot; MetodologIA &middot; JM Labs</p>
+      <span class="license">MIT + GPL-3.0</span>
+    </div>
+  </footer>
+
+  <script>
+    function copyInstall() {
+      const cmd = document.getElementById('install-cmd').textContent;
+      navigator.clipboard.writeText(cmd).then(function() {
+        var btn = document.getElementById('copy-btn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
