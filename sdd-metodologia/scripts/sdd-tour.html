@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDD Onboarding Tour — MetodologIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #020617;
+    color: #E2E8F0;
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; font-weight: 700; }
+
+  /* ---------- Overlay ---------- */
+  .tour-overlay {
+    position: fixed; inset: 0;
+    background: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    opacity: 0; transition: opacity 0.4s ease;
+  }
+  .tour-overlay.active { opacity: 1; }
+  .tour-overlay.hidden { display: none; }
+
+  /* ---------- Modal ---------- */
+  .tour-modal {
+    width: min(680px, 92vw);
+    max-height: 88vh;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 40px 36px 28px;
+    position: relative;
+    overflow-y: auto;
+    transform: translateY(12px);
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    opacity: 0;
+  }
+  .tour-overlay.active .tour-modal { transform: translateY(0); opacity: 1; }
+
+  /* ---------- Step header ---------- */
+  .step-counter {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem; color: #94A3B8;
+    text-transform: uppercase; letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .step-title {
+    font-size: 1.65rem; color: #FFD700;
+    margin-bottom: 12px;
+  }
+  .step-desc {
+    font-size: 0.95rem; line-height: 1.7;
+    color: #E2E8F0; margin-bottom: 24px;
+  }
+
+  /* ---------- Visual area ---------- */
+  .step-visual {
+    background: #0F172A;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+    min-height: 160px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ---------- Buttons ---------- */
+  .tour-actions {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .btn-next {
+    font-family: 'Poppins', sans-serif; font-weight: 600;
+    font-size: 0.95rem;
+    padding: 12px 32px; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #020617; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-next:hover, .btn-next:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(255,215,0,0.35);
+  }
+  .btn-skip {
+    background: none; border: none;
+    color: #94A3B8; font-size: 0.85rem;
+    cursor: pointer; text-decoration: underline;
+    font-family: 'Montserrat', sans-serif;
+  }
+  .btn-skip:hover { color: #E2E8F0; }
+
+  /* ---------- Progress dots ---------- */
+  .progress-dots {
+    display: flex; gap: 10px;
+    justify-content: center;
+  }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #94A3B8; transition: background 0.3s, transform 0.3s;
+  }
+  .dot.current { background: #FFD700; transform: scale(1.3); }
+  .dot.done { background: #137DC5; }
+
+  /* ---------- Completed screen ---------- */
+  .completed-screen {
+    text-align: center; padding: 60px 20px;
+  }
+  .completed-screen h2 { color: #137DC5; margin-bottom: 12px; font-size: 1.5rem; }
+  .completed-screen p { color: #94A3B8; margin-bottom: 28px; }
+  .btn-restart {
+    font-family: 'Poppins', sans-serif; font-weight: 600;
+    font-size: 0.9rem; padding: 10px 28px;
+    border: 2px solid #FFD700; border-radius: 10px;
+    background: transparent; color: #FFD700; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 0 16px rgba(255,215,0,0.25); }
+
+  /* ---------- Step-specific visuals ---------- */
+
+  /* Step 1 — Logo */
+  .logo-wrap { text-align: center; }
+  .logo-circle {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, #122562, #7C3AED);
+    display: inline-flex; align-items: center; justify-content: center;
+    position: relative; margin-bottom: 14px;
+  }
+  .logo-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: #FFD700;
+  }
+  .logo-label { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.1rem; color: #E2E8F0; }
+  .logo-label .gold { color: #FFD700; }
+  .logo-tagline { font-size: 0.8rem; color: #94A3B8; margin-top: 6px; }
+
+  /* Step 2 — Pipeline */
+  .pipeline { display: flex; flex-direction: column; gap: 0; width: 100%; max-width: 420px; }
+  .phase-row { display: flex; align-items: center; gap: 12px; padding: 5px 0; }
+  .phase-dot { width: 12px; height: 12px; border-radius: 50%; background: #FFD700; flex-shrink: 0; }
+  .phase-line { width: 2px; height: 14px; background: rgba(255,215,0,0.3); margin-left: 5px; }
+  .phase-label { font-size: 0.8rem; color: #E2E8F0; }
+  .phase-label span { color: #94A3B8; }
+  .gate-row { display: flex; align-items: center; gap: 12px; padding: 2px 0 2px 1px; }
+  .gate-marker {
+    width: 22px; height: 14px; border-radius: 3px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.55rem; font-weight: 700; color: #020617;
+    margin-left: -5px;
+  }
+
+  /* Step 3 — Dashboard grid */
+  .dash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+  .dash-card {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 14px 10px; text-align: center;
+    font-size: 0.72rem; color: #E2E8F0;
+    font-family: 'Poppins', sans-serif; font-weight: 600;
+  }
+  .dash-card .dash-icon { font-size: 1.3rem; margin-bottom: 4px; }
+
+  /* Step 4 — Heartbeat */
+  .heartbeat-flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .hb-box {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: #E2E8F0; text-align: center;
+  }
+  .hb-arrow { color: #FFD700; font-size: 1.2rem; }
+  .hb-pulse {
+    display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+    background: #FFD700; animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,0,0.5); }
+    50% { box-shadow: 0 0 0 10px rgba(255,215,0,0); }
+  }
+  .hb-branch { display: flex; flex-direction: column; gap: 6px; }
+  .hb-branch .hb-box.muted-bg { border-color: rgba(148,163,184,0.2); color: #94A3B8; }
+  .hb-branch .hb-box.gold-bg { border-color: rgba(255,215,0,0.2); color: #FFD700; }
+
+  /* Step 5 — Knowledge Graph */
+  .kg-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; }
+  .kg-wrap svg { width: 320px; height: 180px; }
+  .kg-legend { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+  .kg-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: #94A3B8; }
+  .kg-swatch { width: 10px; height: 10px; }
+  .kg-swatch.circle { border-radius: 50%; background: #FFD700; }
+  .kg-swatch.square { background: #137DC5; }
+  .kg-swatch.diamond { background: #7C3AED; transform: rotate(45deg); width: 9px; height: 9px; }
+  .kg-swatch.triangle { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 10px solid #06B6D4; }
+
+  /* Step 6 — RAG Memory */
+  .rag-wrap { width: 100%; }
+  .rag-file {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 10px 16px; margin-bottom: 6px;
+    font-size: 0.78rem; color: #E2E8F0; display: flex; align-items: center; gap: 10px;
+  }
+  .rag-file .rag-icon { font-size: 1rem; }
+  .rag-sections { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+  .rag-section { display: flex; align-items: center; gap: 8px; font-size: 0.72rem; color: #94A3B8; padding: 4px 0; }
+  .rag-badge {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* Step 7 — Commands table */
+  .cmd-table { width: 100%; border-collapse: collapse; }
+  .cmd-table th { font-family: 'Poppins', sans-serif; font-size: 0.72rem; color: #94A3B8; text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .cmd-table td { font-size: 0.78rem; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .cmd-table td:first-child { font-family: 'Montserrat', monospace; color: #FFD700; font-weight: 600; }
+
+  /* Step 8 — CTA */
+  .cta-wrap { text-align: center; }
+  .cta-wrap .btn-primary {
+    font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1rem;
+    padding: 14px 36px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #020617; cursor: pointer; display: inline-block; margin-bottom: 14px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .cta-wrap .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 24px rgba(255,215,0,0.4); }
+  .cta-cmd { font-size: 0.8rem; color: #94A3B8; font-family: monospace; margin-bottom: 20px; }
+  .cta-secondary { font-size: 0.85rem; color: #E2E8F0; }
+  .cta-secondary span { color: #FFD700; font-family: monospace; }
+
+  /* ---------- Transitions ---------- */
+  .step-content { animation: fadeSlideIn 0.4s ease forwards; }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Completed screen (shown if tour already done) -->
+<div id="completedScreen" class="completed-screen hidden">
+  <h2>Tour Completed</h2>
+  <p>You have already completed the SDD onboarding tour.</p>
+  <button class="btn-restart" onclick="restartTour()">Restart Tour</button>
+</div>
+
+<!-- Tour overlay -->
+<div id="tourOverlay" class="tour-overlay hidden">
+  <div class="tour-modal">
+    <div id="stepContent" class="step-content"></div>
+    <div class="tour-actions">
+      <button class="btn-skip" onclick="skipTour()">Skip Tour</button>
+      <button class="btn-next" id="btnNext" onclick="nextStep()">Next</button>
+    </div>
+    <div class="progress-dots" id="progressDots"></div>
+  </div>
+</div>
+
+<script>
+const TOTAL_STEPS = 8;
+let currentStep = 0;
+
+const steps = [
+  /* Step 1 — Welcome */
+  {
+    title: 'Welcome to SDD',
+    desc: 'Spec Driven Development transforms how teams build software. Every artifact is traceable, every decision is anchored in a living specification, and every gate is verifiable.',
+    visual() {
+      return `<div class="logo-wrap">
+        <div class="logo-circle"><div class="logo-dot"></div></div>
+        <div class="logo-label">Spec Driven Development</div>
+        <div class="logo-label">by metodolog<span class="gold">IA</span></div>
+        <div class="logo-tagline">From specification to implementation with cryptographic integrity.</div>
+      </div>`;
+    }
+  },
+  /* Step 2 — Pipeline */
+  {
+    title: 'The 9-Phase Pipeline',
+    desc: 'SDD orchestrates your project through nine deterministic phases, each separated by quality gates that ensure nothing moves forward without evidence.',
+    visual() {
+      const phases = [
+        ['0','Constitution'],['1','Specify'],['2','Plan'],['3','Checklist'],
+        ['4','Testify'],['5','Tasks'],['6','Analyze'],['7','Implement'],['8','Issues']
+      ];
+      const gates = { 3: 'G1', 5: 'G2', 7: 'G3' };
+      let html = '<div class="pipeline">';
+      phases.forEach((p, i) => {
+        html += `<div class="phase-row"><div class="phase-dot"></div><div class="phase-label"><span>Phase ${p[0]}:</span> ${p[1]}</div></div>`;
+        if (i < phases.length - 1) {
+          html += `<div style="margin-left:5px"><div class="phase-line"></div></div>`;
+        }
+        if (gates[i + 1]) {
+          html += `<div class="gate-row"><div class="gate-marker">${gates[i + 1]}</div><div class="phase-label" style="color:#94A3B8;font-size:0.7rem">Quality Gate</div></div>`;
+        }
+      });
+      html += '</div>';
+      return html;
+    }
+  },
+  /* Step 3 — Command Center */
+  {
+    title: 'The Command Center',
+    desc: 'Your dashboard organizes the entire SDD workflow into six intuitive sections. Each section provides real-time status, quick actions, and deep-dive views.',
+    visual() {
+      const sections = [
+        ['\u25B6','Pipeline'], ['\u2630','Specifications'], ['\u2714','Quality'],
+        ['\u2605','Intelligence'], ['\u2692','Workspace'], ['\u2696','Governance']
+      ];
+      return '<div class="dash-grid">' + sections.map(s =>
+        `<div class="dash-card"><div class="dash-icon">${s[0]}</div>${s[1]}</div>`
+      ).join('') + '</div>';
+    }
+  },
+  /* Step 4 — Heartbeat */
+  {
+    title: 'Ambient Heartbeat',
+    desc: 'Every prompt you send triggers a lightweight background scan. The heartbeat detects drift, stale artifacts, and pending gates — injecting context only when findings matter.',
+    visual() {
+      return `<div class="heartbeat-flow">
+        <div class="hb-box">User Prompt</div>
+        <div class="hb-arrow">\u2192</div>
+        <div class="hb-box">UserPromptSubmit<br>hook</div>
+        <div class="hb-arrow">\u2192</div>
+        <div class="hb-box"><span class="hb-pulse"></span> heartbeat-lite.sh</div>
+        <div class="hb-arrow">\u2192</div>
+        <div class="hb-branch">
+          <div class="hb-box muted-bg">Silent (suppressed)</div>
+          <div class="hb-box gold-bg">Context injection</div>
+        </div>
+      </div>`;
+    }
+  },
+  /* Step 5 — Knowledge Graph */
+  {
+    title: 'Knowledge Graph',
+    desc: 'SDD builds a live traceability graph connecting every principle, requirement, test, and task. Nothing exists in isolation — every node has provenance.',
+    visual() {
+      return `<div class="kg-wrap">
+        <svg viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Edges -->
+          <line x1="80" y1="50" x2="180" y2="40" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+          <line x1="80" y1="50" x2="160" y2="120" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+          <line x1="180" y1="40" x2="260" y2="90" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+          <line x1="180" y1="40" x2="160" y2="120" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+          <line x1="160" y1="120" x2="260" y2="90" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+          <line x1="260" y1="90" x2="240" y2="160" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+          <line x1="160" y1="120" x2="60" y2="140" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+          <!-- Principle (gold circle) -->
+          <circle cx="80" cy="50" r="12" fill="#FFD700"/>
+          <text x="80" y="54" text-anchor="middle" fill="#020617" font-size="9" font-weight="bold">P</text>
+          <!-- Requirement (blue square) -->
+          <rect x="168" y="28" width="24" height="24" rx="3" fill="#137DC5"/>
+          <text x="180" y="44" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">R</text>
+          <!-- Test (purple diamond) -->
+          <g transform="translate(160,120) rotate(45)">
+            <rect x="-11" y="-11" width="22" height="22" rx="3" fill="#7C3AED"/>
+          </g>
+          <text x="160" y="124" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">T</text>
+          <!-- Task (cyan triangle) -->
+          <polygon points="260,78 272,102 248,102" fill="#06B6D4"/>
+          <text x="260" y="97" text-anchor="middle" fill="#020617" font-size="8" font-weight="bold">K</text>
+          <!-- Extra nodes -->
+          <circle cx="60" cy="140" r="9" fill="#FFD700" opacity="0.6"/>
+          <rect x="232" y="152" width="16" height="16" rx="2" fill="#137DC5" opacity="0.6"/>
+        </svg>
+        <div class="kg-legend">
+          <div class="kg-legend-item"><div class="kg-swatch circle"></div>Principle</div>
+          <div class="kg-legend-item"><div class="kg-swatch square"></div>Requirement</div>
+          <div class="kg-legend-item"><div class="kg-swatch diamond"></div>Test</div>
+          <div class="kg-legend-item"><div class="kg-swatch triangle"></div>Task</div>
+        </div>
+        <div style="text-align:center;margin-top:8px;font-size:0.75rem;color:#94A3B8;">Full traceability from constitution to code.</div>
+      </div>`;
+    }
+  },
+  /* Step 6 — RAG Memory */
+  {
+    title: 'RAG Memory',
+    desc: 'Every resource you feed into SDD is distilled into a structured RAG memory file. The system retains abstract, key takeaways, insights, and full content for instant retrieval.',
+    visual() {
+      const types = [
+        ['\uD83D\uDCC4','rag-memory-of-spec.md'],
+        ['\uD83D\uDDBC','rag-memory-of-diagram.md'],
+        ['\uD83C\uDFA7','rag-memory-of-recording.md'],
+        ['\uD83D\uDCD5','rag-memory-of-document.md']
+      ];
+      const sections = [
+        ['#FFD700','Abstract'],['#137DC5','Key Takeaways'],['#7C3AED','Insights'],['#06B6D4','Full Content']
+      ];
+      return `<div class="rag-wrap">
+        ${types.map(t => `<div class="rag-file"><span class="rag-icon">${t[0]}</span>${t[1]}</div>`).join('')}
+        <div class="rag-sections">
+          ${sections.map(s => `<div class="rag-section"><div class="rag-badge" style="background:${s[0]}"></div>${s[1]}</div>`).join('')}
+        </div>
+      </div>`;
+    }
+  },
+  /* Step 7 — Key Commands */
+  {
+    title: 'Key Commands',
+    desc: 'These six commands cover the essential SDD workflow. Each command is deterministic, auditable, and integrated with the heartbeat system.',
+    visual() {
+      const cmds = [
+        ['/sdd:init','Initialize a new SDD project with constitution and structure.'],
+        ['/sdd:spec','Create or update a formal specification artifact.'],
+        ['/sdd:plan','Generate the implementation plan from specifications.'],
+        ['/sdd:dashboard','Open the real-time Command Center dashboard.'],
+        ['/sdd:sentinel','Run a full heartbeat diagnostic scan.'],
+        ['/sdd:tour','Replay this onboarding tour.']
+      ];
+      return `<table class="cmd-table">
+        <thead><tr><th>Command</th><th>Description</th></tr></thead>
+        <tbody>${cmds.map(c => `<tr><td>${c[0]}</td><td>${c[1]}</td></tr>`).join('')}</tbody>
+      </table>`;
+    }
+  },
+  /* Step 8 — Ready */
+  {
+    title: 'Ready to Start',
+    desc: 'You are now equipped with the foundations of Spec Driven Development. Initialize your first project or explore the demo environment.',
+    visual() {
+      return `<div class="cta-wrap">
+        <button class="btn-primary" onclick="completeTour()">\u2192 Initialize Your First Project</button>
+        <div class="cta-cmd">/sdd:init</div>
+        <div class="cta-secondary">or <span>/sdd:demo</span> to explore a sample project</div>
+      </div>`;
+    }
+  }
+];
+
+/* ---------- Rendering ---------- */
+function renderStep(index) {
+  const s = steps[index];
+  const el = document.getElementById('stepContent');
+  el.innerHTML = `
+    <div class="step-counter">Step ${index + 1} / ${TOTAL_STEPS}</div>
+    <h2 class="step-title">${s.title}</h2>
+    <p class="step-desc">${s.desc}</p>
+    <div class="step-visual">${s.visual()}</div>
+  `;
+  /* force re-trigger animation */
+  el.classList.remove('step-content');
+  void el.offsetWidth;
+  el.classList.add('step-content');
+
+  /* button label */
+  document.getElementById('btnNext').textContent = index === TOTAL_STEPS - 1 ? 'Finish' : 'Next';
+
+  renderDots(index);
+}
+
+function renderDots(index) {
+  const wrap = document.getElementById('progressDots');
+  wrap.innerHTML = '';
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (i === index) d.classList.add('current');
+    else if (i < index) d.classList.add('done');
+    wrap.appendChild(d);
+  }
+}
+
+/* ---------- Navigation ---------- */
+function nextStep() {
+  if (currentStep >= TOTAL_STEPS - 1) { completeTour(); return; }
+  currentStep++;
+  renderStep(currentStep);
+}
+
+function prevStep() {
+  if (currentStep <= 0) return;
+  currentStep--;
+  renderStep(currentStep);
+}
+
+function skipTour() { completeTour(); }
+
+function completeTour() {
+  localStorage.setItem('sdd-tour-completed', 'true');
+  const ov = document.getElementById('tourOverlay');
+  ov.classList.remove('active');
+  setTimeout(() => { ov.classList.add('hidden'); showCompleted(); }, 400);
+}
+
+function showCompleted() {
+  document.getElementById('completedScreen').classList.remove('hidden');
+}
+
+function restartTour() {
+  localStorage.removeItem('sdd-tour-completed');
+  document.getElementById('completedScreen').classList.add('hidden');
+  startTour();
+}
+
+function startTour() {
+  currentStep = 0;
+  const ov = document.getElementById('tourOverlay');
+  ov.classList.remove('hidden');
+  renderStep(0);
+  requestAnimationFrame(() => ov.classList.add('active'));
+}
+
+/* ---------- Keyboard ---------- */
+document.addEventListener('keydown', (e) => {
+  const ov = document.getElementById('tourOverlay');
+  if (ov.classList.contains('hidden')) return;
+  if (e.key === 'ArrowRight' || e.key === 'Enter') nextStep();
+  else if (e.key === 'ArrowLeft') prevStep();
+  else if (e.key === 'Escape') skipTour();
+});
+
+/* ---------- Init ---------- */
+(function init() {
+  if (localStorage.getItem('sdd-tour-completed') === 'true') {
+    showCompleted();
+  } else {
+    startTour();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDD - Spec Driven Development by MetodologIA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #020617;
+      --surface: #0F172A;
+      --card: rgba(255,255,255,0.03);
+      --gold: #FFD700;
+      --blue: #137DC5;
+      --navy: #122562;
+      --purple: #8B5CF6;
+      --text: #E2E8F0;
+      --muted: #94A3B8;
+      --card-blur: blur(16px) saturate(180%);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px;
+      position: relative;
+      background: radial-gradient(ellipse at 50% 20%, rgba(19,125,197,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse at 50% 80%, rgba(139,92,246,0.06) 0%, transparent 50%);
+    }
+
+    .hero-logo {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 32px;
+      filter: drop-shadow(0 0 24px rgba(255,215,0,0.25));
+    }
+
+    .hero-title {
+      font-size: clamp(3.5rem, 8vw, 6rem);
+      font-weight: 900;
+      letter-spacing: -2px;
+      background: linear-gradient(135deg, var(--gold) 0%, #FFF 50%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+    }
+
+    .hero-subtitle {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 8px;
+    }
+
+    .hero-brand {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-top: 12px;
+      font-weight: 500;
+    }
+    .hero-brand .ia { color: var(--gold); font-weight: 700; }
+
+    .hero-tagline {
+      font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+      color: var(--muted);
+      max-width: 560px;
+      margin: 24px auto 0;
+    }
+
+    .hero-actions { display: flex; gap: 16px; margin-top: 40px; flex-wrap: wrap; justify-content: center; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer;
+      border: none;
+    }
+    .btn:hover { transform: translateY(-4px) scale(1.01); }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), #FFC107);
+      color: #020617;
+      box-shadow: 0 4px 24px rgba(255,215,0,0.25);
+    }
+    .btn-gold:hover { box-shadow: 0 8px 40px rgba(255,215,0,0.45); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1.5px solid rgba(255,255,255,0.15);
+    }
+    .btn-outline:hover { border-color: var(--gold); box-shadow: 0 4px 20px rgba(255,215,0,0.15); }
+
+    /* ─── SECTION SHARED ─── */
+    .section { padding: 100px 24px; }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .section-title .gold { color: var(--gold); }
+    .section-desc {
+      text-align: center;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 60px;
+      font-size: 1.05rem;
+    }
+
+    /* ─── FEATURES GRID ─── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: var(--card);
+      backdrop-filter: var(--card-blur);
+      -webkit-backdrop-filter: var(--card-blur);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 32px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      position: relative;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 8px 40px rgba(255,215,0,0.08);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--navy), var(--purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .feature-card p { color: var(--muted); font-size: 0.95rem; }
+
+    .pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      margin-left: 8px;
+      vertical-align: middle;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,0,0.6); }
+      50% { box-shadow: 0 0 0 10px rgba(255,215,0,0); }
+    }
+
+    /* ─── PIPELINE ─── */
+    .pipeline-section { background: var(--surface); }
+
+    .pipeline-wrapper {
+      overflow-x: auto;
+      padding: 20px 0;
+    }
+
+    .pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      min-width: 900px;
+      padding: 40px 20px;
+    }
+
+    .phase {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .phase-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), #FFC107);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #020617;
+      box-shadow: 0 0 20px rgba(255,215,0,0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: default;
+    }
+    .phase-circle:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 32px rgba(255,215,0,0.5);
+    }
+
+    .phase-label {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .connector {
+      width: 40px;
+      height: 2px;
+      background: rgba(255,215,0,0.3);
+      flex-shrink: 0;
+      position: relative;
+      top: -12px;
+    }
+
+    .gate {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      top: -12px;
+    }
+
+    .gate-diamond {
+      width: 22px;
+      height: 22px;
+      background: var(--purple);
+      transform: rotate(45deg);
+      border: 2px solid rgba(255,255,255,0.15);
+      box-shadow: 0 0 12px rgba(139,92,246,0.4);
+    }
+
+    .gate-label {
+      margin-top: 18px;
+      font-size: 0.65rem;
+      color: var(--purple);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    /* ─── COMMANDS TABLE ─── */
+    .commands-table {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      border-collapse: collapse;
+    }
+    .commands-table th {
+      text-align: left;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .commands-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.95rem;
+    }
+    .commands-table tr:hover { background: rgba(255,255,255,0.02); }
+
+    .cmd-pill {
+      display: inline-block;
+      background: rgba(255,215,0,0.08);
+      border: 1px solid rgba(255,215,0,0.2);
+      color: var(--gold);
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .cmd-desc { color: var(--muted); }
+
+    /* ─── STATS BAR ─── */
+    .stats-bar {
+      background: var(--surface);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 60px 24px;
+    }
+
+    .stat-block h3 {
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--gold), #FFC107);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-block p {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      background: var(--navy);
+      border-top: 3px solid var(--gold);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .footer-line {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .footer-line .ia { color: var(--gold); font-weight: 700; }
+    .footer-line strong { color: var(--text); font-weight: 600; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero { padding: 60px 20px; }
+      .pipeline { min-width: 700px; }
+      .commands-table { font-size: 0.85rem; }
+    }
+
+    /* ─── SCROLL ANIMATION ─── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <svg class="hero-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#122562"/>
+          <stop offset="100%" stop-color="#8B5CF6"/>
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy="50" r="46" fill="url(#logoGrad)" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+      <circle cx="62" cy="34" r="6" fill="#FFD700">
+        <animate attributeName="opacity" values="1;0.6;1" dur="3s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+
+    <h1 class="hero-title">SDD</h1>
+    <p class="hero-subtitle">Spec Driven Development</p>
+    <p class="hero-brand">by metodolog<span class="ia">IA</span></p>
+    <p class="hero-tagline">From specification to implementation with cryptographic integrity.</p>
+
+    <div class="hero-actions">
+      <a href="/sdd:tour" class="btn btn-gold">Get Started &rarr;</a>
+      <a href="/sdd:demo" class="btn btn-outline">View Demo &rarr;</a>
+    </div>
+  </section>
+
+  <!-- ═══ FEATURES ═══ -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title fade-up">Why <span class="gold">SDD</span>?</h2>
+      <p class="section-desc fade-up">A complete specification-first methodology with built-in intelligence, traceability, and quality gates.</p>
+
+      <div class="features-grid">
+        <div class="feature-card fade-up">
+          <div class="feature-icon">&#x1F3D7;</div>
+          <h3>9-Phase Pipeline</h3>
+          <p>Constitution to GitHub Issues. Quality gates halt on violations.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">&#x1F49B;</div>
+          <h3>Ambient Heartbeat <span class="pulse-dot"></span></h3>
+          <p>Per-prompt intelligence. &lt; 100ms. Zero LLM cost when healthy.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">&#x1F578;</div>
+          <h3>Knowledge Graph</h3>
+          <p>Full traceability: Principles &rarr; Requirements &rarr; Tests &rarr; Tasks</p>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">&#x1F3AE;</div>
+          <h3>Command Center</h3>
+          <p>Multi-HTML dashboard with health gauge, activity feed, smart nav</p>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">&#x1F9E0;</div>
+          <h3>RAG Memory</h3>
+          <p>Auto-capture session inputs. MIME detection. Indexed and searchable.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">&#x1F680;</div>
+          <h3>Onboarding Tour</h3>
+          <p>8-step interactive walkthrough. Glass modals. Progress dots.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PIPELINE ═══ -->
+  <section class="section pipeline-section">
+    <div class="container">
+      <h2 class="section-title fade-up">The <span class="gold">Pipeline</span></h2>
+      <p class="section-desc fade-up">9 phases, 3 quality gates. Every artifact is traceable.</p>
+
+      <div class="pipeline-wrapper fade-up">
+        <div class="pipeline" id="pipeline">
+          <!-- Phase 0 -->
+          <div class="phase"><div class="phase-circle">0</div><div class="phase-label">Constitution</div></div>
+          <div class="connector"></div>
+          <!-- Phase 1 -->
+          <div class="phase"><div class="phase-circle">1</div><div class="phase-label">Specify</div></div>
+          <div class="connector"></div>
+          <!-- Phase 2 -->
+          <div class="phase"><div class="phase-circle">2</div><div class="phase-label">Plan</div></div>
+          <div class="connector"></div>
+          <!-- Gate 1 -->
+          <div class="gate"><div class="gate-diamond"></div><div class="gate-label">G1</div></div>
+          <div class="connector"></div>
+          <!-- Phase 3 -->
+          <div class="phase"><div class="phase-circle">3</div><div class="phase-label">Checklist</div></div>
+          <div class="connector"></div>
+          <!-- Phase 4 -->
+          <div class="phase"><div class="phase-circle">4</div><div class="phase-label">Testify</div></div>
+          <div class="connector"></div>
+          <!-- Phase 5 -->
+          <div class="phase"><div class="phase-circle">5</div><div class="phase-label">Tasks</div></div>
+          <div class="connector"></div>
+          <!-- Gate 2 -->
+          <div class="gate"><div class="gate-diamond"></div><div class="gate-label">G2</div></div>
+          <div class="connector"></div>
+          <!-- Phase 6 -->
+          <div class="phase"><div class="phase-circle">6</div><div class="phase-label">Analyze</div></div>
+          <div class="connector"></div>
+          <!-- Phase 7 -->
+          <div class="phase"><div class="phase-circle">7</div><div class="phase-label">Implement</div></div>
+          <div class="connector"></div>
+          <!-- Gate 3 -->
+          <div class="gate"><div class="gate-diamond"></div><div class="gate-label">G3</div></div>
+          <div class="connector"></div>
+          <!-- Phase 8 -->
+          <div class="phase"><div class="phase-circle">8</div><div class="phase-label">Issues</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ COMMANDS ═══ -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title fade-up">Command <span class="gold">Showcase</span></h2>
+      <p class="section-desc fade-up">Core commands that power the SDD workflow.</p>
+
+      <table class="commands-table fade-up">
+        <thead>
+          <tr><th>Command</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="cmd-pill">/sdd:tour</span></td><td class="cmd-desc">Launch the interactive onboarding walkthrough</td></tr>
+          <tr><td><span class="cmd-pill">/sdd:init</span></td><td class="cmd-desc">Bootstrap a new SDD project with constitution</td></tr>
+          <tr><td><span class="cmd-pill">/sdd:specify</span></td><td class="cmd-desc">Create or refine functional specifications</td></tr>
+          <tr><td><span class="cmd-pill">/sdd:plan</span></td><td class="cmd-desc">Generate implementation plan from specs</td></tr>
+          <tr><td><span class="cmd-pill">/sdd:testify</span></td><td class="cmd-desc">Derive test cases from requirements</td></tr>
+          <tr><td><span class="cmd-pill">/sdd:tasks</span></td><td class="cmd-desc">Break plan into actionable dev tasks</td></tr>
+          <tr><td><span class="cmd-pill">/sdd:gate</span></td><td class="cmd-desc">Run quality gate validation checkpoint</td></tr>
+          <tr><td><span class="cmd-pill">/sdd:heartbeat</span></td><td class="cmd-desc">Check ambient health status of the project</td></tr>
+          <tr><td><span class="cmd-pill">/sdd:graph</span></td><td class="cmd-desc">Visualize the knowledge graph traceability</td></tr>
+          <tr><td><span class="cmd-pill">/sdd:issues</span></td><td class="cmd-desc">Export tasks as GitHub Issues with labels</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══ STATS BAR ═══ -->
+  <section class="stats-bar">
+    <div class="stats-grid">
+      <div class="stat-block fade-up">
+        <h3 id="stat-commands">0</h3>
+        <p>Commands</p>
+      </div>
+      <div class="stat-block fade-up">
+        <h3 id="stat-scripts">0</h3>
+        <p>Scripts</p>
+      </div>
+      <div class="stat-block fade-up">
+        <h3 id="stat-hooks">0</h3>
+        <p>Hooks</p>
+      </div>
+      <div class="stat-block fade-up">
+        <h3 id="stat-skills">0</h3>
+        <p>Skills</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <p class="footer-line"><strong>SDD v3.0</strong> &middot; Spec Driven Development</p>
+    <p class="footer-line">by metodolog<span class="ia">IA</span> &middot; Javier Montano</p>
+    <p class="footer-line">Upstream: IIC/kit (MIT) &middot; Brand: GPL-3.0</p>
+  </footer>
+
+  <script>
+    /* ─── Intersection Observer for fade-up ─── */
+    (function() {
+      var els = document.querySelectorAll('.fade-up');
+      if ('IntersectionObserver' in window) {
+        var obs = new IntersectionObserver(function(entries) {
+          entries.forEach(function(e) {
+            if (e.isIntersecting) {
+              e.target.classList.add('visible');
+              obs.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.15 });
+        els.forEach(function(el) { obs.observe(el); });
+      } else {
+        els.forEach(function(el) { el.classList.add('visible'); });
+      }
+    })();
+
+    /* ─── Animated stat counters ─── */
+    (function() {
+      var stats = [
+        { id: 'stat-commands', target: 37 },
+        { id: 'stat-scripts', target: 20 },
+        { id: 'stat-hooks', target: 4 },
+        { id: 'stat-skills', target: 12 }
+      ];
+      var animated = false;
+
+      function animateCount(el, target) {
+        var current = 0;
+        var step = Math.max(1, Math.floor(target / 40));
+        var interval = setInterval(function() {
+          current += step;
+          if (current >= target) {
+            current = target;
+            clearInterval(interval);
+          }
+          el.textContent = current;
+        }, 30);
+      }
+
+      var section = document.querySelector('.stats-bar');
+      if (section && 'IntersectionObserver' in window) {
+        var obs = new IntersectionObserver(function(entries) {
+          if (entries[0].isIntersecting && !animated) {
+            animated = true;
+            stats.forEach(function(s) {
+              animateCount(document.getElementById(s.id), s.target);
+            });
+          }
+        }, { threshold: 0.3 });
+        obs.observe(section);
+      } else {
+        stats.forEach(function(s) {
+          document.getElementById(s.id).textContent = s.target;
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

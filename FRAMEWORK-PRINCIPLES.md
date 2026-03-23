@@ -23,5 +23,5 @@ SHA256 hashes prevent silent requirement drift. Phase separation ensures each ar
 ## Principle 4: Metacognitive Confidence
 Complex responses require structured reasoning (DECOMPOSE → SOLVE → VERIFY → SYNTHESIZE → REFLECT) with explicit confidence scoring. Minimum threshold: 0.95. Below triggers Socratic debate and fact-checking via internet search.
 
-## Principle 5: Firebase-Hostinger Stack Constraint
-All architecture targets Firebase + Google ecosystem. Deployment compatible with Hostinger standard hosting (static + Node.js). No Docker, no K8s, no AWS, no Azure.
+## Principle 5: Stack-Agnostic with Sensible Defaults
+Default stack: Firebase + Vercel. But the kit is stack-agnostic — plugins work with any technology. SDD's per-prompt heartbeat and knowledge graph are framework-independent.
