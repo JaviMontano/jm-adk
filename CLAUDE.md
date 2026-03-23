@@ -12,7 +12,7 @@
 |--------|--------|--------|--------|----------|-------|
 | **Sovereign Architect** | `/sa:` | 66 | 128 | 120 | Architecture, code review, evolution, repair |
 | **Plugin QA** | `/pqa:` | 4 | 20 | 31 | Plugin development lifecycle |
-| **AAD MetodologIA** | `/aad:` | 0 | 13 | 3 | Specification-driven governance, BDD |
+| **SDD MetodologIA** | `/sdd:` | 0 | 13 | 3 | Specification-driven governance, BDD |
 
 ---
 
@@ -37,9 +37,9 @@
 /pqa:fix                 # Auto-fix common issues
 
 # Specification-Driven Development (IIKit)
-/aad:status              # Pipeline status
-/aad:dashboard           # Generate branded dashboard
-/aad:sync                # Sync upstream IIKit
+/sdd:status              # Pipeline status
+/sdd:dashboard           # Generate branded dashboard
+/sdd:sync                # Sync upstream IIKit
 ```
 
 ---
@@ -80,7 +80,7 @@ jm-agentic-development-kit/
 │   ├── agents/   (4)
 │   ├── skills/   (20)
 │   └── commands/ (31)
-├── aad-metodologia/         # AAD v1.0 — IIKit Governance
+├── sdd-metodologia/         # SDD v1.0 — IIKit Governance
 │   ├── .claude/skills/ (13 iikit-*)
 │   ├── commands/ (3)
 │   ├── evals/
@@ -114,20 +114,20 @@ IDEATE > PLAN > DESIGN > SPECIFY > BUILD > VALIDATE > AUDIT > REPORT > FIX
 
 > Full docs: `plugin-qa/CLAUDE.md`
 
-### AAD MetodologIA (`/aad:`)
+### SDD MetodologIA (`/sdd:`)
 
 Specification-driven AI development powered by Intent Integrity Kit:
 - 8-phase workflow: Constitution > Specify > Plan > Checklist > Testify > Tasks > Implement > Issues
 - Cryptographic BDD verification (hash-locked .feature files)
 - Neo-Swiss branded dashboard
 
-> Full docs: `aad-metodologia/AGENTS.md`
+> Full docs: `sdd-metodologia/AGENTS.md`
 
 ---
 
 ## License
 
-MIT (code) + GPL-3.0 (MetodologIA brand elements in AAD)
+MIT (code) + GPL-3.0 (MetodologIA brand elements in SDD)
 
 ---
 

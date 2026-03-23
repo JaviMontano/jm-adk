@@ -12,7 +12,7 @@
 |--------|-------------|-------|
 | **Sovereign Architect** (`/sa:`) | Architecture analysis, code review, scaffolding, evolution, repair | 66 agents, 128 skills, 120 commands |
 | **Plugin QA** (`/pqa:`) | Claude Code plugin development lifecycle: ideate through fix | 4 agents, 20 skills, 31 commands |
-| **AAD MetodologIA** (`/aad:`) | Specification-driven development with cryptographic BDD verification | 13 skills, 3 commands |
+| **SDD MetodologIA** (`/sdd:`) | Spec Driven Development with cryptographic BDD verification + ambient intelligence | 12 skills, 37 commands, 4 hooks |
 
 All governed by the **Intent Integrity Kit** — from intent to code with zero drift.
 
@@ -49,9 +49,13 @@ git clone https://github.com/JaviMontano/jm-agentic-development-kit.git
 /pqa:audit               # Full QA audit of a plugin
 /pqa:validate            # Quick structural check
 
-# Specification-driven dev
-/aad:status              # Show IIKit pipeline status
-/aad:dashboard           # Generate visual dashboard
+# Spec Driven Development
+/sdd:tour                # Guided onboarding (8 steps)
+/sdd:demo                # Generate demo project + dashboard
+/sdd:init                # Initialize SDD in any project
+/sdd:menu                # All 37 commands at a glance
+/sdd:sentinel            # Ambient health monitoring
+/sdd:graph               # Knowledge graph (Constitution→Tasks)
 ```
 
 ---
@@ -72,11 +76,23 @@ Intent Integrity Kit ensures requirements trace through specs, tests, and code w
 jm-agentic-development-kit/
 ├── sovereign-architect/     # Architecture & Code (SA v4.0)
 ├── plugin-qa/               # Plugin Lifecycle (PQA v3.0)
-├── aad-metodologia/         # IIKit Governance (AAD v1.0)
+├── sdd-metodologia/         # Spec Driven Development (SDD v3.0)
 ├── CONSTITUTION.md          # Non-negotiable principles
 ├── FRAMEWORK-PRINCIPLES.md  # Operating principles
 └── .specify/                # Artifact state (ADRs, plans, decisions)
 ```
+
+### SDD v3.0 — What's New
+
+SDD (formerly AAD) is now a full operational platform:
+- **Per-prompt heartbeat** — Ambient intelligence on every user prompt
+- **Knowledge graph** — Full traceability from constitution to tasks
+- **Command Center** — Multi-HTML micro-frontend dashboard
+- **Onboarding tour** — 8-step interactive walkthrough
+- **RAG memory** — Auto-capture session inputs with MIME detection
+- **37 commands** — From `/sdd:init` to `/sdd:issues`
+
+[Full SDD documentation →](https://github.com/JaviMontano/sdd-metodologia)
 
 ---
 
@@ -91,4 +107,4 @@ jm-agentic-development-kit/
 
 ## License
 
-MIT (code) | GPL-3.0 (MetodologIA brand elements in AAD)
+MIT (code) | GPL-3.0 (MetodologIA brand elements in SDD)
