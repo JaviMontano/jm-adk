@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plugins — JM Agentic Development Kit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    /* ── Page Layout ───────────────────────────────────────── */
+    .page-header {
+      text-align: center;
+      padding: 4rem 1.5rem 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .page-header h1 {
+      font-size: 2.5rem; font-weight: 900; margin-bottom: 0.75rem;
+    }
+    .page-header h1 .gold { color: var(--brand-gold); }
+    .page-header p { color: var(--text-muted); font-size: 1.05rem; }
+
+    .content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* ── Plugin Section ────────────────────────────────────── */
+    .plugin-section {
+      margin-bottom: 4rem;
+      padding: 2.5rem;
+      background: var(--bg-card);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border-radius: var(--radius-card);
+      position: relative;
+      overflow: hidden;
+    }
+    .plugin-section.sa { border: 1px solid rgba(255,215,0,0.2); }
+    .plugin-section.pqa { border: 1px solid rgba(19,125,197,0.2); }
+    .plugin-section.sdd { border: 1px solid rgba(139,92,246,0.2); }
+
+    .plugin-section .section-head {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 2rem; flex-wrap: wrap;
+    }
+    .section-head .icon { font-size: 2.5rem; }
+    .section-head h2 { font-size: 1.6rem; }
+    .section-head .ver {
+      font-size: 0.75rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 10px;
+    }
+    .sa .ver { background: rgba(255,215,0,0.12); color: var(--brand-gold); }
+    .pqa .ver { background: rgba(19,125,197,0.12); color: var(--brand-blue); }
+    .sdd .ver { background: rgba(139,92,246,0.12); color: var(--brand-purple); }
+
+    .section-head .link-btn {
+      margin-left: auto;
+      font-size: 0.82rem;
+      color: var(--brand-gold);
+      border: 1px solid var(--border-gold);
+      padding: 5px 14px;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+    .section-head .link-btn:hover {
+      background: rgba(255,215,0,0.08);
+    }
+
+    /* ── Movements Row ─────────────────────────────────────── */
+    .movements {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .movement {
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255,255,255,0.02);
+      color: var(--text-muted);
+      transition: all var(--transition-fast);
+    }
+    .sa .movement:hover { border-color: rgba(255,215,0,0.4); color: var(--brand-gold); }
+    .pqa .movement:hover { border-color: rgba(19,125,197,0.4); color: var(--brand-blue); }
+    .sdd .movement:hover { border-color: rgba(139,92,246,0.4); color: var(--brand-purple); }
+    .movement .dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .sa .dot { background: var(--brand-gold); }
+    .pqa .dot { background: var(--brand-blue); }
+    .sdd .dot { background: var(--brand-purple); }
+
+    /* ── Agent Showcase ────────────────────────────────────── */
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    .agent-chip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0.65rem 0.85rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .agent-chip .emoji { font-size: 1.1rem; }
+
+    /* ── Command Table ─────────────────────────────────────── */
+    .cmd-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .cmd-table th {
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-medium);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cmd-table td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+    }
+    .cmd-table td:first-child {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--brand-gold);
+      white-space: nowrap;
+    }
+    .cmd-table tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* ── MOAT Card ─────────────────────────────────────────── */
+    .moat-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(19,125,197,0.2);
+      border-radius: var(--radius-card);
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .moat-card h4 {
+      color: var(--brand-blue);
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
+    }
+    .moat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    .moat-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 0.85rem;
+    }
+    .moat-item .letter {
+      font-family: var(--font-heading);
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: var(--brand-blue);
+      min-width: 20px;
+    }
+    .moat-item .desc { color: var(--text-muted); }
+
+    /* ── SDD Features ──────────────────────────────────────── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .feature-chip {
+      padding: 1rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+    }
+    .feature-chip h4 {
+      font-size: 0.9rem;
+      margin-bottom: 0.35rem;
+      color: var(--brand-purple);
+    }
+    .feature-chip p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── Divider ───────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border-medium), transparent);
+      margin: 0 auto; max-width: 800px;
+    }
+
+    /* ── Pipeline Phase Flow ───────────────────────────────── */
+    .pipeline-flow {
+      display: flex; flex-wrap: wrap; gap: 0.35rem;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .phase-pill {
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: rgba(139,92,246,0.08);
+      border: 1px solid rgba(139,92,246,0.2);
+      color: var(--brand-purple);
+    }
+    .phase-pill.gate {
+      background: rgba(255,215,0,0.1);
+      border-color: rgba(255,215,0,0.3);
+      color: var(--brand-gold);
+    }
+    .phase-arrow {
+      color: var(--text-dim);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <script src="shared/nav.js"></script>
+
+  <header class="page-header">
+    <h1>Plugin <span class="gold">Deep Dives</span></h1>
+    <p>Architecture, agents, commands, and methodology for each plugin</p>
+  </header>
+
+  <main class="content">
+
+    <!-- ════════════════════ SOVEREIGN ARCHITECT ════════════════════ -->
+    <section class="plugin-section sa">
+      <div class="section-head">
+        <span class="icon">🛡️</span>
+        <h2>Sovereign Architect</h2>
+        <span class="ver">v4.0</span>
+        <a href="https://github.com/JaviMontano/sovereign-architect" class="link-btn" target="_blank">CLAUDE.md ↗</a>
+      </div>
+
+      <h3 style="font-size:1rem;margin-bottom:0.75rem;color:var(--text-muted)">5 Movements</h3>
+      <div class="movements">
+        <span class="movement"><span class="dot"></span>CREATE</span>
+        <span class="movement"><span class="dot"></span>REVIEW</span>
+        <span class="movement"><span class="dot"></span>EVOLVE</span>
+        <span class="movement"><span class="dot"></span>REPAIR</span>
+        <span class="movement"><span class="dot"></span>DIAGNOSE</span>
+      </div>
+
+      <h3 style="font-size:1rem;margin-bottom:0.75rem;color:var(--text-muted)">Agent Showcase</h3>
+      <div class="agents-grid">
+        <div class="agent-chip"><span class="emoji">🏗️</span> Architecture</div>
+        <div class="agent-chip"><span class="emoji">🔒</span> Security</div>
+        <div class="agent-chip"><span class="emoji">⚡</span> Performance</div>
+        <div class="agent-chip"><span class="emoji">🗄️</span> Data</div>
+        <div class="agent-chip"><span class="emoji">🔧</span> DevOps</div>
+        <div class="agent-chip"><span class="emoji">🎨</span> Frontend</div>
+      </div>
+
+      <h3 style="font-size:1rem;margin-bottom:0.75rem;color:var(--text-muted)">Key Commands</h3>
+      <table class="cmd-table">
+        <thead>
+          <tr><th>Command</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>/sa:analyze</td><td>Full 5-phase architecture analysis</td></tr>
+          <tr><td>/sa:create</td><td>Scaffold new project with best practices</td></tr>
+          <tr><td>/sa:review</td><td>PR review for security, performance, architecture</td></tr>
+          <tr><td>/sa:evolve</td><td>Evolve existing code (TypeScript, patterns, etc.)</td></tr>
+          <tr><td>/sa:repair</td><td>Diagnose and fix broken builds or runtime errors</td></tr>
+          <tr><td>/sa:run-express</td><td>Quick 80/20 diagnosis with Go/No-Go</td></tr>
+          <tr><td>/sa:run-auto</td><td>Full autonomous pipeline</td></tr>
+          <tr><td>/sa:run-deep</td><td>Deep architecture direction (7 deliverables)</td></tr>
+          <tr><td>/sa:menu</td><td>Interactive command palette</td></tr>
+          <tr><td>/sa:demo</td><td>Guided demo on current repo</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ════════════════════ PLUGIN QA ════════════════════ -->
+    <section class="plugin-section pqa">
+      <div class="section-head">
+        <span class="icon">✓</span>
+        <h2>Plugin QA</h2>
+        <span class="ver">v3.0</span>
+        <a href="https://github.com/JaviMontano/plugin-qa" class="link-btn" target="_blank">CLAUDE.md ↗</a>
+      </div>
+
+      <h3 style="font-size:1rem;margin-bottom:0.75rem;color:var(--text-muted)">9 Movements</h3>
+      <div class="movements">
+        <span class="movement"><span class="dot"></span>IDEATE</span>
+        <span class="movement"><span class="dot"></span>PLAN</span>
+        <span class="movement"><span class="dot"></span>DESIGN</span>
+        <span class="movement"><span class="dot"></span>SPECIFY</span>
+        <span class="movement"><span class="dot"></span>BUILD</span>
+        <span class="movement"><span class="dot"></span>VALIDATE</span>
+        <span class="movement"><span class="dot"></span>AUDIT</span>
+        <span class="movement"><span class="dot"></span>REPORT</span>
+        <span class="movement"><span class="dot"></span>FIX</span>
+      </div>
+
+      <h3 style="font-size:1rem;margin-bottom:0.75rem;color:var(--text-muted)">4 Core Agents</h3>
+      <div class="agents-grid">
+        <div class="agent-chip"><span class="emoji">🏗️</span> Architect</div>
+        <div class="agent-chip"><span class="emoji">🔍</span> QA Engineer</div>
+        <div class="agent-chip"><span class="emoji">📝</span> Spec Writer</div>
+        <div class="agent-chip"><span class="emoji">🔨</span> Builder</div>
+      </div>
+
+      <h3 style="font-size:1rem;margin-bottom:0.75rem;color:var(--text-muted)">Key Commands</h3>
+      <table class="cmd-table">
+        <thead>
+          <tr><th>Command</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>/pqa:create</td><td>Create a new plugin from scratch</td></tr>
+          <tr><td>/pqa:audit</td><td>Full quality audit with MOAT scoring</td></tr>
+          <tr><td>/pqa:validate</td><td>Validate plugin structure and naming</td></tr>
+          <tr><td>/pqa:lifecycle</td><td>Run full 9-movement pipeline</td></tr>
+          <tr><td>/pqa:fix</td><td>Auto-fix common plugin issues</td></tr>
+          <tr><td>/pqa:scorecard</td><td>Generate QA scorecard report</td></tr>
+          <tr><td>/pqa:menu</td><td>Interactive command palette</td></tr>
+        </tbody>
+      </table>
+
+      <div class="moat-card">
+        <h4>MOAT Methodology</h4>
+        <div class="moat-grid">
+          <div class="moat-item">
+            <span class="letter">M</span>
+            <span class="desc">Maintainability — clean structure, naming, references</span>
+          </div>
+          <div class="moat-item">
+            <span class="letter">O</span>
+            <span class="desc">Observability — logging, metrics, health checks</span>
+          </div>
+          <div class="moat-item">
+            <span class="letter">A</span>
+            <span class="desc">Accuracy — correct behavior, edge cases, validation</span>
+          </div>
+          <div class="moat-item">
+            <span class="letter">T</span>
+            <span class="desc">Testability — test coverage, assertions, reproducibility</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════ SDD METODOLOGIA ════════════════════ -->
+    <section class="plugin-section sdd">
+      <div class="section-head">
+        <span class="icon">📋</span>
+        <h2>SDD MetodologIA</h2>
+        <span class="ver">v3.0</span>
+        <a href="https://github.com/JaviMontano/sdd-metodologia" class="link-btn" target="_blank">Docs Site ↗</a>
+      </div>
+
+      <h3 style="font-size:1rem;margin-bottom:0.75rem;color:var(--text-muted)">9 Pipeline Phases with Gates</h3>
+      <div class="pipeline-flow">
+        <span class="phase-pill">Init</span>
+        <span class="phase-arrow">→</span>
+        <span class="phase-pill">00 Constitution</span>
+        <span class="phase-arrow">→</span>
+        <span class="phase-pill">01 Specify</span>
+        <span class="phase-arrow">→</span>
+        <span class="phase-pill gate">02 Plan ⚡GATE</span>
+        <span class="phase-arrow">→</span>
+        <span class="phase-pill">03 Checklist</span>
+        <span class="phase-arrow">→</span>
+        <span class="phase-pill">04 Testify</span>
+        <span class="phase-arrow">→</span>
+        <span class="phase-pill">05 Tasks</span>
+        <span class="phase-arrow">→</span>
+        <span class="phase-pill gate">06 Analyze ⚡GATE</span>
+        <span class="phase-arrow">→</span>
+        <span class="phase-pill gate">07 Implement ⚡GATE</span>
+        <span class="phase-arrow">→</span>
+        <span class="phase-pill">08 Issues</span>
+      </div>
+
+      <h3 style="font-size:1rem;margin-bottom:0.75rem;color:var(--text-muted)">Key Commands</h3>
+      <table class="cmd-table">
+        <thead>
+          <tr><th>Command</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>/sdd:init</td><td>Initialize project with constitution</td></tr>
+          <tr><td>/sdd:spec</td><td>Specify feature from natural language</td></tr>
+          <tr><td>/sdd:plan</td><td>Generate technical plan (GATE)</td></tr>
+          <tr><td>/sdd:test</td><td>BDD Gherkin with assertion hashing</td></tr>
+          <tr><td>/sdd:impl</td><td>Execute implementation (GATE)</td></tr>
+          <tr><td>/sdd:sentinel</td><td>Perceive-decide-act health cycle</td></tr>
+          <tr><td>/sdd:graph</td><td>Build knowledge graph</td></tr>
+          <tr><td>/sdd:dashboard</td><td>Generate Command Center</td></tr>
+          <tr><td>/sdd:tour</td><td>Guided onboarding (8 steps)</td></tr>
+          <tr><td>/sdd:menu</td><td>Interactive command palette</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:1rem;margin-bottom:0.75rem;margin-top:1.5rem;color:var(--text-muted)">Key Features</h3>
+      <div class="feature-grid">
+        <div class="feature-chip">
+          <h4>Per-Prompt Heartbeat</h4>
+          <p>Ambient intelligence runs on every prompt. Detects stale artifacts, missing files, health regression. Zero LLM cost.</p>
+        </div>
+        <div class="feature-chip">
+          <h4>Knowledge Graph</h4>
+          <p>Traces Principles to Requirements to Tests to Tasks. Detects orphans automatically. Force-directed SVG visualization.</p>
+        </div>
+        <div class="feature-chip">
+          <h4>Command Center</h4>
+          <p>Multi-HTML micro-frontend dashboard with 11 views: pipeline, specs, quality, intelligence, workspace, governance.</p>
+        </div>
+        <div class="feature-chip">
+          <h4>RAG Memory</h4>
+          <p>Session inputs captured as structured memory files with abstracts, key takeaways, and full content. Cross-session knowledge.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="shared/footer.js"></script>
+</body>
+</html>

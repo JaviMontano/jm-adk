@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quickstart — JM Agentic Development Kit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    /* ── Page Layout ───────────────────────────────────────── */
+    .page-header {
+      text-align: center;
+      padding: 4rem 1.5rem 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .page-header h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 0.75rem;
+    }
+    .page-header h1 .gold { color: var(--brand-gold); }
+    .page-header p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+    .content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* ── Step Block ────────────────────────────────────────── */
+    .step-block {
+      margin-bottom: 3rem;
+      padding: 2rem;
+      background: var(--bg-card);
+      backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      position: relative;
+    }
+    .step-block::before {
+      content: attr(data-step);
+      position: absolute;
+      top: -16px; left: 24px;
+      background: linear-gradient(135deg, var(--brand-gold), var(--brand-gold-dark));
+      color: #000;
+      font-weight: 900;
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      padding: 4px 14px;
+      border-radius: var(--radius-full);
+    }
+    .step-block h2 {
+      font-size: 1.4rem;
+      margin-bottom: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .step-block > p {
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      font-size: 0.92rem;
+    }
+
+    /* ── Terminal Mockup ───────────────────────────────────── */
+    .terminal {
+      background: #0a0a0f;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.7;
+    }
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .terminal-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .terminal-dot.r { background: #EF4444; }
+    .terminal-dot.y { background: #F59E0B; }
+    .terminal-dot.g { background: #137DC5; }
+    .terminal-title {
+      margin-left: 8px;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+    .terminal-body {
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+    }
+    .terminal-body .prompt { color: var(--brand-gold); }
+    .terminal-body .cmd { color: #E2E8F0; }
+    .terminal-body .comment { color: var(--text-dim); }
+    .terminal-body .success { color: var(--brand-blue); }
+    .terminal-body .phase { color: var(--brand-purple); }
+    .terminal-body .dim { color: var(--text-dim); }
+    .terminal-body .line {
+      display: block;
+      white-space: pre;
+    }
+
+    /* ── Plugin Choice Cards ───────────────────────────────── */
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .choice-card {
+      padding: 1.25rem;
+      border-radius: var(--radius-card);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      text-align: center;
+      transition: all var(--transition-normal);
+    }
+    .choice-card:hover {
+      transform: translateY(-3px);
+    }
+    .choice-card.sa { border-color: rgba(255,215,0,0.25); }
+    .choice-card.sa:hover { box-shadow: 0 0 20px rgba(255,215,0,0.1); }
+    .choice-card.pqa { border-color: rgba(19,125,197,0.25); }
+    .choice-card.pqa:hover { box-shadow: 0 0 20px rgba(19,125,197,0.1); }
+    .choice-card.sdd { border-color: rgba(139,92,246,0.25); }
+    .choice-card.sdd:hover { box-shadow: 0 0 20px rgba(139,92,246,0.1); }
+    .choice-card .icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .choice-card h4 { font-size: 0.95rem; margin-bottom: 0.35rem; }
+    .choice-card p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Divider ───────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border-medium), transparent);
+      margin: 1rem auto;
+      max-width: 600px;
+    }
+
+    /* ── Next Step CTA ─────────────────────────────────────── */
+    .next-cta {
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+    .next-cta h2 {
+      font-size: 1.4rem;
+      margin-bottom: 0.75rem;
+    }
+    .next-cta p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .next-links {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <script src="shared/nav.js"></script>
+
+  <header class="page-header">
+    <h1><span class="gold">Quickstart</span> Guide</h1>
+    <p>From zero to running pipeline in 5 steps</p>
+  </header>
+
+  <main class="content">
+
+    <!-- Step 1 — Clone -->
+    <div class="step-block" data-step="Step 1 — Clone & Install">
+      <h2>Get the Kit</h2>
+      <p>Clone the monorepo containing all three plugins, or add a single plugin as a submodule.</p>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span>
+          <span class="terminal-dot y"></span>
+          <span class="terminal-dot g"></span>
+          <span class="terminal-title">Terminal</span>
+        </div>
+        <div class="terminal-body">
+          <span class="line"><span class="prompt">$</span> <span class="cmd">git clone https://github.com/JaviMontano/jm-agentic-development-kit.git</span></span>
+          <span class="line"><span class="dim">Cloning into 'jm-agentic-development-kit'...</span></span>
+          <span class="line"><span class="success">✓ 3 plugins · 188 commands · ready</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="prompt">$</span> <span class="cmd">cd jm-agentic-development-kit</span></span>
+          <span class="line"><span class="prompt">$</span> <span class="cmd">ls plugins/</span></span>
+          <span class="line"><span class="dim">sovereign-architect/  plugin-qa/  sdd-metodologia/</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 — Choose Plugin -->
+    <div class="step-block" data-step="Step 2 — Choose Your Plugin">
+      <h2>Pick Your Workflow</h2>
+      <p>Each plugin serves a different purpose. Choose based on what you need right now.</p>
+      <div class="choice-grid">
+        <div class="choice-card sa">
+          <div class="icon">🛡️</div>
+          <h4>Sovereign Architect</h4>
+          <p>Analyze, create, evolve, or repair software architecture</p>
+        </div>
+        <div class="choice-card pqa">
+          <div class="icon">✓</div>
+          <h4>Plugin QA</h4>
+          <p>Build and validate Claude Code plugins end-to-end</p>
+        </div>
+        <div class="choice-card sdd">
+          <div class="icon">📋</div>
+          <h4>SDD MetodologIA</h4>
+          <p>Spec-driven development with intent traceability</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 — SA -->
+    <div class="step-block" data-step="Step 3 — Architecture with SA">
+      <h2>Analyze Any Codebase</h2>
+      <p>Sovereign Architect performs a 5-phase architecture analysis with 27 specialist agents.</p>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span>
+          <span class="terminal-dot y"></span>
+          <span class="terminal-dot g"></span>
+          <span class="terminal-title">Sovereign Architect v4.0</span>
+        </div>
+        <div class="terminal-body">
+          <span class="line"><span class="prompt">$</span> <span class="cmd">/sa:analyze</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="phase">▶ Phase 1:</span> <span class="dim">Discovery — scanning project structure...</span></span>
+          <span class="line"><span class="phase">▶ Phase 2:</span> <span class="dim">Architecture — identifying patterns & layers...</span></span>
+          <span class="line"><span class="phase">▶ Phase 3:</span> <span class="dim">Quality — measuring complexity, duplication, debt...</span></span>
+          <span class="line"><span class="phase">▶ Phase 4:</span> <span class="dim">Security — checking vulnerabilities & auth flows...</span></span>
+          <span class="line"><span class="phase">▶ Phase 5:</span> <span class="dim">Recommendations — generating evolution roadmap...</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="success">✓ Analysis complete — 5 phases · 12 findings · 4 recommendations</span></span>
+          <span class="line"><span class="dim">  Report saved → .analysis/architecture-report.md</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 — PQA -->
+    <div class="step-block" data-step="Step 4 — Plugin Dev with PQA">
+      <h2>Create a Plugin</h2>
+      <p>Plugin QA drives a 9-movement pipeline from ideation to release-ready plugin.</p>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span>
+          <span class="terminal-dot y"></span>
+          <span class="terminal-dot g"></span>
+          <span class="terminal-title">Plugin QA v3.0</span>
+        </div>
+        <div class="terminal-body">
+          <span class="line"><span class="prompt">$</span> <span class="cmd">/pqa:create "my-plugin"</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="phase">♫ M1 IDEATE</span>   <span class="dim">Defining plugin purpose & scope...</span></span>
+          <span class="line"><span class="phase">♫ M2 PLAN</span>     <span class="dim">Architecture & skill breakdown...</span></span>
+          <span class="line"><span class="phase">♫ M3 DESIGN</span>   <span class="dim">CLAUDE.md + command matrix...</span></span>
+          <span class="line"><span class="phase">♫ M4 SPECIFY</span>  <span class="dim">Skill frontmatter & references...</span></span>
+          <span class="line"><span class="phase">♫ M5 BUILD</span>    <span class="dim">Generating skill files & scripts...</span></span>
+          <span class="line"><span class="phase">♫ M6 VALIDATE</span> <span class="dim">Structure, naming, cross-refs...</span></span>
+          <span class="line"><span class="phase">♫ M7 AUDIT</span>    <span class="dim">MOAT quality scorecard...</span></span>
+          <span class="line"><span class="phase">♫ M8 REPORT</span>   <span class="dim">Generating QA report...</span></span>
+          <span class="line"><span class="phase">♫ M9 FIX</span>      <span class="dim">Auto-fixing 3 issues found...</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="success">✓ Plugin created — 12 skills · 8 commands · score: 94/100</span></span>
+          <span class="line"><span class="dim">  Output → plugins/my-plugin/</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 — SDD -->
+    <div class="step-block" data-step="Step 5 — Spec-Driven Dev with SDD">
+      <h2>Build from Specifications</h2>
+      <p>SDD preserves intent from natural language to running code with cryptographic verification.</p>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span>
+          <span class="terminal-dot y"></span>
+          <span class="terminal-dot g"></span>
+          <span class="terminal-title">SDD MetodologIA v3.0</span>
+        </div>
+        <div class="terminal-body">
+          <span class="line"><span class="prompt">$</span> <span class="cmd">/sdd:tour</span></span>
+          <span class="line"><span class="dim">Starting 8-step guided onboarding...</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="prompt">$</span> <span class="cmd">/sdd:init</span></span>
+          <span class="line"><span class="success">✓ Project initialized</span></span>
+          <span class="line"><span class="dim">  Created: CONSTITUTION.md, FRAMEWORK-PRINCIPLES.md</span></span>
+          <span class="line"><span class="dim">  Created: .specify/ directory with context.json</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="prompt">$</span> <span class="cmd">/sdd:spec</span> <span class="dim">"User authentication with OAuth2"</span></span>
+          <span class="line"><span class="phase">▶ Specify</span> <span class="dim">Extracting requirements from natural language...</span></span>
+          <span class="line"><span class="dim">  FR-001: User can sign in with Google OAuth2</span></span>
+          <span class="line"><span class="dim">  FR-002: Session persists for 7 days</span></span>
+          <span class="line"><span class="dim">  FR-003: User can sign out from any device</span></span>
+          <span class="line"><span class="success">✓ 3 requirements extracted → specs/auth-oauth2/spec.md</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="prompt">$</span> <span class="cmd">/sdd:plan</span></span>
+          <span class="line"><span class="phase">▶ Plan</span> <span class="dim">Generating technical design...</span></span>
+          <span class="line"><span class="success">✓ Technical plan ready → specs/auth-oauth2/plan.md</span></span>
+          <span class="line"><span class="dim">  ⚡ GATE: Plan requires approval before implementation</span></span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="divider"></div>
+
+  <!-- Next Steps -->
+  <section class="next-cta">
+    <h2>What's Next?</h2>
+    <p>Explore prompts, dive into plugin details, or understand the architecture.</p>
+    <div class="next-links">
+      <a href="prompts.html" class="btn-gold">Browse Prompts →</a>
+      <a href="plugins.html" class="btn-outline">Plugin Details →</a>
+      <a href="architecture.html" class="btn-outline">Architecture →</a>
+    </div>
+  </section>
+
+  <script src="shared/footer.js"></script>
+</body>
+</html>

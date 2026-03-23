@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skills Gallery — Plugin QA v3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    .page-header {
+      text-align: center;
+      padding: 4rem 2rem 2rem;
+    }
+    .page-header h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #FFD700, #FFA000);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    .page-header p { color: var(--text-muted); font-size: 1.05rem; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+    /* ── Movement Group ──────────────────────────────────── */
+    .movement-group { margin-bottom: 2.5rem; }
+    .movement-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .movement-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--brand-navy);
+      border: 2px solid var(--brand-gold);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.65rem; font-weight: 700;
+      color: var(--brand-gold);
+      flex-shrink: 0;
+    }
+    .movement-name {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .movement-count {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-left: auto;
+    }
+
+    /* ── Skill Grid ──────────────────────────────────────── */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .skill-card {
+      padding: 1.15rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .skill-card h3 {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: var(--text-primary);
+    }
+    .skill-card p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    .skill-meta {
+      display: flex; gap: 0.5rem; align-items: center;
+      margin-top: auto;
+    }
+    .moat-depth {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: rgba(255,215,0,0.1);
+      color: var(--brand-gold);
+    }
+    .moat-depth.l2 { background: rgba(19,125,197,0.1); color: var(--brand-blue); }
+    .moat-depth.l3 { background: rgba(139,92,246,0.1); color: var(--brand-purple); }
+
+    /* ── Legend ───────────────────────────────────────────── */
+    .legend {
+      display: flex; gap: 1.5rem; justify-content: center;
+      margin-bottom: 2rem;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+    .legend-item { display: flex; align-items: center; gap: 0.3rem; }
+
+    /* ── Bottom Nav ───────────────────────────────────────── */
+    .bottom-nav {
+      display: flex; justify-content: space-between;
+      padding: 2rem 0 1rem;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 2rem;
+    }
+    .bottom-nav a { font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<section class="page-header">
+  <h1>Skills Gallery</h1>
+  <p>20 MOAT skills across 9 movements</p>
+</section>
+
+<div class="container">
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><span class="moat-depth">L1</span> Basic</div>
+    <div class="legend-item"><span class="moat-depth l2">L2</span> Standard</div>
+    <div class="legend-item"><span class="moat-depth l3">L3</span> Advanced</div>
+  </div>
+
+  <!-- IDEATE -->
+  <div class="movement-group">
+    <div class="movement-header">
+      <div class="movement-dot">1</div>
+      <span class="movement-name">Ideate</span>
+      <span class="movement-count">2 skills</span>
+    </div>
+    <div class="skill-grid">
+      <div class="card skill-card">
+        <h3>ideate-plugin</h3>
+        <p>Generate plugin concepts from natural-language descriptions with agent and skill topology.</p>
+        <div class="skill-meta"><span class="moat-depth l2">L2</span></div>
+      </div>
+      <div class="card skill-card">
+        <h3>ideate-component</h3>
+        <p>Brainstorm individual components: agents, skills, commands, or hooks for existing plugins.</p>
+        <div class="skill-meta"><span class="moat-depth">L1</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAN -->
+  <div class="movement-group">
+    <div class="movement-header">
+      <div class="movement-dot">2</div>
+      <span class="movement-name">Plan</span>
+      <span class="movement-count">2 skills</span>
+    </div>
+    <div class="skill-grid">
+      <div class="card skill-card">
+        <h3>plan-architecture</h3>
+        <p>Design the directory structure, agent roles, and command tree for a plugin.</p>
+        <div class="skill-meta"><span class="moat-depth l2">L2</span></div>
+      </div>
+      <div class="card skill-card">
+        <h3>plan-moat-strategy</h3>
+        <p>Define the MOAT depth strategy (L1/L2/L3) for each skill in the plugin.</p>
+        <div class="skill-meta"><span class="moat-depth l3">L3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN -->
+  <div class="movement-group">
+    <div class="movement-header">
+      <div class="movement-dot">3</div>
+      <span class="movement-name">Design</span>
+      <span class="movement-count">2 skills</span>
+    </div>
+    <div class="skill-grid">
+      <div class="card skill-card">
+        <h3>design-agent</h3>
+        <p>Author agent definitions with role, tools, specializations, and personality traits.</p>
+        <div class="skill-meta"><span class="moat-depth l2">L2</span></div>
+      </div>
+      <div class="card skill-card">
+        <h3>design-skill</h3>
+        <p>Design a skill with MOAT structure: SKILL.md, references, examples, and prompts.</p>
+        <div class="skill-meta"><span class="moat-depth l3">L3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPECIFY -->
+  <div class="movement-group">
+    <div class="movement-header">
+      <div class="movement-dot">4</div>
+      <span class="movement-name">Specify</span>
+      <span class="movement-count">2 skills</span>
+    </div>
+    <div class="skill-grid">
+      <div class="card skill-card">
+        <h3>spec-agent-command</h3>
+        <p>Write formal command specifications with triggers, parameters, and output contracts.</p>
+        <div class="skill-meta"><span class="moat-depth l2">L2</span></div>
+      </div>
+      <div class="card skill-card">
+        <h3>spec-skill-moat</h3>
+        <p>Specify skill MOAT depth requirements: methods, ontology references, asset templates.</p>
+        <div class="skill-meta"><span class="moat-depth l3">L3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUILD -->
+  <div class="movement-group">
+    <div class="movement-header">
+      <div class="movement-dot">5</div>
+      <span class="movement-name">Build</span>
+      <span class="movement-count">2 skills</span>
+    </div>
+    <div class="skill-grid">
+      <div class="card skill-card">
+        <h3>build-plugin-scaffold</h3>
+        <p>Generate the complete plugin directory tree with all required files and configurations.</p>
+        <div class="skill-meta"><span class="moat-depth l2">L2</span></div>
+      </div>
+      <div class="card skill-card">
+        <h3>build-moat-assets</h3>
+        <p>Create MOAT asset files: references, examples, prompt libraries, and templates.</p>
+        <div class="skill-meta"><span class="moat-depth l3">L3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VALIDATE -->
+  <div class="movement-group">
+    <div class="movement-header">
+      <div class="movement-dot">6</div>
+      <span class="movement-name">Validate</span>
+      <span class="movement-count">5 skills</span>
+    </div>
+    <div class="skill-grid">
+      <div class="card skill-card">
+        <h3>validate-structure</h3>
+        <p>Check directory layout against the Claude Code plugin specification standard.</p>
+        <div class="skill-meta"><span class="moat-depth">L1</span></div>
+      </div>
+      <div class="card skill-card">
+        <h3>validate-manifest</h3>
+        <p>Verify plugin.json schema, required fields, version format, and dependency declarations.</p>
+        <div class="skill-meta"><span class="moat-depth">L1</span></div>
+      </div>
+      <div class="card skill-card">
+        <h3>validate-components</h3>
+        <p>Ensure all agents, commands, and skills have required files and correct frontmatter.</p>
+        <div class="skill-meta"><span class="moat-depth l2">L2</span></div>
+      </div>
+      <div class="card skill-card">
+        <h3>validate-hooks</h3>
+        <p>Verify hooks.json structure, handler existence, and event binding correctness.</p>
+        <div class="skill-meta"><span class="moat-depth l2">L2</span></div>
+      </div>
+      <div class="card skill-card">
+        <h3>validate-cross-refs</h3>
+        <p>Check cross-references between commands, skills, agents, and hook handlers.</p>
+        <div class="skill-meta"><span class="moat-depth l3">L3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUDIT -->
+  <div class="movement-group">
+    <div class="movement-header">
+      <div class="movement-dot">7</div>
+      <span class="movement-name">Audit</span>
+      <span class="movement-count">2 skills</span>
+    </div>
+    <div class="skill-grid">
+      <div class="card skill-card">
+        <h3>audit-content-quality</h3>
+        <p>Evaluate SKILL.md content depth, clarity, instruction quality, and completeness.</p>
+        <div class="skill-meta"><span class="moat-depth l3">L3</span></div>
+      </div>
+      <div class="card skill-card">
+        <h3>audit-security</h3>
+        <p>Scan for security concerns: unsafe tool access, privilege escalation, data leaks.</p>
+        <div class="skill-meta"><span class="moat-depth l2">L2</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="movement-group">
+    <div class="movement-header">
+      <div class="movement-dot">8</div>
+      <span class="movement-name">Report</span>
+      <span class="movement-count">2 skills</span>
+    </div>
+    <div class="skill-grid">
+      <div class="card skill-card">
+        <h3>generate-qa-report</h3>
+        <p>Produce a comprehensive QA report with findings, severity levels, and remediation steps.</p>
+        <div class="skill-meta"><span class="moat-depth l2">L2</span></div>
+      </div>
+      <div class="card skill-card">
+        <h3>generate-qa-scorecard</h3>
+        <p>Generate a graded scorecard with per-category scores, trends, and improvement targets.</p>
+        <div class="skill-meta"><span class="moat-depth l2">L2</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIX -->
+  <div class="movement-group">
+    <div class="movement-header">
+      <div class="movement-dot">9</div>
+      <span class="movement-name">Fix</span>
+      <span class="movement-count">1 skill</span>
+    </div>
+    <div class="skill-grid">
+      <div class="card skill-card">
+        <h3>fix-common-issues</h3>
+        <p>Auto-detect and repair common plugin issues: missing files, broken refs, schema errors.</p>
+        <div class="skill-meta"><span class="moat-depth l2">L2</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <a href="prompts.html">&larr; Prompts</a>
+    <a href="workflow.html">Workflow &rarr;</a>
+  </div>
+
+</div>
+
+<script src="shared/nav.js"></script>
+<script src="shared/footer.js"></script>
+</body>
+</html>

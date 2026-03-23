@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Catalog — Plugin QA v3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    .page-header {
+      text-align: center;
+      padding: 4rem 2rem 2rem;
+    }
+    .page-header h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #FFD700, #FFA000);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    .page-header p { color: var(--text-muted); font-size: 1.05rem; }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
+
+    /* ── Filter Tabs ─────────────────────────────────────── */
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .filter-btn {
+      padding: 0.4rem 1rem;
+      border: 1.5px solid var(--border-medium);
+      border-radius: var(--radius-full);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-heading);
+      font-size: 0.8rem; font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .filter-btn:hover { border-color: var(--brand-gold); color: var(--text-primary); }
+    .filter-btn.active {
+      background: rgba(255,215,0,0.12);
+      border-color: var(--brand-gold);
+      color: var(--brand-gold);
+    }
+
+    /* ── Prompt Cards ────────────────────────────────────── */
+    .prompt-list { display: flex; flex-direction: column; gap: 1rem; }
+    .prompt-card {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: start;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+    }
+    .prompt-num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--brand-navy);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--brand-gold);
+      flex-shrink: 0;
+    }
+    .prompt-body h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+    .prompt-body .prompt-text {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+    .prompt-cmd {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--brand-blue);
+      background: rgba(19,125,197,0.08);
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+      align-self: center;
+    }
+
+    .prompt-card[data-hidden="true"] { display: none; }
+
+    /* ── Category Badge ──────────────────────────────────── */
+    .cat-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 0.4rem;
+    }
+    .cat-create  { background: rgba(255,215,0,0.12);  color: var(--brand-gold); }
+    .cat-design  { background: rgba(139,92,246,0.12);  color: var(--brand-purple); }
+    .cat-build   { background: rgba(19,125,197,0.12);  color: var(--brand-blue); }
+    .cat-validate{ background: rgba(18,37,98,0.35);     color: #7B93DB; }
+    .cat-audit   { background: rgba(255,115,22,0.12);   color: var(--brand-orange); }
+    .cat-fix     { background: rgba(239,68,68,0.12);    color: var(--brand-red); }
+
+    /* ── Bottom Nav ───────────────────────────────────────── */
+    .bottom-nav {
+      display: flex; justify-content: space-between;
+      padding: 2rem 0 1rem;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 2rem;
+    }
+    .bottom-nav a { font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<section class="page-header">
+  <h1>Prompt Catalog</h1>
+  <p>15 natural-language prompts mapped to PQA commands</p>
+</section>
+
+<div class="container">
+
+  <!-- Filter Tabs -->
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="create">Create</button>
+    <button class="filter-btn" data-filter="design">Design</button>
+    <button class="filter-btn" data-filter="build">Build</button>
+    <button class="filter-btn" data-filter="validate">Validate</button>
+    <button class="filter-btn" data-filter="audit">Audit</button>
+    <button class="filter-btn" data-filter="fix">Fix</button>
+  </div>
+
+  <!-- Prompt List -->
+  <div class="prompt-list">
+
+    <!-- CREATE -->
+    <div class="card prompt-card" data-cat="create">
+      <div class="prompt-num">1</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-create">Create</span>Create a plugin for automated testing</h3>
+        <p class="prompt-text">"Create a Claude Code plugin for automated testing"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:create</span>
+    </div>
+
+    <div class="card prompt-card" data-cat="create">
+      <div class="prompt-num">2</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-create">Create</span>Ideate a git workflow plugin</h3>
+        <p class="prompt-text">"Ideate a plugin that manages git workflows"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:ideate-component</span>
+    </div>
+
+    <div class="card prompt-card" data-cat="create">
+      <div class="prompt-num">3</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-create">Create</span>Run full lifecycle for a security plugin</h3>
+        <p class="prompt-text">"Run the full lifecycle for a new security plugin"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:lifecycle</span>
+    </div>
+
+    <!-- DESIGN -->
+    <div class="card prompt-card" data-cat="design">
+      <div class="prompt-num">4</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-design">Design</span>Design a code review agent</h3>
+        <p class="prompt-text">"Design an agent for code review with 5 specializations"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:design-agent</span>
+    </div>
+
+    <div class="card prompt-card" data-cat="design">
+      <div class="prompt-num">5</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-design">Design</span>Design a database migration skill</h3>
+        <p class="prompt-text">"Design a skill for database migration"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:design-skill</span>
+    </div>
+
+    <div class="card prompt-card" data-cat="design">
+      <div class="prompt-num">6</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-design">Design</span>Plan MOAT strategy</h3>
+        <p class="prompt-text">"Plan the MOAT strategy for my plugin"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:plan-moat</span>
+    </div>
+
+    <!-- BUILD -->
+    <div class="card prompt-card" data-cat="build">
+      <div class="prompt-num">7</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-build">Build</span>Build the plugin scaffold</h3>
+        <p class="prompt-text">"Build the plugin scaffold"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:build</span>
+    </div>
+
+    <div class="card prompt-card" data-cat="build">
+      <div class="prompt-num">8</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-build">Build</span>Specify agent commands</h3>
+        <p class="prompt-text">"Specify the agent commands"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:spec-agent</span>
+    </div>
+
+    <!-- VALIDATE -->
+    <div class="card prompt-card" data-cat="validate">
+      <div class="prompt-num">9</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-validate">Validate</span>Validate plugin structure</h3>
+        <p class="prompt-text">"Validate my plugin structure"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:validate</span>
+    </div>
+
+    <div class="card prompt-card" data-cat="validate">
+      <div class="prompt-num">10</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-validate">Validate</span>Check hooks configuration</h3>
+        <p class="prompt-text">"Check hooks configuration"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:hooks-check</span>
+    </div>
+
+    <div class="card prompt-card" data-cat="validate">
+      <div class="prompt-num">11</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-validate">Validate</span>Deep cross-reference validation</h3>
+        <p class="prompt-text">"Validate cross-references between commands and skills"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:validate</span>
+    </div>
+
+    <!-- AUDIT -->
+    <div class="card prompt-card" data-cat="audit">
+      <div class="prompt-num">12</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-audit">Audit</span>Run full QA audit</h3>
+        <p class="prompt-text">"Run a full QA audit"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:audit</span>
+    </div>
+
+    <div class="card prompt-card" data-cat="audit">
+      <div class="prompt-num">13</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-audit">Audit</span>Check content quality</h3>
+        <p class="prompt-text">"Check content quality of all skills"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:audit</span>
+    </div>
+
+    <div class="card prompt-card" data-cat="audit">
+      <div class="prompt-num">14</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-audit">Audit</span>Generate QA report</h3>
+        <p class="prompt-text">"Generate a QA report"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:report</span>
+    </div>
+
+    <!-- FIX -->
+    <div class="card prompt-card" data-cat="fix">
+      <div class="prompt-num">15</div>
+      <div class="prompt-body">
+        <h3><span class="cat-badge cat-fix">Fix</span>Auto-fix common issues</h3>
+        <p class="prompt-text">"Auto-fix common plugin issues"</p>
+      </div>
+      <span class="prompt-cmd">/pqa:fix</span>
+    </div>
+
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <a href="quickstart.html">&larr; Quickstart</a>
+    <a href="skills.html">Skills Gallery &rarr;</a>
+  </div>
+
+</div>
+
+<script src="shared/nav.js"></script>
+<script src="shared/footer.js"></script>
+<script>
+(function () {
+  const btns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.prompt-card');
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btns.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      cards.forEach(function (c) {
+        c.dataset.hidden = (f !== 'all' && c.dataset.cat !== f) ? 'true' : 'false';
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

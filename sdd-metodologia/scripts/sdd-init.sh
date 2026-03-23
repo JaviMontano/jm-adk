@@ -83,11 +83,30 @@ else
   echo -e "${MUTED}Step 4: No PREMISE.md — run /sdd:core init to create${RESET}"
 fi
 
-# ─── Step 5: Generate initial dashboard ───
+# ─── Step 5: Generate initial dashboard + Command Center data ───
 DASHBOARD_GENERATOR="$SCRIPT_DIR/generate-dashboard.js"
+CC_DATA_GENERATOR="$SCRIPT_DIR/generate-command-center-data.js"
 if [[ -f "$DASHBOARD_GENERATOR" ]] && command -v node &>/dev/null; then
   echo -e "${BLUE}Step 5:${RESET} Generating dashboard..."
   node "$DASHBOARD_GENERATOR" "$PROJECT_PATH" 2>/dev/null && echo -e "  ${GOLD}Dashboard:${RESET} .specify/dashboard.html" || echo -e "  ${MUTED}Dashboard generation skipped (template not ready)${RESET}"
+  # Command Center data
+  if [[ -f "$CC_DATA_GENERATOR" ]]; then
+    node "$CC_DATA_GENERATOR" "$PROJECT_PATH" 2>/dev/null && echo -e "  ${GOLD}Command Center:${RESET} .specify/shared/data.js" || true
+  fi
+  # Copy Command Center HTML if not already present
+  CC_SOURCE="$SCRIPT_DIR/command-center"
+  CC_TARGET="$PROJECT_PATH/.specify"
+  if [[ -d "$CC_SOURCE" ]] && [[ ! -f "$CC_TARGET/index.html" || "$CC_TARGET/index.html" -ot "$CC_SOURCE/index.html" ]]; then
+    cp "$CC_SOURCE/index.html" "$CC_TARGET/" 2>/dev/null
+    cp -r "$CC_SOURCE/shared" "$CC_TARGET/" 2>/dev/null
+    echo -e "  ${GOLD}Command Center UI:${RESET} .specify/index.html"
+  fi
+  # Copy tour if not present
+  TOUR_SOURCE="$SCRIPT_DIR/sdd-tour.html"
+  if [[ -f "$TOUR_SOURCE" ]] && [[ ! -f "$CC_TARGET/tour.html" ]]; then
+    cp "$TOUR_SOURCE" "$CC_TARGET/tour.html"
+    echo -e "  ${GOLD}Tour:${RESET} .specify/tour.html"
+  fi
 else
   echo -e "${MUTED}Step 5: Dashboard generator not available${RESET}"
 fi

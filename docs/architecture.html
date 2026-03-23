@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture — JM Agentic Development Kit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    /* ── Page Layout ───────────────────────────────────────── */
+    .page-header {
+      text-align: center;
+      padding: 4rem 1.5rem 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .page-header h1 {
+      font-size: 2.5rem; font-weight: 900; margin-bottom: 0.75rem;
+    }
+    .page-header h1 .gold { color: var(--brand-gold); }
+    .page-header p { color: var(--text-muted); font-size: 1.05rem; }
+
+    .content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* ── Section Block ─────────────────────────────────────── */
+    .arch-section {
+      margin-bottom: 3rem;
+    }
+    .arch-section h2 {
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .arch-section h2 .icon { margin-right: 8px; }
+    .arch-section > p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Directory Tree ────────────────────────────────────── */
+    .tree-block {
+      background: #0a0a0f;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    .tree-block .folder { color: var(--brand-gold); font-weight: 600; }
+    .tree-block .file { color: var(--text-muted); }
+    .tree-block .comment { color: var(--text-dim); font-style: italic; }
+    .tree-block .line { display: block; white-space: pre; }
+
+    /* ── Governance Cards ──────────────────────────────────── */
+    .gov-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .gov-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      padding: 1.5rem;
+      transition: transform var(--transition-normal);
+    }
+    .gov-card:hover { transform: translateY(-3px); }
+    .gov-card h3 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .gov-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+    .gov-card .file-ref {
+      display: inline-block;
+      margin-top: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--brand-gold);
+      background: rgba(255,215,0,0.06);
+      padding: 3px 10px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ── Evidence Tags ─────────────────────────────────────── */
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .evidence-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .tag-code {
+      background: rgba(19,125,197,0.1);
+      border: 1px solid rgba(19,125,197,0.25);
+      color: var(--brand-blue);
+    }
+    .tag-config {
+      background: rgba(139,92,246,0.1);
+      border: 1px solid rgba(139,92,246,0.25);
+      color: var(--brand-purple);
+    }
+    .tag-doc {
+      background: rgba(255,215,0,0.1);
+      border: 1px solid rgba(255,215,0,0.25);
+      color: var(--brand-gold);
+    }
+    .tag-inference {
+      background: rgba(249,115,22,0.1);
+      border: 1px solid rgba(249,115,22,0.25);
+      color: var(--brand-orange);
+    }
+    .tag-assumption {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.25);
+      color: var(--brand-red);
+    }
+
+    /* ── Quality Gates Flow ────────────────────────────────── */
+    .gates-flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+    }
+    .gate-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .gate-circle {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-weight: 900;
+      font-size: 0.9rem;
+    }
+    .gate-circle.g0 {
+      background: rgba(148,163,184,0.15);
+      border: 2px solid rgba(148,163,184,0.4);
+      color: var(--text-muted);
+    }
+    .gate-circle.g1 {
+      background: rgba(19,125,197,0.15);
+      border: 2px solid rgba(19,125,197,0.4);
+      color: var(--brand-blue);
+    }
+    .gate-circle.g2 {
+      background: rgba(139,92,246,0.15);
+      border: 2px solid rgba(139,92,246,0.4);
+      color: var(--brand-purple);
+    }
+    .gate-circle.g3 {
+      background: rgba(255,215,0,0.15);
+      border: 2px solid rgba(255,215,0,0.4);
+      color: var(--brand-gold);
+    }
+    .gate-label {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      text-align: center;
+      max-width: 80px;
+    }
+    .gate-arrow {
+      font-size: 1.5rem;
+      color: var(--text-dim);
+      margin: 0 0.5rem;
+    }
+
+    /* ── Intent Chain ──────────────────────────────────────── */
+    .chain-flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+    }
+    .chain-node {
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      text-align: center;
+    }
+    .chain-node.intent { border-color: rgba(255,215,0,0.3); color: var(--brand-gold); }
+    .chain-node.spec { border-color: rgba(19,125,197,0.3); color: var(--brand-blue); }
+    .chain-node.plan { border-color: rgba(139,92,246,0.3); color: var(--brand-purple); }
+    .chain-node.tasks { border-color: rgba(249,115,22,0.3); color: var(--brand-orange); }
+    .chain-node.tests { border-color: rgba(0,255,255,0.3); color: var(--brand-cyan); }
+    .chain-node.code { border-color: rgba(19,125,197,0.3); color: var(--brand-blue); }
+    .chain-arrow {
+      font-size: 1.2rem;
+      color: var(--text-dim);
+      margin: 0 0.35rem;
+    }
+    .chain-label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      margin-top: 2px;
+    }
+
+    /* ── Divider ───────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border-medium), transparent);
+      margin: 2rem auto;
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>
+  <script src="shared/nav.js"></script>
+
+  <header class="page-header">
+    <h1>Kit <span class="gold">Architecture</span></h1>
+    <p>Directory structure, governance, evidence protocol, and quality gates</p>
+  </header>
+
+  <main class="content">
+
+    <!-- ── Directory Tree ─────────────────────────────────── -->
+    <section class="arch-section">
+      <h2><span class="icon">📁</span>Directory Structure</h2>
+      <p>The monorepo contains three independent plugins under a shared governance framework.</p>
+
+      <div class="tree-block">
+<span class="line"><span class="folder">jm-agentic-development-kit/</span></span>
+<span class="line">├── <span class="folder">plugins/</span></span>
+<span class="line">│   ├── <span class="folder">sovereign-architect/</span>       <span class="comment"># SA v4.0 — Architecture analysis & creation</span></span>
+<span class="line">│   │   ├── <span class="file">CLAUDE.md</span>               <span class="comment"># Plugin manifest & command reference</span></span>
+<span class="line">│   │   ├── <span class="folder">agents/</span>                 <span class="comment"># 27 specialist agents</span></span>
+<span class="line">│   │   ├── <span class="folder">skills/</span>                 <span class="comment"># SKILL.md files with frontmatter</span></span>
+<span class="line">│   │   ├── <span class="folder">commands/</span>               <span class="comment"># 48 slash commands</span></span>
+<span class="line">│   │   └── <span class="folder">references/</span>             <span class="comment"># Ontology, design system, RAG docs</span></span>
+<span class="line">│   ├── <span class="folder">plugin-qa/</span>                  <span class="comment"># PQA v3.0 — Plugin quality assurance</span></span>
+<span class="line">│   │   ├── <span class="file">CLAUDE.md</span></span>
+<span class="line">│   │   ├── <span class="folder">agents/</span>                 <span class="comment"># 18 QA agents</span></span>
+<span class="line">│   │   ├── <span class="folder">skills/</span>                 <span class="comment"># 9-movement pipeline skills</span></span>
+<span class="line">│   │   └── <span class="folder">commands/</span>               <span class="comment"># 52 slash commands</span></span>
+<span class="line">│   └── <span class="folder">sdd-metodologia/</span>            <span class="comment"># SDD v3.0 — Spec Driven Development</span></span>
+<span class="line">│       ├── <span class="file">CLAUDE.md</span></span>
+<span class="line">│       ├── <span class="folder">skills/</span>                 <span class="comment"># 12 pipeline skills</span></span>
+<span class="line">│       ├── <span class="folder">scripts/</span>                <span class="comment"># 20 automation scripts</span></span>
+<span class="line">│       ├── <span class="folder">hooks/</span>                  <span class="comment"># Ambient intelligence hooks</span></span>
+<span class="line">│       ├── <span class="folder">docs/</span>                   <span class="comment"># Documentation site</span></span>
+<span class="line">│       └── <span class="folder">references/</span>             <span class="comment"># Design tokens, sequences</span></span>
+<span class="line">├── <span class="folder">governance/</span></span>
+<span class="line">│   ├── <span class="file">CONSTITUTION.md</span>             <span class="comment"># Project-wide governance principles</span></span>
+<span class="line">│   ├── <span class="file">FRAMEWORK-PRINCIPLES.md</span>     <span class="comment"># Coding standards & patterns</span></span>
+<span class="line">│   └── <span class="folder">.specify/</span>                   <span class="comment"># Shared specification artifacts</span></span>
+<span class="line">├── <span class="folder">docs/</span>                           <span class="comment"># This documentation site</span></span>
+<span class="line">├── <span class="folder">orchestration/</span>                  <span class="comment"># Meta-orchestrator config</span></span>
+<span class="line">├── <span class="file">CLAUDE.md</span>                       <span class="comment"># Kit-level manifest</span></span>
+<span class="line">├── <span class="file">LICENSE</span>                         <span class="comment"># MIT + GPL-3.0 (brand)</span></span>
+<span class="line">└── <span class="file">README.md</span></span>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── Governance ─────────────────────────────────────── -->
+    <section class="arch-section">
+      <h2><span class="icon">⚖️</span>Governance Layer</h2>
+      <p>Every project starts with explicit governance. Constitution defines principles, Framework defines standards.</p>
+
+      <div class="gov-grid">
+        <div class="gov-card">
+          <h3>📜 CONSTITUTION.md</h3>
+          <p>Defines the immutable governance principles for the project. Principles are numbered (P-I, P-II, ...) and traced through the knowledge graph to requirements, tests, and tasks.</p>
+          <span class="file-ref">governance/CONSTITUTION.md</span>
+        </div>
+        <div class="gov-card">
+          <h3>📐 FRAMEWORK-PRINCIPLES.md</h3>
+          <p>Coding standards, architectural patterns, naming conventions, and quality thresholds. Referenced by all three plugins during their respective pipelines.</p>
+          <span class="file-ref">governance/FRAMEWORK-PRINCIPLES.md</span>
+        </div>
+        <div class="gov-card">
+          <h3>📂 .specify/ Directory</h3>
+          <p>Shared specification state: context.json, active feature tracking, knowledge graph, dashboard data, and RAG memory index. The single source of truth for pipeline state.</p>
+          <span class="file-ref">governance/.specify/</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── Evidence Tags ──────────────────────────────────── -->
+    <section class="arch-section">
+      <h2><span class="icon">🏷️</span>Evidence Protocol</h2>
+      <p>Every claim in every artifact must carry an evidence tag. If more than 30% of claims are assumptions, a warning banner is mandatory.</p>
+
+      <div class="tags-row">
+        <span class="evidence-tag tag-code">📦 [CODE]</span>
+        <span class="evidence-tag tag-config">⚙️ [CONFIG]</span>
+        <span class="evidence-tag tag-doc">📄 [DOC]</span>
+        <span class="evidence-tag tag-inference">🔍 [INFERENCE]</span>
+        <span class="evidence-tag tag-assumption">⚠️ [ASSUMPTION]</span>
+      </div>
+
+      <div style="margin-top:1.5rem; padding:1.25rem; background:var(--bg-surface); border:1px solid rgba(239,68,68,0.15); border-radius:var(--radius-card);">
+        <p style="font-size:0.88rem; color:var(--text-muted); line-height:1.6;">
+          <strong style="color:var(--brand-red);">Zero-Hallucination Rule:</strong>
+          If a claim has <code style="color:var(--brand-red)">severity=CRITICAL</code> combined with <code style="color:var(--brand-red)">[ASSUMPTION]</code>,
+          it is flagged for mandatory human validation. Inferences are never presented as facts.
+        </p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── Quality Gates ──────────────────────────────────── -->
+    <section class="arch-section">
+      <h2><span class="icon">🚧</span>Quality Gates</h2>
+      <p>Hard stops that require explicit approval before the pipeline can advance. Gates are never skipped.</p>
+
+      <div class="gates-flow">
+        <div class="gate-node">
+          <div class="gate-circle g0">G0</div>
+          <span class="gate-label">Project Init</span>
+        </div>
+        <span class="gate-arrow">→</span>
+        <div class="gate-node">
+          <div class="gate-circle g1">G1</div>
+          <span class="gate-label">Spec Approved</span>
+        </div>
+        <span class="gate-arrow">→</span>
+        <div class="gate-node">
+          <div class="gate-circle g2">G2</div>
+          <span class="gate-label">Plan Verified</span>
+        </div>
+        <span class="gate-arrow">→</span>
+        <div class="gate-node">
+          <div class="gate-circle g3">G3</div>
+          <span class="gate-label">Implementation Complete</span>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem; font-size:0.85rem; color:var(--text-dim);">
+        <p><strong style="color:var(--text-muted)">G0</strong> — Constitution and framework principles established. Project structure initialized.</p>
+        <p><strong style="color:var(--brand-blue)">G1</strong> — Feature specification reviewed and approved. Requirements are traceable.</p>
+        <p><strong style="color:var(--brand-purple)">G2</strong> — Technical plan verified. Cross-artifact consistency analysis passed.</p>
+        <p><strong style="color:var(--brand-gold)">G3</strong> — Implementation complete. All tests pass. Knowledge graph has zero orphans.</p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── Intent Integrity Chain ─────────────────────────── -->
+    <section class="arch-section">
+      <h2><span class="icon">🔗</span>Intent Integrity Chain</h2>
+      <p>The core philosophy of the kit: intent is preserved from natural language all the way to running code, with cryptographic verification at each step.</p>
+
+      <div class="chain-flow">
+        <div class="chain-node intent">
+          Intent
+          <span class="chain-label">Natural language</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-node spec">
+          Spec
+          <span class="chain-label">FR-NNN</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-node plan">
+          Plan
+          <span class="chain-label">Technical design</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-node tasks">
+          Tasks
+          <span class="chain-label">T-NNN ordered</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-node tests">
+          Tests
+          <span class="chain-label">TS-NNN + hash</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-node code">
+          Code
+          <span class="chain-label">Implementation</span>
+        </div>
+      </div>
+
+      <div style="margin-top:1.25rem; padding:1.25rem; background:var(--bg-surface); border:1px solid rgba(255,215,0,0.12); border-radius:var(--radius-card);">
+        <p style="font-size:0.88rem; color:var(--text-muted); line-height:1.6;">
+          <strong style="color:var(--brand-gold);">Traceability:</strong>
+          The knowledge graph connects every node in the chain. Requirements trace to tests.
+          Tests trace to tasks. Tasks trace to code. Orphan detection runs automatically via the
+          <code style="color:var(--brand-gold)">/sdd:graph</code> command and the sentinel heartbeat.
+        </p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── Link back ──────────────────────────────────────── -->
+    <section style="text-align:center; padding:3rem 1.5rem;">
+      <h2 style="font-size:1.3rem; margin-bottom:1rem;">Explore the Kit</h2>
+      <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+        <a href="plugins.html" class="btn-gold">Plugin Details →</a>
+        <a href="quickstart.html" class="btn-outline">Quickstart →</a>
+        <a href="prompts.html" class="btn-outline">Prompt Catalog →</a>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="shared/footer.js"></script>
+</body>
+</html>

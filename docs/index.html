@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JM Agentic Development Kit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    /* ── Hero ───────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 6rem 1.5rem 4rem;
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(255,215,0,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,215,0,0.08);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: var(--radius-full);
+      padding: 6px 16px; font-size: 0.8rem;
+      color: var(--brand-gold); font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .hero h1 .gold { color: var(--brand-gold); }
+    .hero .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+    .hero .stats-line {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 2rem;
+    }
+    .hero-actions {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+    }
+
+    /* ── Section shared ────────────────────────────────────── */
+    .section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+    .section-sub {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      font-size: 0.95rem;
+    }
+
+    /* ── Plugin Cards ──────────────────────────────────────── */
+    .plugin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .plugin-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border-radius: var(--radius-card);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+    .plugin-card:hover {
+      transform: translateY(-6px);
+    }
+    .plugin-card.sa { border: 1px solid rgba(255,215,0,0.3); }
+    .plugin-card.sa:hover { box-shadow: 0 0 30px rgba(255,215,0,0.12); }
+    .plugin-card.pqa { border: 1px solid rgba(19,125,197,0.3); }
+    .plugin-card.pqa:hover { box-shadow: 0 0 30px rgba(19,125,197,0.12); }
+    .plugin-card.sdd { border: 1px solid rgba(139,92,246,0.3); }
+    .plugin-card.sdd:hover { box-shadow: 0 0 30px rgba(139,92,246,0.12); }
+
+    .plugin-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .plugin-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .plugin-card .version {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 8px;
+    }
+    .sa .version { background: rgba(255,215,0,0.12); color: var(--brand-gold); }
+    .pqa .version { background: rgba(19,125,197,0.12); color: var(--brand-blue); }
+    .sdd .version { background: rgba(139,92,246,0.12); color: var(--brand-purple); }
+    .plugin-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .plugin-meta {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+    .new-badge {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: linear-gradient(135deg, var(--brand-purple), #A78BFA);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── How It Works ──────────────────────────────────────── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+    .step {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      background: var(--bg-card);
+      backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      position: relative;
+    }
+    .step-num {
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand-gold), var(--brand-gold-dark));
+      color: #000;
+      font-weight: 900;
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .step h4 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .step p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .step-arrow {
+      display: none;
+    }
+    @media(min-width: 768px) {
+      .step-arrow {
+        display: block;
+        position: absolute;
+        right: -24px; top: 50%;
+        transform: translateY(-50%);
+        color: var(--brand-gold);
+        font-size: 1.5rem;
+        z-index: 2;
+      }
+    }
+
+    /* ── Stats Bar ─────────────────────────────────────────── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      padding: 2rem;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-number {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--brand-gold);
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* ── CTA ───────────────────────────────────────────────── */
+    .cta-section {
+      text-align: center;
+      padding: 4rem 1.5rem;
+    }
+    .cta-section h2 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
+    .cta-section p {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    /* ── Divider ───────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border-medium), transparent);
+      margin: 0 auto;
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>
+  <script src="shared/nav.js"></script>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge">⚡ Agentic Development Framework</div>
+    <h1>JM Agentic<br><span class="gold">Development Kit</span></h1>
+    <p class="subtitle">From requirements to production &mdash; powered by intent-preserving AI agents</p>
+    <p class="stats-line">3 plugins · 188 commands · 70+ agents</p>
+    <div class="hero-actions">
+      <a href="quickstart.html" class="btn-gold">Get Started →</a>
+      <a href="https://github.com/JaviMontano/jm-agentic-development-kit" target="_blank" class="btn-outline">GitHub ↗</a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Plugin Cards -->
+  <section class="section">
+    <h2 class="section-title">Three Plugins, One Kit</h2>
+    <p class="section-sub">Each plugin is a fully autonomous agentic system. Combine them for full-cycle development.</p>
+
+    <div class="plugin-grid">
+      <!-- Sovereign Architect -->
+      <div class="plugin-card sa">
+        <div class="plugin-icon">🛡️</div>
+        <h3>Sovereign Architect <span class="version">v4.0</span></h3>
+        <p>Architecture analysis, creation, evolution, and repair. 5 movements, 27 agents, and the MOAT methodology for enterprise-grade software.</p>
+        <div class="plugin-meta">48 commands · 27 agents · 5 movements</div>
+      </div>
+
+      <!-- Plugin QA -->
+      <div class="plugin-card pqa">
+        <div class="plugin-icon">✓</div>
+        <h3>Plugin QA <span class="version">v3.0</span></h3>
+        <p>Full-lifecycle plugin quality assurance. Create, validate, audit, and fix Claude Code plugins with a 9-movement pipeline.</p>
+        <div class="plugin-meta">52 commands · 18 agents · 9 movements</div>
+      </div>
+
+      <!-- SDD MetodologIA -->
+      <div class="plugin-card sdd">
+        <span class="new-badge">NEW v3.0</span>
+        <div class="plugin-icon">📋</div>
+        <h3>SDD MetodologIA <span class="version">v3.0</span></h3>
+        <p>Spec-driven development with cryptographic BDD verification, ambient intelligence, knowledge graph, and command center.</p>
+        <div class="plugin-meta">88 commands · 30+ agents · 9 phases</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- How It Works -->
+  <section class="section">
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-sub">Four steps from clone to ship</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Install</h4>
+        <p>Clone the kit repo or add a single plugin to your project</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Choose Plugin</h4>
+        <p>SA for architecture, PQA for plugin dev, SDD for spec-driven work</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Run Commands</h4>
+        <p>Use slash commands or natural language prompts to drive agents</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>Ship</h4>
+        <p>Production-ready code with full traceability from intent to implementation</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Stats -->
+  <section class="section">
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-number">70+</div>
+        <div class="stat-label">Agents</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">160+</div>
+        <div class="stat-label">Skills</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">188</div>
+        <div class="stat-label">Commands</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Plugins</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Ready to build with agents?</h2>
+    <p>Start with the quickstart guide and have your first pipeline running in minutes.</p>
+    <a href="quickstart.html" class="btn-gold">Get Started →</a>
+  </section>
+
+  <script src="shared/footer.js"></script>
+</body>
+</html>

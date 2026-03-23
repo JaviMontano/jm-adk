@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompts — JM Agentic Development Kit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    /* ── Page Layout ───────────────────────────────────────── */
+    .page-header {
+      text-align: center;
+      padding: 4rem 1.5rem 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .page-header h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 0.75rem;
+    }
+    .page-header h1 .gold { color: var(--brand-gold); }
+    .page-header p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+    .content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* ── Filter Tabs ───────────────────────────────────────── */
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .filter-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--border-medium);
+    }
+    .filter-btn.active {
+      background: var(--brand-gold);
+      color: #000;
+      border-color: var(--brand-gold);
+    }
+
+    /* ── Prompt Cards ──────────────────────────────────────── */
+    .prompts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    .prompt-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      padding: 1.5rem;
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+      display: flex;
+      flex-direction: column;
+    }
+    .prompt-card:hover {
+      transform: translateY(-3px);
+    }
+    .prompt-card.sa { border-left: 3px solid var(--brand-gold); }
+    .prompt-card.sa:hover { box-shadow: 0 0 20px rgba(255,215,0,0.08); }
+    .prompt-card.pqa { border-left: 3px solid var(--brand-blue); }
+    .prompt-card.pqa:hover { box-shadow: 0 0 20px rgba(19,125,197,0.08); }
+    .prompt-card.sdd { border-left: 3px solid var(--brand-purple); }
+    .prompt-card.sdd:hover { box-shadow: 0 0 20px rgba(139,92,246,0.08); }
+
+    .prompt-card .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .prompt-card .num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+    .prompt-card .plugin-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .plugin-tag.sa { background: rgba(255,215,0,0.12); color: var(--brand-gold); }
+    .plugin-tag.pqa { background: rgba(19,125,197,0.12); color: var(--brand-blue); }
+    .plugin-tag.sdd { background: rgba(139,92,246,0.12); color: var(--brand-purple); }
+
+    .prompt-card .prompt-text {
+      font-size: 0.95rem;
+      font-weight: 500;
+      line-height: 1.45;
+      margin-bottom: 0.75rem;
+      flex: 1;
+    }
+    .prompt-card .command-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.3);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+    .command-row .arrow { color: var(--brand-gold); font-size: 0.7rem; }
+    .command-row code { color: var(--brand-gold); }
+
+    /* ── Hidden state ──────────────────────────────────────── */
+    .prompt-card.hidden { display: none; }
+
+    /* ── Stats ─────────────────────────────────────────────── */
+    .prompt-stats {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+    .prompt-stats strong { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <script src="shared/nav.js"></script>
+
+  <header class="page-header">
+    <h1><span class="gold">Prompt</span> Catalog</h1>
+    <p>18 natural-language prompts across all 3 plugins &mdash; copy, paste, and go</p>
+  </header>
+
+  <main class="content">
+    <div class="prompt-stats">
+      Showing <strong id="count">18</strong> of 18 prompts
+    </div>
+
+    <div class="filter-tabs">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="sa">🛡️ SA</button>
+      <button class="filter-btn" data-filter="pqa">✓ PQA</button>
+      <button class="filter-btn" data-filter="sdd">📋 SDD</button>
+    </div>
+
+    <div class="prompts-grid" id="grid">
+
+      <!-- SA Prompts -->
+      <div class="prompt-card sa" data-plugin="sa">
+        <div class="top-row">
+          <span class="num">#01</span>
+          <span class="plugin-tag sa">SA</span>
+        </div>
+        <div class="prompt-text">"Analyze the architecture of this React app"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sa:analyze</code>
+        </div>
+      </div>
+
+      <div class="prompt-card sa" data-plugin="sa">
+        <div class="top-row">
+          <span class="num">#02</span>
+          <span class="plugin-tag sa">SA</span>
+        </div>
+        <div class="prompt-text">"Do a quick 80/20 diagnosis of code quality"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sa:run-express</code>
+        </div>
+      </div>
+
+      <div class="prompt-card sa" data-plugin="sa">
+        <div class="top-row">
+          <span class="num">#03</span>
+          <span class="plugin-tag sa">SA</span>
+        </div>
+        <div class="prompt-text">"Create a new Next.js project with Supabase"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sa:create</code>
+        </div>
+      </div>
+
+      <div class="prompt-card sa" data-plugin="sa">
+        <div class="top-row">
+          <span class="num">#04</span>
+          <span class="plugin-tag sa">SA</span>
+        </div>
+        <div class="prompt-text">"Review this PR for security and performance"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sa:review</code>
+        </div>
+      </div>
+
+      <div class="prompt-card sa" data-plugin="sa">
+        <div class="top-row">
+          <span class="num">#05</span>
+          <span class="plugin-tag sa">SA</span>
+        </div>
+        <div class="prompt-text">"Evolve this component to use TypeScript strict"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sa:evolve</code>
+        </div>
+      </div>
+
+      <div class="prompt-card sa" data-plugin="sa">
+        <div class="top-row">
+          <span class="num">#06</span>
+          <span class="plugin-tag sa">SA</span>
+        </div>
+        <div class="prompt-text">"Diagnose why the build is failing"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sa:repair</code>
+        </div>
+      </div>
+
+      <!-- PQA Prompts -->
+      <div class="prompt-card pqa" data-plugin="pqa">
+        <div class="top-row">
+          <span class="num">#07</span>
+          <span class="plugin-tag pqa">PQA</span>
+        </div>
+        <div class="prompt-text">"Create a Claude Code plugin for code review"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/pqa:create</code>
+        </div>
+      </div>
+
+      <div class="prompt-card pqa" data-plugin="pqa">
+        <div class="top-row">
+          <span class="num">#08</span>
+          <span class="plugin-tag pqa">PQA</span>
+        </div>
+        <div class="prompt-text">"Audit my plugin for quality issues"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/pqa:audit</code>
+        </div>
+      </div>
+
+      <div class="prompt-card pqa" data-plugin="pqa">
+        <div class="top-row">
+          <span class="num">#09</span>
+          <span class="plugin-tag pqa">PQA</span>
+        </div>
+        <div class="prompt-text">"Validate the plugin structure"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/pqa:validate</code>
+        </div>
+      </div>
+
+      <div class="prompt-card pqa" data-plugin="pqa">
+        <div class="top-row">
+          <span class="num">#10</span>
+          <span class="plugin-tag pqa">PQA</span>
+        </div>
+        <div class="prompt-text">"Run the full plugin lifecycle"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/pqa:lifecycle</code>
+        </div>
+      </div>
+
+      <div class="prompt-card pqa" data-plugin="pqa">
+        <div class="top-row">
+          <span class="num">#11</span>
+          <span class="plugin-tag pqa">PQA</span>
+        </div>
+        <div class="prompt-text">"Auto-fix common plugin issues"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/pqa:fix</code>
+        </div>
+      </div>
+
+      <div class="prompt-card pqa" data-plugin="pqa">
+        <div class="top-row">
+          <span class="num">#12</span>
+          <span class="plugin-tag pqa">PQA</span>
+        </div>
+        <div class="prompt-text">"Generate a QA scorecard"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/pqa:scorecard</code>
+        </div>
+      </div>
+
+      <!-- SDD Prompts -->
+      <div class="prompt-card sdd" data-plugin="sdd">
+        <div class="top-row">
+          <span class="num">#13</span>
+          <span class="plugin-tag sdd">SDD</span>
+        </div>
+        <div class="prompt-text">"Initialize spec-driven development"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sdd:init</code>
+        </div>
+      </div>
+
+      <div class="prompt-card sdd" data-plugin="sdd">
+        <div class="top-row">
+          <span class="num">#14</span>
+          <span class="plugin-tag sdd">SDD</span>
+        </div>
+        <div class="prompt-text">"Specify a user authentication feature"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sdd:spec</code>
+        </div>
+      </div>
+
+      <div class="prompt-card sdd" data-plugin="sdd">
+        <div class="top-row">
+          <span class="num">#15</span>
+          <span class="plugin-tag sdd">SDD</span>
+        </div>
+        <div class="prompt-text">"Generate the technical plan"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sdd:plan</code>
+        </div>
+      </div>
+
+      <div class="prompt-card sdd" data-plugin="sdd">
+        <div class="top-row">
+          <span class="num">#16</span>
+          <span class="plugin-tag sdd">SDD</span>
+        </div>
+        <div class="prompt-text">"Show the project health status"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sdd:sentinel</code>
+        </div>
+      </div>
+
+      <div class="prompt-card sdd" data-plugin="sdd">
+        <div class="top-row">
+          <span class="num">#17</span>
+          <span class="plugin-tag sdd">SDD</span>
+        </div>
+        <div class="prompt-text">"Build the knowledge graph"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sdd:graph</code>
+        </div>
+      </div>
+
+      <div class="prompt-card sdd" data-plugin="sdd">
+        <div class="top-row">
+          <span class="num">#18</span>
+          <span class="plugin-tag sdd">SDD</span>
+        </div>
+        <div class="prompt-text">"Open the Command Center"</div>
+        <div class="command-row">
+          <span class="arrow">→</span>
+          <code>/sdd:dashboard</code>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // Filter logic
+    const btns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.prompt-card');
+    const countEl = document.getElementById('count');
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        let visible = 0;
+        cards.forEach(card => {
+          if (filter === 'all' || card.dataset.plugin === filter) {
+            card.classList.remove('hidden');
+            visible++;
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+        countEl.textContent = visible;
+      });
+    });
+  </script>
+
+  <script src="shared/footer.js"></script>
+</body>
+</html>

@@ -396,6 +396,10 @@
       opacity: 1;
       transform: translateY(0);
     }
+    /* Fallback: force visible after load for non-JS or blocked observers */
+    @media (prefers-reduced-motion: reduce) {
+      .fade-up { opacity: 1; transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -587,6 +591,10 @@
       } else {
         els.forEach(function(el) { el.classList.add('visible'); });
       }
+      /* Fallback: force all visible after 800ms in case observer misses */
+      setTimeout(function() {
+        els.forEach(function(el) { el.classList.add('visible'); });
+      }, 800);
     })();
 
     /* ─── Animated stat counters ─── */

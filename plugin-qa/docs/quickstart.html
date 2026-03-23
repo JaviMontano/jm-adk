@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quickstart — Plugin QA v3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    .page-header {
+      text-align: center;
+      padding: 4rem 2rem 2rem;
+    }
+    .page-header h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #FFD700, #FFA000);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    .page-header p { color: var(--text-muted); font-size: 1.05rem; }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    /* ── Steps ────────────────────────────────────────────── */
+    .step {
+      margin-bottom: 3rem;
+      position: relative;
+      padding-left: 3.5rem;
+    }
+    .step::before {
+      content: attr(data-step);
+      position: absolute; left: 0; top: 0;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--brand-navy);
+      border: 2px solid var(--brand-gold);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-heading);
+      font-weight: 800; font-size: 1rem;
+      color: var(--brand-gold);
+    }
+    .step h2 {
+      font-size: 1.35rem;
+      margin-bottom: 0.35rem;
+    }
+    .step .step-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Terminal ─────────────────────────────────────────── */
+    .terminal {
+      background: #0C0E14;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: 6px;
+      padding: 0.6rem 0.85rem;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .terminal-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .terminal-dot.r { background: #EF4444; }
+    .terminal-dot.y { background: #FFD700; }
+    .terminal-dot.b { background: #137DC5; }
+    .terminal-title {
+      margin-left: 0.5rem;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+    .terminal-body {
+      padding: 1rem 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      overflow-x: auto;
+    }
+    .terminal-body .prompt { color: var(--brand-gold); }
+    .terminal-body .cmd { color: #E2E8F0; font-weight: 600; }
+    .terminal-body .ok { color: var(--brand-blue); }
+    .terminal-body .dim { color: var(--text-dim); }
+    .terminal-body .warn { color: var(--brand-orange); }
+    .terminal-body .heading { color: var(--brand-gold); font-weight: 700; }
+
+    /* ── Tip Box ──────────────────────────────────────────── */
+    .tip {
+      background: rgba(19,125,197,0.08);
+      border-left: 3px solid var(--brand-blue);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .tip strong { color: var(--brand-blue); }
+
+    /* ── Bottom Nav ───────────────────────────────────────── */
+    .bottom-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 2rem 0 1rem;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 2rem;
+    }
+    .bottom-nav a { font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<section class="page-header">
+  <h1>Quickstart</h1>
+  <p>Create, validate, audit, and fix a plugin in 5 steps</p>
+</section>
+
+<div class="container">
+
+  <!-- Step 1 -->
+  <div class="step" data-step="1">
+    <h2>Create a Plugin from Scratch</h2>
+    <p class="step-desc">Describe what you want in natural language. PQA runs the full lifecycle: ideation, planning, design, and scaffold generation.</p>
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot b"></div>
+        <span class="terminal-title">claude &mdash; /pqa:create</span>
+      </div>
+      <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">/pqa:create "A code review plugin that checks for security patterns"</span>
+
+<span class="heading">IDEATE</span> <span class="dim">Generating plugin concept...</span>
+  <span class="ok">&#10003;</span> Plugin name: security-review
+  <span class="ok">&#10003;</span> 3 agents defined
+  <span class="ok">&#10003;</span> 8 skills mapped
+
+<span class="heading">PLAN</span> <span class="dim">Architecture planning...</span>
+  <span class="ok">&#10003;</span> MOAT strategy: L2 depth
+  <span class="ok">&#10003;</span> Command tree: 12 commands
+
+<span class="heading">BUILD</span> <span class="dim">Scaffolding plugin...</span>
+  <span class="ok">&#10003;</span> Created security-review/.claude-plugin/plugin.json
+  <span class="ok">&#10003;</span> Created 3 agent definitions
+  <span class="ok">&#10003;</span> Created 8 skill MOAT directories
+  <span class="ok">&#10003;</span> Created hooks/hooks.json
+  <span class="ok">&#10003;</span> Created CLAUDE.md
+
+<span class="heading">DONE</span> Plugin scaffold ready at <span class="cmd">./security-review/</span>
+      </div>
+    </div>
+    <div class="tip"><strong>Tip:</strong> Use <code>/pqa:lifecycle</code> for the full 9-movement pipeline with quality gates.</div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step" data-step="2">
+    <h2>Validate Structure</h2>
+    <p class="step-desc">Run structural validation to ensure your plugin conforms to the Claude Code plugin specification.</p>
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot b"></div>
+        <span class="terminal-title">claude &mdash; /pqa:validate</span>
+      </div>
+      <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">/pqa:validate</span>
+
+<span class="heading">VALIDATE</span> <span class="dim">Running 5 structural checks...</span>
+  <span class="ok">&#10003;</span> plugin.json &mdash; valid schema
+  <span class="ok">&#10003;</span> agents/ &mdash; 3 agents, all have AGENT.md
+  <span class="ok">&#10003;</span> commands/ &mdash; 12 commands, all linked
+  <span class="ok">&#10003;</span> skills/ &mdash; 8 skills, MOAT structure OK
+  <span class="warn">&#9888;</span> hooks/ &mdash; missing PreCompact handler
+
+<span class="dim">Result:</span> <span class="ok">4 passed</span> &middot; <span class="warn">1 warning</span> &middot; 0 errors
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step" data-step="3">
+    <h2>Full Audit</h2>
+    <p class="step-desc">Run the 20-skill quality audit covering structure, content, conformance, hooks, and cross-references.</p>
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot b"></div>
+        <span class="terminal-title">claude &mdash; /pqa:audit</span>
+      </div>
+      <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">/pqa:audit</span>
+
+<span class="heading">AUDIT</span> <span class="dim">Running 20-skill quality audit...</span>
+
+<span class="dim">Category</span>           <span class="dim">Score</span>
+Structure           <span class="ok">92/100</span>
+Content Quality     <span class="ok">87/100</span>
+Conformance         <span class="ok">95/100</span>
+Hook Coverage       <span class="warn">78/100</span>
+Cross-References    <span class="ok">90/100</span>
+
+<span class="dim">Overall:</span> <span class="ok">88/100</span> &mdash; Grade: <span class="ok">A-</span>
+<span class="dim">3 issues found. Run /pqa:fix to auto-repair.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step" data-step="4">
+    <h2>Generate Scorecard</h2>
+    <p class="step-desc">Generate a detailed quality scorecard with per-category grades and improvement recommendations.</p>
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot b"></div>
+        <span class="terminal-title">claude &mdash; /pqa:scorecard</span>
+      </div>
+      <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">/pqa:scorecard</span>
+
+<span class="heading">QA SCORECARD</span> &mdash; security-review v1.0
+
+  Plugin Structure ........ <span class="ok">A</span>  (92)
+  Skill MOAT Depth ........ <span class="ok">A-</span> (87)
+  Agent Completeness ...... <span class="ok">A+</span> (95)
+  Hook Configuration ...... <span class="warn">B+</span> (78)
+  Cross-References ........ <span class="ok">A</span>  (90)
+
+  <span class="dim">Overall Grade:</span> <span class="ok">A-</span> (88/100)
+
+<span class="dim">Recommendations:</span>
+  1. Add PreCompact hook handler
+  2. Add examples/ to 2 skills
+  3. Link orphan command /sr:debug
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="step" data-step="5">
+    <h2>Auto-Fix Issues</h2>
+    <p class="step-desc">Let PQA detect and repair common plugin issues automatically.</p>
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot b"></div>
+        <span class="terminal-title">claude &mdash; /pqa:fix</span>
+      </div>
+      <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">/pqa:fix</span>
+
+<span class="heading">FIX</span> <span class="dim">Scanning for auto-fixable issues...</span>
+
+  <span class="ok">&#10003;</span> Added PreCompact hook to hooks.json
+  <span class="ok">&#10003;</span> Created examples/ in skills/pattern-scan/
+  <span class="ok">&#10003;</span> Created examples/ in skills/vuln-check/
+  <span class="ok">&#10003;</span> Linked /sr:debug to agent debug-agent
+
+<span class="dim">Fixed:</span> <span class="ok">4 issues</span> &middot; Remaining: 0
+<span class="dim">New score:</span> <span class="ok">96/100</span> &mdash; Grade: <span class="ok">A+</span>
+      </div>
+    </div>
+    <div class="tip"><strong>Tip:</strong> Run <code>/pqa:audit</code> again after fixing to verify the improvements.</div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <a href="index.html">&larr; Home</a>
+    <a href="prompts.html">Prompt Catalog &rarr;</a>
+  </div>
+
+</div>
+
+<script src="shared/nav.js"></script>
+<script src="shared/footer.js"></script>
+</body>
+</html>

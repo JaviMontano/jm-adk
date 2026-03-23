@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow Guide — Plugin QA v3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    .page-header {
+      text-align: center;
+      padding: 4rem 2rem 2rem;
+    }
+    .page-header h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #FFD700, #FFA000);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    .page-header p { color: var(--text-muted); font-size: 1.05rem; }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
+    .section-title {
+      font-size: 1.6rem;
+      margin: 3rem 0 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .section-sub { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem; }
+
+    /* ── Movement List ───────────────────────────────────── */
+    .movement-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+    .movement-item {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 1rem;
+      padding: 1.15rem 1.25rem;
+      align-items: start;
+    }
+    .mv-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--brand-navy);
+      border: 1.5px solid rgba(255,215,0,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.85rem; font-weight: 800;
+      color: var(--brand-gold);
+    }
+    .mv-body h3 { font-size: 1rem; margin-bottom: 0.2rem; }
+    .mv-body p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+    .mv-body .mv-cmd {
+      margin-top: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--brand-blue);
+    }
+
+    /* ── Quality Gates ───────────────────────────────────── */
+    .gates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .gate-card { padding: 1.25rem; text-align: center; }
+    .gate-label {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--brand-gold);
+      margin-bottom: 0.25rem;
+    }
+    .gate-when { font-size: 0.8rem; color: var(--brand-blue); margin-bottom: 0.35rem; }
+    .gate-desc { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* ── MOAT Explainer ──────────────────────────────────── */
+    .moat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .moat-card { padding: 1.25rem; }
+    .moat-card .moat-letter {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--brand-gold);
+      line-height: 1;
+    }
+    .moat-card h3 { font-size: 0.95rem; margin: 0.25rem 0; }
+    .moat-card p { font-size: 0.82rem; color: var(--text-muted); }
+
+    /* ── Agents Pipeline ─────────────────────────────────── */
+    .agent-pipeline {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .ap-card { padding: 1.15rem; }
+    .ap-card h3 {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+      color: var(--brand-gold);
+    }
+    .ap-card .ap-owns {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--brand-blue);
+      margin-bottom: 0.35rem;
+    }
+    .ap-card p { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* ── Plugin Structure ────────────────────────────────── */
+    .tree-block {
+      background: #0C0E14;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      padding: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: var(--text-muted);
+      overflow-x: auto;
+      margin-bottom: 2rem;
+    }
+    .tree-block .dir { color: var(--brand-gold); font-weight: 600; }
+    .tree-block .file { color: var(--text-primary); }
+    .tree-block .comment { color: var(--text-dim); }
+
+    /* ── Bottom Nav ───────────────────────────────────────── */
+    .bottom-nav {
+      display: flex; justify-content: space-between;
+      padding: 2rem 0 1rem;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 2rem;
+    }
+    .bottom-nav a { font-size: 0.9rem; }
+
+    @media (max-width: 640px) {
+      .moat-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<section class="page-header">
+  <h1>Workflow Guide</h1>
+  <p>9 movements, 4 quality gates, MOAT methodology</p>
+</section>
+
+<div class="container">
+
+  <!-- ── 9 Movements ────────────────────────────────────────── -->
+  <h2 class="section-title">9 Movements</h2>
+  <p class="section-sub">Each movement maps to specific skills and quality expectations</p>
+
+  <div class="movement-list">
+    <div class="card movement-item">
+      <div class="mv-icon">1</div>
+      <div class="mv-body">
+        <h3>IDEATE</h3>
+        <p>Generate plugin concepts from natural-language descriptions. Define the plugin's purpose, target users, and high-level agent/skill topology.</p>
+        <div class="mv-cmd">/pqa:create &middot; /pqa:ideate-component</div>
+      </div>
+    </div>
+    <div class="card movement-item">
+      <div class="mv-icon">2</div>
+      <div class="mv-body">
+        <h3>PLAN</h3>
+        <p>Architect the plugin structure: directory layout, agent roles, command tree, and MOAT depth strategy for each skill.</p>
+        <div class="mv-cmd">/pqa:plan-moat</div>
+      </div>
+    </div>
+    <div class="card movement-item">
+      <div class="mv-icon">3</div>
+      <div class="mv-body">
+        <h3>DESIGN</h3>
+        <p>Author detailed agent definitions and skill designs. Each agent gets a role, tools, and personality. Each skill gets MOAT structure.</p>
+        <div class="mv-cmd">/pqa:design-agent &middot; /pqa:design-skill</div>
+      </div>
+    </div>
+    <div class="card movement-item">
+      <div class="mv-icon">4</div>
+      <div class="mv-body">
+        <h3>SPECIFY</h3>
+        <p>Write formal specifications: command triggers and parameters, skill MOAT requirements, hook event bindings, and manifest schemas.</p>
+        <div class="mv-cmd">/pqa:spec-agent</div>
+      </div>
+    </div>
+    <div class="card movement-item">
+      <div class="mv-icon">5</div>
+      <div class="mv-body">
+        <h3>BUILD</h3>
+        <p>Scaffold the complete plugin directory tree. Generate all files, MOAT assets, hook configurations, and the CLAUDE.md entry point.</p>
+        <div class="mv-cmd">/pqa:build</div>
+      </div>
+    </div>
+    <div class="card movement-item">
+      <div class="mv-icon">6</div>
+      <div class="mv-body">
+        <h3>VALIDATE</h3>
+        <p>Run structural checks: directory layout, manifest schema, component completeness, hook correctness, and cross-reference integrity.</p>
+        <div class="mv-cmd">/pqa:validate &middot; /pqa:hooks-check</div>
+      </div>
+    </div>
+    <div class="card movement-item">
+      <div class="mv-icon">7</div>
+      <div class="mv-body">
+        <h3>AUDIT</h3>
+        <p>Deep quality audit: content depth, instruction clarity, security posture, conformance to the Claude Code plugin specification.</p>
+        <div class="mv-cmd">/pqa:audit</div>
+      </div>
+    </div>
+    <div class="card movement-item">
+      <div class="mv-icon">8</div>
+      <div class="mv-body">
+        <h3>REPORT</h3>
+        <p>Generate comprehensive QA reports and graded scorecards with per-category scores, trends, and actionable improvement targets.</p>
+        <div class="mv-cmd">/pqa:report &middot; /pqa:scorecard</div>
+      </div>
+    </div>
+    <div class="card movement-item">
+      <div class="mv-icon">9</div>
+      <div class="mv-body">
+        <h3>FIX</h3>
+        <p>Auto-detect and repair common issues: missing files, broken cross-references, schema errors, incomplete MOAT structures.</p>
+        <div class="mv-cmd">/pqa:fix</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Quality Gates ──────────────────────────────────────── -->
+  <h2 class="section-title">Quality Gates</h2>
+  <p class="section-sub">4 checkpoints that halt the pipeline until quality criteria are met</p>
+
+  <div class="gates-grid">
+    <div class="card gate-card">
+      <div class="gate-label">G1</div>
+      <div class="gate-when">After DESIGN</div>
+      <div class="gate-desc">Agent definitions complete. Skill MOAT strategy approved. No orphan commands.</div>
+    </div>
+    <div class="card gate-card">
+      <div class="gate-label">G2</div>
+      <div class="gate-when">After BUILD</div>
+      <div class="gate-desc">Scaffold generated. All files exist. plugin.json valid. Hooks installed.</div>
+    </div>
+    <div class="card gate-card">
+      <div class="gate-label">G3</div>
+      <div class="gate-when">After AUDIT</div>
+      <div class="gate-desc">Quality score above threshold. No critical findings. Security scan clean.</div>
+    </div>
+    <div class="card gate-card">
+      <div class="gate-label">G4</div>
+      <div class="gate-when">After FIX</div>
+      <div class="gate-desc">All auto-fixable issues resolved. Final scorecard grade A- or above.</div>
+    </div>
+  </div>
+
+  <!-- ── MOAT Methodology ───────────────────────────────────── -->
+  <h2 class="section-title">MOAT Methodology</h2>
+  <p class="section-sub">Four pillars of plugin quality depth</p>
+
+  <div class="moat-grid">
+    <div class="card moat-card">
+      <div class="moat-letter">M</div>
+      <h3>Methods</h3>
+      <p>Step-by-step procedures and workflows embedded in SKILL.md. Define how the skill operates, decision trees, and fallback behaviors.</p>
+    </div>
+    <div class="card moat-card">
+      <div class="moat-letter">O</div>
+      <h3>Ontology</h3>
+      <p>Domain knowledge references in references/ directories. Glossaries, standards, specs, and domain models the skill draws upon.</p>
+    </div>
+    <div class="card moat-card">
+      <div class="moat-letter">A</div>
+      <h3>Assets</h3>
+      <p>Concrete examples in examples/ directories. Input/output pairs, before/after samples, and edge case demonstrations.</p>
+    </div>
+    <div class="card moat-card">
+      <div class="moat-letter">T</div>
+      <h3>Templates</h3>
+      <p>Reusable templates and prompt patterns. Standardized output formats, scaffolding blueprints, and prompt engineering patterns.</p>
+    </div>
+  </div>
+
+  <!-- ── Agent Roles ────────────────────────────────────────── -->
+  <h2 class="section-title">Agent Responsibilities</h2>
+  <p class="section-sub">Who does what in the PQA pipeline</p>
+
+  <div class="agent-pipeline">
+    <div class="card ap-card">
+      <h3>Plugin Architect</h3>
+      <div class="ap-owns">IDEATE &rarr; PLAN &rarr; DESIGN</div>
+      <p>Owns concept generation, architecture planning, and component design. Creates the blueprint.</p>
+    </div>
+    <div class="card ap-card">
+      <h3>Spec Writer</h3>
+      <div class="ap-owns">SPECIFY</div>
+      <p>Authors formal specifications for commands, skills, hooks, and manifests. Bridges design to build.</p>
+    </div>
+    <div class="card ap-card">
+      <h3>Builder Agent</h3>
+      <div class="ap-owns">BUILD &rarr; FIX</div>
+      <p>Scaffolds directories, generates files, installs hooks, and applies auto-fixes post-audit.</p>
+    </div>
+    <div class="card ap-card">
+      <h3>QA Engineer</h3>
+      <div class="ap-owns">VALIDATE &rarr; AUDIT &rarr; REPORT</div>
+      <p>Validates structure, audits quality, generates scorecards, and enforces quality gates.</p>
+    </div>
+  </div>
+
+  <!-- ── Plugin Structure ───────────────────────────────────── -->
+  <h2 class="section-title">Plugin Structure</h2>
+  <p class="section-sub">Standard directory layout generated by PQA</p>
+
+  <div class="tree-block">
+<span class="dir">my-plugin/</span>
+├── <span class="dir">.claude-plugin/</span>
+│   └── <span class="file">plugin.json</span>           <span class="comment"># Plugin manifest</span>
+├── <span class="dir">agents/</span>
+│   ├── <span class="file">my-agent.md</span>            <span class="comment"># Agent definition</span>
+│   └── ...
+├── <span class="dir">commands/</span>
+│   ├── <span class="file">my-command.md</span>          <span class="comment"># Command spec</span>
+│   └── ...
+├── <span class="dir">skills/</span>
+│   └── <span class="dir">my-skill/</span>
+│       ├── <span class="file">SKILL.md</span>            <span class="comment"># Skill entry point (MOAT)</span>
+│       ├── <span class="dir">references/</span>          <span class="comment"># Ontology &mdash; domain knowledge</span>
+│       └── <span class="dir">examples/</span>            <span class="comment"># Assets &mdash; concrete samples</span>
+├── <span class="dir">hooks/</span>
+│   └── <span class="file">hooks.json</span>             <span class="comment"># Hook event bindings</span>
+├── <span class="dir">scripts/</span>
+│   └── <span class="file">*.sh</span>                   <span class="comment"># Automation scripts</span>
+└── <span class="file">CLAUDE.md</span>                  <span class="comment"># Plugin entry point</span>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <a href="skills.html">&larr; Skills</a>
+    <a href="index.html">Home &rarr;</a>
+  </div>
+
+</div>
+
+<script src="shared/nav.js"></script>
+<script src="shared/footer.js"></script>
+</body>
+</html>
