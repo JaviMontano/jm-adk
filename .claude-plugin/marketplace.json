@@ -5,8 +5,8 @@
     "email": "javier@metodologia.info"
   },
   "metadata": {
-    "description": "JM Agentic Development Kit — 3 plugins for the full software lifecycle. Sovereign Architect (architecture + code), Plugin QA (plugin development), AAD (specification-driven governance). IIKit-governed. MIT license.",
-    "version": "2.0.0"
+    "description": "JM Agentic Development Kit — 3 plugins for the full software lifecycle. Sovereign Architect (architecture + code), Plugin QA (plugin development), SDD (Spec Driven Development). IIKit-governed. MIT license.",
+    "version": "3.0.0"
   },
   "plugins": [
     {
@@ -45,20 +45,21 @@
       ]
     },
     {
-      "name": "aad-metodologia",
-      "source": "./aad-metodologia",
-      "description": "AAD v1.0 — Assisted Agentic Development by MetodologIA. Specification-driven AI development with cryptographic BDD verification, Neo-Swiss dashboard, Intent Integrity Kit governance.",
-      "version": "1.0.0",
+      "name": "sdd-metodologia",
+      "source": "./sdd-metodologia",
+      "description": "SDD v3.0 — Spec Driven Development by MetodologIA. 9-phase pipeline, per-prompt heartbeat, knowledge graph, Command Center dashboard, BDD verification, RAG memory. 12 skills, 37 commands, 4 hooks.",
+      "version": "3.0.0",
       "author": {
         "name": "Javier Montano (MetodologIA)"
       },
-      "homepage": "https://metodologia.info",
-      "license": "MIT",
+      "homepage": "https://github.com/JaviMontano/sdd-metodologia",
+      "license": "GPL-3.0",
       "category": "developer-tools",
-      "tags": ["aad", "intent-integrity", "specification-driven", "bdd-verification", "dashboard"],
+      "tags": ["sdd", "spec-driven", "intent-integrity", "bdd-verification", "heartbeat", "knowledge-graph"],
       "keywords": [
-        "intent-integrity", "specification-driven", "bdd-verification",
-        "dashboard", "neo-swiss", "ai-development", "governance"
+        "spec-driven-development", "intent-integrity", "bdd-verification",
+        "heartbeat", "knowledge-graph", "dashboard", "neo-swiss",
+        "ai-development", "governance", "ambient-intelligence"
       ]
     }
   ]

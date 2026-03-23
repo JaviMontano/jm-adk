@@ -1,18 +1,18 @@
-# JM Agentic Development Kit v2.0
+# JM Agentic Development Kit v3.0
 
 > Unified marketplace for the full software lifecycle.
-> 3 plugins, 70+ agents, 160+ skills, 150+ commands.
+> 3 plugins, 70+ agents, 160+ skills, 188+ commands.
 > Governed by the Intent Integrity Kit.
 
 ---
 
 ## Plugins
 
-| Plugin | Prefix | Agents | Skills | Commands | Focus |
-|--------|--------|--------|--------|----------|-------|
-| **Sovereign Architect** | `/sa:` | 66 | 128 | 120 | Architecture, code review, evolution, repair |
-| **Plugin QA** | `/pqa:` | 4 | 20 | 31 | Plugin development lifecycle |
-| **SDD MetodologIA** | `/sdd:` | 0 | 13 | 3 | Specification-driven governance, BDD |
+| Plugin | Prefix | Agents | Skills | Commands | Hooks | Focus |
+|--------|--------|--------|--------|----------|-------|-------|
+| **Sovereign Architect** | `/sa:` | 66 | 128 | 120 | — | Architecture, code review, evolution, repair |
+| **Plugin QA** | `/pqa:` | 4 | 20 | 31 | — | Plugin development lifecycle |
+| **SDD MetodologIA** | `/sdd:` | — | 12 | 37 | 4 | Spec Driven Development, BDD, ambient intelligence |
 
 ---
 
@@ -23,23 +23,22 @@
 /sa:menu                 # SA command palette
 /sa:analyze              # Full 5-phase analysis
 /sa:run-express          # Quick assessment
-/sa:diagnose             # Focused diagnosis
 /sa:create               # Generate new artifacts
 /sa:review               # Review existing code
-/sa:evolve               # Improve code quality
-/sa:repair               # Fix failures
 
 # Plugin Development
 /pqa:menu                # PQA command palette
 /pqa:create              # Full plugin creation pipeline
 /pqa:audit               # Full QA audit
-/pqa:validate            # Quick structural validation
 /pqa:fix                 # Auto-fix common issues
 
-# Specification-Driven Development (IIKit)
-/sdd:status              # Pipeline status
-/sdd:dashboard           # Generate branded dashboard
-/sdd:sync                # Sync upstream IIKit
+# Spec Driven Development
+/sdd:tour                # Guided onboarding (8 steps)
+/sdd:demo                # Generate demo project + dashboard
+/sdd:init                # Initialize SDD in any project
+/sdd:menu                # All 37 commands at a glance
+/sdd:sentinel            # Ambient health monitoring
+/sdd:graph               # Knowledge graph (Constitution→Tasks)
 ```
 
 ---
@@ -50,7 +49,7 @@ This kit is governed by the **Intent Integrity Kit** (IIKit):
 
 - **CONSTITUTION.md** — Non-negotiable principles (intent integrity, evidence tagging, phase separation)
 - **FRAMEWORK-PRINCIPLES.md** — Five operating principles
-- **`.specify/`** — Artifact state management (ADRs, plans, decisions, requirements)
+- **`.specify/`** — Artifact state management
 
 ### Evidence Tags (mandatory on all claims)
 
@@ -80,13 +79,15 @@ jm-agentic-development-kit/
 │   ├── agents/   (4)
 │   ├── skills/   (20)
 │   └── commands/ (31)
-├── sdd-metodologia/         # SDD v1.0 — IIKit Governance
-│   ├── .claude/skills/ (13 iikit-*)
-│   ├── commands/ (3)
-│   ├── evals/
-│   └── tests/
+├── sdd-metodologia/         # SDD v3.0 — Spec Driven Development
+│   ├── .claude/skills/ (12 iikit-*)
+│   ├── commands/ (37)
+│   ├── scripts/  (21)
+│   ├── hooks/    (4 events)
+│   └── references/
 ├── CONSTITUTION.md          # IIKit governance
 ├── FRAMEWORK-PRINCIPLES.md  # Operating principles
+├── landing.html             # Branded landing page
 └── .specify/                # Artifact state
 ```
 
@@ -116,12 +117,19 @@ IDEATE > PLAN > DESIGN > SPECIFY > BUILD > VALIDATE > AUDIT > REPORT > FIX
 
 ### SDD MetodologIA (`/sdd:`)
 
-Specification-driven AI development powered by Intent Integrity Kit:
-- 8-phase workflow: Constitution > Specify > Plan > Checklist > Testify > Tasks > Implement > Issues
+Spec Driven Development — specification-driven AI development with ambient intelligence:
+
+- **9-phase pipeline**: Constitution → Specify → Plan → Checklist → Testify → Tasks → Analyze → Implement → Issues
+- **Per-prompt heartbeat**: Ambient monitoring via UserPromptSubmit hook (< 100ms)
+- **Knowledge graph**: Full traceability Constitution → FR → TS → Tasks
+- **Command Center**: Multi-HTML micro-frontend dashboard
+- **RAG memory**: Auto-capture session inputs with MIME detection
+- **Onboarding tour**: 8-step interactive walkthrough
 - Cryptographic BDD verification (hash-locked .feature files)
 - Neo-Swiss branded dashboard
 
 > Full docs: `sdd-metodologia/AGENTS.md`
+> Standalone repo: [github.com/JaviMontano/sdd-metodologia](https://github.com/JaviMontano/sdd-metodologia)
 
 ---
 
@@ -131,5 +139,5 @@ MIT (code) + GPL-3.0 (MetodologIA brand elements in SDD)
 
 ---
 
-*JM Agentic Development Kit v2.0 — From requirements to production.*
+*JM Agentic Development Kit v3.0 — From requirements to production.*
 *Made with Claude Code.*

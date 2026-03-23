@@ -2,17 +2,20 @@
 
 > **From requirements to production** — 3 Claude Code plugins for the full software lifecycle.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-3.0.0-FFD700?style=flat-square&labelColor=122562)](https://github.com/JaviMontano/jm-agentic-development-kit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-FFD700?style=flat-square&labelColor=122562)](https://opensource.org/licenses/MIT)
+[![Plugins](https://img.shields.io/badge/plugins-3-137DC5?style=flat-square&labelColor=122562)]()
+[![Commands](https://img.shields.io/badge/commands-188-FFD700?style=flat-square&labelColor=122562)]()
 
 ---
 
 ## What's Inside
 
-| Plugin | What It Does | Stats |
-|--------|-------------|-------|
-| **Sovereign Architect** (`/sa:`) | Architecture analysis, code review, scaffolding, evolution, repair | 66 agents, 128 skills, 120 commands |
-| **Plugin QA** (`/pqa:`) | Claude Code plugin development lifecycle: ideate through fix | 4 agents, 20 skills, 31 commands |
-| **SDD MetodologIA** (`/sdd:`) | Spec Driven Development with cryptographic BDD verification + ambient intelligence | 12 skills, 37 commands, 4 hooks |
+| Plugin | Prefix | Agents | Skills | Commands | Focus |
+|--------|--------|--------|--------|----------|-------|
+| **Sovereign Architect** | `/sa:` | 66 | 128 | 120 | Architecture, code review, evolution, repair |
+| **Plugin QA** | `/pqa:` | 4 | 20 | 31 | Plugin development lifecycle |
+| **SDD MetodologIA** | `/sdd:` | — | 12 | 37 | Spec Driven Development, BDD, ambient intelligence |
 
 All governed by the **Intent Integrity Kit** — from intent to code with zero drift.
 
@@ -38,13 +41,13 @@ git clone https://github.com/JaviMontano/jm-agentic-development-kit.git
 ## Quick Start
 
 ```bash
-# Architecture & code review
+# Architecture & Code
 /sa:analyze              # Full 5-phase technical analysis
 /sa:run-express          # Quick 80/20 diagnosis
 /sa:create               # Scaffold new projects
 /sa:review               # Review code quality
 
-# Plugin development
+# Plugin Development
 /pqa:create              # Create a new Claude Code plugin
 /pqa:audit               # Full QA audit of a plugin
 /pqa:validate            # Quick structural check
@@ -53,10 +56,28 @@ git clone https://github.com/JaviMontano/jm-agentic-development-kit.git
 /sdd:tour                # Guided onboarding (8 steps)
 /sdd:demo                # Generate demo project + dashboard
 /sdd:init                # Initialize SDD in any project
-/sdd:menu                # All 37 commands at a glance
 /sdd:sentinel            # Ambient health monitoring
 /sdd:graph               # Knowledge graph (Constitution→Tasks)
+/sdd:menu                # All 37 commands
 ```
+
+---
+
+## SDD v3.0 — What's New
+
+SDD (Spec Driven Development, formerly AAD) is now a full operational platform:
+
+| Feature | Description |
+|---------|-------------|
+| **Per-prompt heartbeat** | Ambient intelligence on every user prompt (< 100ms, zero LLM cost) |
+| **Knowledge graph** | Full traceability from constitution principles to tasks |
+| **Command Center** | Multi-HTML micro-frontend dashboard with 6 interconnected pages |
+| **Onboarding tour** | 8-step interactive walkthrough with Neo-Swiss glassmorphism |
+| **RAG memory** | Auto-capture session inputs with MIME detection and JSON indexing |
+| **37 commands** | 9-phase pipeline + intelligence + utility + experience commands |
+| **4 hooks** | UserPromptSubmit, PostToolUse, SessionStart, PreCompact |
+
+[Full SDD documentation →](https://github.com/JaviMontano/sdd-metodologia)
 
 ---
 
@@ -74,25 +95,24 @@ Intent Integrity Kit ensures requirements trace through specs, tests, and code w
 
 ```
 jm-agentic-development-kit/
-├── sovereign-architect/     # Architecture & Code (SA v4.0)
-├── plugin-qa/               # Plugin Lifecycle (PQA v3.0)
-├── sdd-metodologia/         # Spec Driven Development (SDD v3.0)
-├── CONSTITUTION.md          # Non-negotiable principles
-├── FRAMEWORK-PRINCIPLES.md  # Operating principles
-└── .specify/                # Artifact state (ADRs, plans, decisions)
+├── sovereign-architect/     # SA v4.0 — Architecture & Code
+│   ├── agents/   (66)
+│   ├── skills/   (128)
+│   └── commands/ (120)
+├── plugin-qa/               # PQA v3.0 — Plugin Lifecycle
+│   ├── agents/   (4)
+│   ├── skills/   (20)
+│   └── commands/ (31)
+├── sdd-metodologia/         # SDD v3.0 — Spec Driven Development
+│   ├── .claude/skills/ (12)
+│   ├── commands/ (37)
+│   ├── scripts/  (21)
+│   └── hooks/    (4 events)
+├── CONSTITUTION.md
+├── FRAMEWORK-PRINCIPLES.md
+├── landing.html
+└── .specify/
 ```
-
-### SDD v3.0 — What's New
-
-SDD (formerly AAD) is now a full operational platform:
-- **Per-prompt heartbeat** — Ambient intelligence on every user prompt
-- **Knowledge graph** — Full traceability from constitution to tasks
-- **Command Center** — Multi-HTML micro-frontend dashboard
-- **Onboarding tour** — 8-step interactive walkthrough
-- **RAG memory** — Auto-capture session inputs with MIME detection
-- **37 commands** — From `/sdd:init` to `/sdd:issues`
-
-[Full SDD documentation →](https://github.com/JaviMontano/sdd-metodologia)
 
 ---
 

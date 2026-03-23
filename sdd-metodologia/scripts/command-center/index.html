@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDD Command Center &mdash; Spec Driven Development by metodologIA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/data.js" defer></script>
+  <script src="shared/nav.js" defer></script>
+  <style>
+    /* ── Layout ─────────────────────────────────────────────── */
+    .cc-main { max-width:1280px; margin:0 auto; padding:2rem 1.5rem 3rem; }
+
+    /* ── Smart Banner ──────────────────────────────────────── */
+    .smart-banner {
+      background:linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,160,0,0.05));
+      border:1px solid var(--border-gold); border-radius:var(--radius-sm);
+      padding:0.85rem 1.25rem; display:flex; align-items:center; justify-content:space-between;
+      gap:1rem; margin-bottom:2rem; flex-wrap:wrap;
+    }
+    .smart-banner-text { color:var(--brand-gold); font-weight:600; font-size:0.9rem; }
+    .smart-banner .btn-outline { font-size:0.8rem; padding:0.4rem 1rem; }
+    .smart-banner.hidden { display:none; }
+
+    /* ── Hero ───────────────────────────────────────────────── */
+    .hero { display:flex; align-items:center; gap:2.5rem; margin-bottom:2.5rem; flex-wrap:wrap; }
+    .hero-gauge { flex-shrink:0; position:relative; width:160px; height:100px; }
+    .hero-gauge svg { width:160px; height:100px; }
+    .gauge-bg { fill:none; stroke:var(--bg-raised); stroke-width:12; stroke-linecap:round; }
+    .gauge-fill { fill:none; stroke-width:12; stroke-linecap:round; transition:stroke-dashoffset 1s ease, stroke 0.5s ease; }
+    .gauge-score {
+      position:absolute; bottom:4px; left:50%; transform:translateX(-50%);
+      font-family:var(--font-heading); font-size:1.6rem; font-weight:900;
+    }
+    .gauge-label {
+      position:absolute; bottom:-16px; left:50%; transform:translateX(-50%);
+      font-size:0.65rem; color:var(--text-muted); white-space:nowrap;
+    }
+
+    .hero-info { flex:1; min-width:200px; }
+    .hero-title { font-size:1.75rem; font-weight:900; margin-bottom:0.3rem; }
+    .hero-title .gold { color:var(--brand-gold); }
+    .hero-subtitle { color:var(--text-muted); font-size:0.95rem; }
+
+    /* ── Nav Cards Grid ────────────────────────────────────── */
+    .nav-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; margin-bottom:2.5rem; }
+    .nav-card {
+      position:relative; display:flex; flex-direction:column; gap:0.75rem;
+      text-decoration:none; color:inherit; cursor:pointer;
+    }
+    .nav-card .card-icon { font-size:2rem; line-height:1; filter:drop-shadow(0 0 6px rgba(255,215,0,0.3)); }
+    .nav-card .card-title { font-family:var(--font-heading); font-size:1.05rem; font-weight:700; color:var(--text-primary); }
+    .nav-card .card-desc { font-size:0.82rem; color:var(--text-muted); line-height:1.45; }
+    .nav-card .badge { position:absolute; top:1rem; right:1rem; }
+
+    /* ── Quick Actions ─────────────────────────────────────── */
+    .quick-actions { display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2.5rem; }
+    .quick-actions .btn-outline code { font-family:var(--font-mono); font-size:0.75rem; }
+
+    /* ── Activity Timeline ─────────────────────────────────── */
+    .activity-section { margin-bottom:2.5rem; }
+    .section-title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; }
+    .timeline { display:flex; flex-direction:column; gap:0; padding-left:1.5rem; border-left:2px solid var(--border-medium); }
+    .timeline-item { position:relative; padding:0.65rem 0 0.65rem 1.25rem; }
+    .timeline-item::before {
+      content:''; position:absolute; left:-1.5rem; top:0.85rem; transform:translateX(-50%);
+      width:10px; height:10px; border-radius:50%; background:var(--brand-gold);
+      border:2px solid var(--bg-body);
+    }
+    .timeline-item:last-child { padding-bottom:0; }
+    .tl-time { font-size:0.7rem; color:var(--text-dim); font-family:var(--font-mono); }
+    .tl-icon { margin-right:0.35rem; }
+    .tl-desc { font-size:0.85rem; color:var(--text-muted); }
+
+    /* ── No Data State ─────────────────────────────────────── */
+    .no-data { text-align:center; padding:3rem 1rem; }
+    .no-data-icon { font-size:3rem; margin-bottom:1rem; opacity:0.4; }
+    .no-data-text { color:var(--text-dim); font-size:0.95rem; margin-bottom:1rem; }
+
+    /* ── Footer ────────────────────────────────────────────── */
+    .cc-footer {
+      text-align:center; padding:2rem 1rem; border-top:1px solid var(--border-subtle);
+      color:var(--text-dim); font-size:0.75rem; margin-top:2rem;
+    }
+    .cc-footer .gold { color:var(--brand-gold); font-weight:600; }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media(max-width:960px) { .nav-grid { grid-template-columns:repeat(2,1fr); } }
+    @media(max-width:600px) {
+      .nav-grid { grid-template-columns:1fr; }
+      .hero { flex-direction:column; align-items:flex-start; gap:1.5rem; }
+      .hero-gauge { width:140px; height:88px; }
+      .hero-gauge svg { width:140px; height:88px; }
+      .quick-actions { flex-direction:column; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="cc-main" id="cc-root">
+  <!-- Populated by script below -->
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Safe data accessors ─────────────────────────────────── */
+  function D() { return window.DASHBOARD_DATA || null; }
+  function get(path, fallback) {
+    try {
+      return path.split('.').reduce(function (o, k) { return o[k]; }, D()) ?? fallback;
+    } catch (_) { return fallback; }
+  }
+
+  const root = document.getElementById('cc-root');
+
+  /* ── No data guard ───────────────────────────────────────── */
+  if (!D()) {
+    root.innerHTML = `
+      <div class="no-data">
+        <div class="no-data-icon">&#x2318;</div>
+        <h2 style="margin-bottom:0.5rem">No Data Loaded</h2>
+        <p class="no-data-text">Run <code style="color:var(--brand-gold)">/sdd:dashboard</code> to generate the <code>data.js</code> file,<br>then refresh this page.</p>
+      </div>
+      <footer class="cc-footer">SDD v3.0 &middot; Spec Driven Development by metodolog<span class="gold">IA</span></footer>
+    `;
+    return;
+  }
+
+  /* ── Health score gauge helpers ──────────────────────────── */
+  var score = get('insights.healthScore', 0);
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  var gaugeColor = score >= 75 ? '#22C55E' : score >= 50 ? '#F97316' : '#EF4444';
+
+  // SVG arc: semicircle from 180 to 0 degrees (left to right)
+  var R = 44, CX = 80, CY = 82;
+  var circumHalf = Math.PI * R; // half-circle length
+  var offset = circumHalf - (circumHalf * score / 100);
+
+  /* ── Derive summary line ─────────────────────────────────── */
+  var features = get('features', []);
+  var phaseCounts = {};
+  features.forEach(function (f) {
+    var ph = (f.phase || f.status || 'unknown').toLowerCase();
+    phaseCounts[ph] = (phaseCounts[ph] || 0) + 1;
+  });
+  var summaryParts = [];
+  Object.keys(phaseCounts).forEach(function (ph) {
+    summaryParts.push(phaseCounts[ph] + ' ' + ph);
+  });
+  var pipelineSummary = features.length + ' feature' + (features.length !== 1 ? 's' : '');
+  if (summaryParts.length) pipelineSummary += ': ' + summaryParts.join(', ');
+
+  /* ── Card definitions ────────────────────────────────────── */
+  var frCount = 0;
+  features.forEach(function (f) { frCount += (f.requirements || f.stories || []).length; });
+  if (!frCount) frCount = features.length;
+
+  var testRate = get('insights.testPassRate', get('quality.passRate', '--'));
+  if (typeof testRate === 'number') testRate = Math.round(testRate) + '%';
+
+  var fileCount = get('workspace.files.length', get('files.length', '--'));
+  var principleCount = get('governance.principles.length', get('constitution.principles.length', '--'));
+
+  var cards = [
+    { id:'pipeline',     icon:'\u25B6',       title:'Pipeline',       desc:'Board & Pipeline views',        href:'pipeline.html',     badge: Object.keys(phaseCounts)[0] || 'pipeline', cls:'badge-blue' },
+    { id:'specs',        icon:'\uD83D\uDCCB', title:'Specifications', desc:'Story Map & Checklists',        href:'specs.html',        badge: frCount + ' FRs',                         cls:'badge-gold' },
+    { id:'quality',      icon:'\u2713',        title:'Quality',        desc:'Tests, Analysis & Bugs',        href:'quality.html',       badge: testRate,                                  cls:'badge-green' },
+    { id:'intelligence', icon:'\u25C9',        title:'Intelligence',   desc:'Insights, Graph & Timeline',    href:'intelligence.html',  badge: score + '/100',                            cls:'badge-purple' },
+    { id:'workspace',    icon:'\uD83D\uDCC1', title:'Workspace',      desc:'Files & RAG Memory',            href:'workspace.html',     badge: fileCount + ' files',                      cls:'badge-blue' },
+    { id:'governance',   icon:'\u2696',        title:'Governance',     desc:'Constitution & Principles',     href:'governance.html',    badge: principleCount + ' rules',                 cls:'badge-gold' }
+  ];
+
+  var cardsHTML = cards.map(function (c) {
+    return '<a href="' + c.href + '" class="card nav-card">' +
+      '<span class="badge ' + c.cls + '">' + c.badge + '</span>' +
+      '<span class="card-icon">' + c.icon + '</span>' +
+      '<span class="card-title">' + c.title + '</span>' +
+      '<span class="card-desc">' + c.desc + '</span>' +
+    '</a>';
+  }).join('');
+
+  /* ── Recent activity ─────────────────────────────────────── */
+  var logs = get('sessionLog', []).slice(-5).reverse();
+  var activityHTML = '';
+  if (logs.length) {
+    activityHTML = '<section class="activity-section">' +
+      '<h3 class="section-title">\uD83D\uDD53 Recent Activity</h3>' +
+      '<div class="timeline">' +
+      logs.map(function (e) {
+        var icon = ({ spec:'\uD83D\uDCCB', test:'\u2713', fix:'\uD83D\uDD27', deploy:'\uD83D\uDE80', sentinel:'\u25C9' })[e.type] || '\u2022';
+        var time = e.timestamp || e.time || '';
+        return '<div class="timeline-item">' +
+          '<div class="tl-time">' + time + '</div>' +
+          '<div class="tl-desc"><span class="tl-icon">' + icon + '</span>' + (e.description || e.message || e.type || '') + '</div>' +
+        '</div>';
+      }).join('') +
+      '</div></section>';
+  }
+
+  /* ── Smart banner ────────────────────────────────────────── */
+  var smartNav = get('smartNav', null);
+  var bannerHTML = '';
+  if (smartNav) {
+    bannerHTML = '<div class="smart-banner">' +
+      '<span class="smart-banner-text">\u26A1 ' + (smartNav.message || smartNav.action || 'Next step available') + '</span>' +
+      '<button class="btn-outline" onclick="navigator.clipboard.writeText(\'' + (smartNav.command || '') + '\')">' +
+        '<code>' + (smartNav.command || 'action') + '</code> &mdash; Copy' +
+      '</button>' +
+    '</div>';
+  }
+
+  /* ── Project name ────────────────────────────────────────── */
+  var projectName = get('premise.name', get('project.name', 'SDD Project'));
+  var generatedAt = get('generatedAt', get('timestamp', ''));
+
+  /* ── Render ──────────────────────────────────────────────── */
+  root.innerHTML =
+    bannerHTML +
+
+    '<section class="hero">' +
+      '<div class="hero-gauge">' +
+        '<svg viewBox="0 0 160 100">' +
+          '<path class="gauge-bg" d="M 16 82 A 44 44 0 0 1 144 82" />' +
+          '<path class="gauge-fill" d="M 16 82 A 44 44 0 0 1 144 82"' +
+            ' stroke="' + gaugeColor + '"' +
+            ' stroke-dasharray="' + circumHalf.toFixed(2) + '"' +
+            ' stroke-dashoffset="' + offset.toFixed(2) + '" />' +
+        '</svg>' +
+        '<div class="gauge-score" style="color:' + gaugeColor + '">' + score + '</div>' +
+        '<div class="gauge-label">Health Score</div>' +
+      '</div>' +
+      '<div class="hero-info">' +
+        '<h1 class="hero-title"><span class="gold">\u2318</span> ' + projectName + '</h1>' +
+        '<p class="hero-subtitle">' + pipelineSummary + '</p>' +
+      '</div>' +
+    '</section>' +
+
+    '<section class="nav-grid">' + cardsHTML + '</section>' +
+
+    '<section class="quick-actions">' +
+      '<button class="btn-outline" onclick="navigator.clipboard.writeText(\'/sdd:spec\')"><code>/sdd:spec</code> &mdash; New Feature</button>' +
+      '<button class="btn-outline" onclick="navigator.clipboard.writeText(\'/sdd:sentinel\')"><code>/sdd:sentinel</code> &mdash; Health Check</button>' +
+      '<button class="btn-outline" onclick="navigator.clipboard.writeText(\'/sdd:dashboard\')"><code>/sdd:dashboard</code> &mdash; Refresh</button>' +
+    '</section>' +
+
+    activityHTML +
+
+    '<footer class="cc-footer">' +
+      'SDD v3.0 &middot; Spec Driven Development by metodolog<span class="gold">IA</span>' +
+      (generatedAt ? '<br>Generated: ' + generatedAt : '') +
+    '</footer>';
+})();
+</script>
+
+</body>
+</html>

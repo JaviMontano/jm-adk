@@ -1,9 +1,9 @@
 {
-  "name": "aad-metodologia",
-  "version": "1.0.0",
-  "description": "AAD — Assisted Agentic Development by MetodologIA. Specification-driven AI development with cryptographic BDD verification, Neo-Swiss dashboard design. Powered by IIC/kit.",
+  "name": "sdd-metodologia",
+  "version": "3.0.0",
+  "description": "SDD \u2014 Spec Driven Development by MetodologIA. Specification-driven AI development with cryptographic BDD verification, autonomous heartbeat sentinel, insights engine, and Neo-Swiss lifecycle dashboard. Powered by IIC/kit.",
   "author": {
-    "name": "Javier Montaño · MetodologIA",
+    "name": "Javier Monta\u00f1o \u00b7 MetodologIA",
     "url": "https://metodologia.dev"
   },
   "homepage": "https://github.com/intent-integrity-chain/kit",
@@ -17,6 +17,12 @@
     "metodologia",
     "neo-swiss",
     "ai-development",
-    "claude-code"
+    "claude-code",
+    "heartbeat",
+    "sentinel",
+    "insights",
+    "rag-memory",
+    "filesystem",
+    "workspace"
   ]
 }

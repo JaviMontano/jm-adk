@@ -1,0 +1,92 @@
+{
+  "$schema": "SDD MetodologIA Design Tokens v1.0",
+  "$description": "Canonical source of truth for all visual tokens. Read by generate-dashboard.js, brand-overlay.sh, verify-brand.sh.",
+
+  "colors": {
+    "bg-body": "#020617",
+    "bg-surface": "#0F172A",
+    "bg-surface-raised": "#1E293B",
+    "bg-nav": "rgba(2, 6, 23, 0.8)",
+
+    "brand-navy": "#122562",
+    "brand-gold": "#FFD700",
+    "brand-gold-dark": "#FFA000",
+    "brand-gold-light": "#FFF176",
+    "brand-blue": "#137DC5",
+    "brand-cyan": "#00E5FF",
+    "brand-lavender": "#BBA0CC",
+    "brand-purple": "#8B5CF6",
+    "brand-primary": "#0A122A",
+
+    "text-primary": "#E2E8F0",
+    "text-secondary": "#94A3B8",
+    "text-muted": "#64748B",
+
+    "card-bg": "rgba(255, 255, 255, 0.03)",
+    "card-border": "rgba(255, 255, 255, 0.06)",
+    "card-border-hover": "rgba(255, 215, 0, 0.18)",
+    "card-bg-hover": "rgba(255, 255, 255, 0.05)",
+
+    "status-done": "#137DC5",
+    "status-progress": "#D97706",
+    "status-todo": "#137DC5",
+    "status-verified": "#137DC5",
+    "status-tampered": "#DC2626",
+    "status-missing": "#64748B",
+
+    "priority-p1": "#DC2626",
+    "priority-p2": "#D97706",
+    "priority-p3": "#137DC5",
+
+    "severity-critical": "#DC2626",
+    "severity-high": "#D97706",
+    "severity-medium": "#EAB308",
+    "severity-low": "#137DC5"
+  },
+
+  "fonts": {
+    "heading": "'Poppins', sans-serif",
+    "body": "'Montserrat', sans-serif",
+    "code": "'JetBrains Mono', monospace",
+    "google-import": "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+  },
+
+  "radius": {
+    "sm": "8px",
+    "md": "12px",
+    "lg": "16px",
+    "pill": "9999px"
+  },
+
+  "shadows": {
+    "card": "0 2px 8px rgba(18, 37, 98, 0.15)",
+    "card-hover": "0 8px 30px rgba(255, 215, 0, 0.15)",
+    "glow-gold": "0 0 60px rgba(255, 215, 0, 0.12)",
+    "nav": "0 4px 24px rgba(0, 0, 0, 0.3)"
+  },
+
+  "glassmorphism": {
+    "blur": "blur(16px) saturate(180%)",
+    "bg": "rgba(255, 255, 255, 0.03)",
+    "border": "1px solid rgba(255, 255, 255, 0.06)"
+  },
+
+  "transitions": {
+    "fast": "0.15s ease",
+    "normal": "0.3s ease",
+    "slow": "0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+  },
+
+  "logo": {
+    "svg": "<svg viewBox=\"0 0 36 36\" xmlns=\"http://www.w3.org/2000/svg\" aria-label=\"MetodologIA\"><defs><linearGradient id=\"lg\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0%\" stop-color=\"#0A122A\"/><stop offset=\"100%\" stop-color=\"#13315C\"/></linearGradient></defs><rect width=\"36\" height=\"36\" rx=\"10\" fill=\"url(#lg)\"/><rect x=\"10\" y=\"12\" width=\"4\" height=\"12\" rx=\".5\" fill=\"#FFF\"/><rect x=\"16\" y=\"12\" width=\"4\" height=\"8\" rx=\".5\" fill=\"#FFF\"/><rect x=\"16\" y=\"22\" width=\"4\" height=\"2\" rx=\".5\" fill=\"#FFF\"/><rect x=\"22\" y=\"12\" width=\"4\" height=\"6\" rx=\".5\" fill=\"#FFF\"/><rect x=\"22\" y=\"20\" width=\"4\" height=\"4\" rx=\".5\" fill=\"#FFF\"/><circle cx=\"18\" cy=\"8\" r=\"2\" fill=\"#FFD700\"/></svg>",
+    "text-html": "<span style=\"font-family:Poppins,sans-serif;font-weight:600;color:#E2E8F0\">metodolog<span style=\"color:#FFD700;font-weight:700\">IA</span></span>"
+  },
+
+  "meta": {
+    "version": "1.0.0",
+    "brand": "MetodologIA",
+    "product": "SDD — Spec Driven Development",
+    "upstream": "intent-integrity-chain/kit",
+    "no-green-rule": "Blue #137DC5 replaces green for done/verified/success. NEVER use #27c93f or #22c55e."
+  }
+}
