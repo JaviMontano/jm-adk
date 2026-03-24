@@ -6,6 +6,7 @@
   <title>Governance &mdash; SDD ALM</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/search.js" defer></script>
   <script src="shared/data.js"></script>
   <script src="shared/nav.js" defer></script>
   <script src="shared/footer.js" defer></script>
@@ -168,6 +169,51 @@
       border:1px dashed var(--border-medium); border-radius:var(--radius-sm);
     }
 
+    /* ── Search & Filter ────────────────────────────────────── */
+    .sdd-search-bar { margin-bottom: 1.5rem; }
+    .sdd-search-input-wrap { position: relative; display: flex; align-items: center; }
+    .sdd-search-icon { position: absolute; left: 12px; width: 18px; height: 18px; color: #94A3B8; pointer-events: none; }
+    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Montserrat, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .sdd-search-input:focus { border-color: #FFD700; box-shadow: 0 0 0 2px rgba(255,215,0,0.15); }
+    .sdd-search-count { position: absolute; right: 12px; font-size: 11px; color: #64748B; font-family: var(--font-mono, 'JetBrains Mono', monospace); }
+    .sdd-filter-chips { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .sdd-chip { padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94A3B8; font-size: 12px; cursor: pointer; font-family: var(--font-body, Montserrat, sans-serif); transition: all 0.2s; }
+    .sdd-chip:hover { border-color: rgba(255,215,0,0.3); color: #E2E8F0; }
+    .sdd-chip.active { background: rgba(255,215,0,0.12); border-color: #FFD700; color: #FFD700; }
+
+    /* ── Operational Logs Timeline ──────────────────────────── */
+    .ops-timeline-section { margin-bottom:2rem; }
+    .ops-timeline { display:flex; flex-direction:column; gap:0; padding-left:1.5rem; border-left:2px solid var(--border-medium); max-height:400px; overflow-y:auto; }
+    .ops-tl-item { position:relative; padding:0.55rem 0 0.55rem 1.25rem; }
+    .ops-tl-item::before {
+      content:''; position:absolute; left:-1.5rem; top:0.75rem; transform:translateX(-50%);
+      width:10px; height:10px; border-radius:50%;
+      border:2px solid var(--bg-body);
+    }
+    .ops-tl-item.type-changelog::before { background:var(--brand-blue); }
+    .ops-tl-item.type-tasklog::before { background:var(--brand-gold); }
+    .ops-tl-item.type-decision::before { background:var(--brand-purple); }
+    .ops-tl-item.type-default::before { background:var(--text-dim); }
+    .ops-tl-date { font-size:0.7rem; color:var(--text-dim); font-family:var(--font-mono); }
+    .ops-tl-row { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
+    .ops-tl-badge {
+      font-size:0.65rem; font-weight:600; padding:1px 6px;
+      border-radius:10px; text-transform:uppercase;
+    }
+    .ops-tl-badge.badge-changelog { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
+    .ops-tl-badge.badge-tasklog { background:rgba(255,215,0,0.12); color:var(--brand-gold); }
+    .ops-tl-badge.badge-decision { background:rgba(139,92,246,0.12); color:var(--brand-purple); }
+    .ops-tl-badge.badge-default { background:rgba(148,163,184,0.12); color:var(--text-muted); }
+    .ops-tl-desc { font-size:0.82rem; color:var(--text-muted); }
+    .ops-tl-principles { font-size:0.7rem; color:var(--text-dim); font-style:italic; margin-top:0.15rem; }
+    .adr-badge {
+      font-size:0.6rem; font-weight:700; padding:1px 5px; border-radius:6px;
+      display:inline-block; margin-left:0.4rem;
+    }
+    .adr-accepted { background:rgba(19,125,197,0.15); color:var(--brand-blue); }
+    .adr-proposed { background:rgba(255,215,0,0.12); color:var(--brand-gold); }
+    .adr-rejected { background:rgba(239,68,68,0.12); color:var(--brand-red); }
+
     @media(max-width:960px) { .ops-grid { grid-template-columns:repeat(2,1fr); } }
     @media(max-width:600px) {
       .ops-grid { grid-template-columns:1fr; }
@@ -184,6 +230,7 @@
 <body>
 
 <main class="gov-main" id="gov-root">
+  <div id="page-search"></div>
   <!-- Populated by script -->
 </main>
 
@@ -477,6 +524,55 @@
       '</div>' +
     '</section>';
 
+  /* ── Operational Logs Timeline ─────────────────────────────── */
+  var changelog = get('changelog', []);
+  var tasklog = get('tasklog', []);
+  var decisionLog = get('decisionLog', []);
+
+  var allOpsEntries = [];
+  if (Array.isArray(changelog)) {
+    changelog.forEach(function(e) {
+      allOpsEntries.push({ date: e.date || e.timestamp || '', type: 'changelog', desc: e.description || e.message || e.change || '', principles: e.principles || '' });
+    });
+  }
+  if (Array.isArray(tasklog)) {
+    tasklog.forEach(function(e) {
+      allOpsEntries.push({ date: e.date || e.timestamp || '', type: 'tasklog', desc: e.description || e.task || e.message || '', principles: e.principles || '' });
+    });
+  }
+  if (Array.isArray(decisionLog)) {
+    decisionLog.forEach(function(e) {
+      var adrStatus = (e.status || e.adrStatus || 'proposed').toLowerCase();
+      var adrClass = adrStatus.indexOf('accept') !== -1 ? 'adr-accepted' : adrStatus.indexOf('reject') !== -1 ? 'adr-rejected' : 'adr-proposed';
+      allOpsEntries.push({ date: e.date || e.timestamp || '', type: 'decision', desc: e.description || e.title || e.decision || '', principles: e.principles || '', adrStatus: adrStatus, adrClass: adrClass });
+    });
+  }
+  // Sort by date descending
+  allOpsEntries.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+
+  var opsTimelineHTML = '';
+  if (allOpsEntries.length > 0) {
+    opsTimelineHTML =
+      '<section class="ops-timeline-section">' +
+        '<h3 class="section-title">&#x1F4C5; Operational Logs Timeline</h3>' +
+        '<div class="ops-timeline">' +
+        allOpsEntries.map(function(e) {
+          var badgeClass = 'badge-' + e.type;
+          var adrBadge = e.adrStatus ? ' <span class="adr-badge ' + e.adrClass + '">' + e.adrStatus + '</span>' : '';
+          return '<div class="ops-tl-item type-' + e.type + '">' +
+            '<div class="ops-tl-row">' +
+              '<span class="ops-tl-date">' + e.date + '</span>' +
+              '<span class="ops-tl-badge ' + badgeClass + '">' + e.type + '</span>' +
+              adrBadge +
+            '</div>' +
+            '<div class="ops-tl-desc">' + e.desc + '</div>' +
+            (e.principles ? '<div class="ops-tl-principles">Principles: ' + e.principles + '</div>' : '') +
+          '</div>';
+        }).join('') +
+        '</div>' +
+      '</section>';
+  }
+
   /* ── Render ───────────────────────────────────────────────── */
   root.innerHTML =
     '<header class="page-header">' +
@@ -488,7 +584,40 @@
     gatesHTML +
     evidenceHTML +
     dodHTML +
-    opsHTML;
+    opsHTML +
+    opsTimelineHTML;
+
+  // Search + Filter
+  setTimeout(function() {
+    var ctrl = SDD.search.init('page-search', {
+      placeholder: 'Search principles...',
+      filters: [{label:'MUST',value:'MUST'}, {label:'SHOULD',value:'SHOULD'}],
+      onSearch: function(q, f) { filterItems(q, f); },
+      onFilter: function(f, q) { filterItems(q, f); }
+    });
+    function filterItems(query, filter) {
+      var items = document.querySelectorAll('.principle-item');
+      var shown = 0, total = items.length;
+      items.forEach(function(item) {
+        var text = item.textContent.toLowerCase();
+        var levelBadge = item.querySelector('.level-badge');
+        var level = levelBadge ? levelBadge.textContent.trim().toUpperCase() : '';
+        var matchQuery = !query || text.indexOf(query) !== -1;
+        var matchFilter = !filter || filter === 'all' || level === filter;
+        if (matchQuery && matchFilter) { item.style.display = ''; shown++; }
+        else { item.style.display = 'none'; }
+      });
+      // Also filter ops timeline entries
+      var tlItems = document.querySelectorAll('.ops-tl-item');
+      tlItems.forEach(function(item) {
+        var text = item.textContent.toLowerCase();
+        var matchQuery = !query || text.indexOf(query) !== -1;
+        if (matchQuery) { item.style.display = ''; }
+        else { item.style.display = 'none'; }
+      });
+      ctrl.setCount(shown, total);
+    }
+  }, 100);
 })();
 </script>
 

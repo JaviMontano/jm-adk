@@ -487,5 +487,44 @@ window.DASHBOARD_DATA = {
     inProgressFeatures: 2,
     todoFeatures: 1,
     overallProgress: "61%"
-  }
+  },
+
+  // ── BACKLOG (features not yet in pipeline) ────────────────
+  backlog: [
+    { id: "feat-005", name: "Quiz Analytics Dashboard", priority: "P1", status: "backlog", effort: "L", description: "Real-time analytics for quiz completion rates, score distributions, and learning gaps", frCount: 0, tsCount: 0, taskCount: 0, requestedBy: "Product Owner", createdAt: "2026-03-20" },
+    { id: "feat-006", name: "Parent Progress Reports", priority: "P2", status: "backlog", effort: "M", description: "Weekly email digest for parents showing child quiz performance and improvement areas", frCount: 0, tsCount: 0, taskCount: 0, requestedBy: "Stakeholder Interview", createdAt: "2026-03-21" },
+    { id: "feat-007", name: "Offline Quiz Mode", priority: "P1", status: "backlog", effort: "XL", description: "Service worker + IndexedDB for quiz taking without internet — sync on reconnect", frCount: 0, tsCount: 0, taskCount: 0, requestedBy: "User Research", createdAt: "2026-03-22" },
+    { id: "feat-008", name: "Teacher Dashboard", priority: "P0", status: "backlog", effort: "L", description: "Classroom management view — assign quizzes, view class progress, export grades", frCount: 0, tsCount: 0, taskCount: 0, requestedBy: "Pilot School Feedback", createdAt: "2026-03-23" }
+  ],
+
+  // ── CHANGELOG (operational log) ───────────────────────────
+  changelog: [
+    { date: "2026-03-23", type: "completion", description: "Feature 001 (User Auth) — all 8 FR verified, 12 BDD passing, deployed to staging", principles: ["IX", "VII"], artifact: "specs/001-user-auth/" },
+    { date: "2026-03-23", type: "decision", description: "Adopted bcrypt over Argon2 for password hashing — Node.js native support, no C++ binding", principles: ["XIV", "XII"], artifact: "ADR-003" },
+    { date: "2026-03-22", type: "amendment", description: "Constitution v1.1 — added Principle VI (Offline Resilience) based on user research findings", principles: ["XVII"], artifact: "CONSTITUTION.md" },
+    { date: "2026-03-22", type: "insight", description: "Socratic debate resolved: quiz timer uses server-authoritative timestamps, not client clock", principles: ["VII", "XV"], artifact: "insights/security.md" },
+    { date: "2026-03-21", type: "completion", description: "Feature 002 (Quiz Engine) — 14/18 tasks done, 4 remaining for adaptive difficulty integration", principles: ["IX"], artifact: "specs/002-quiz-engine/" },
+    { date: "2026-03-21", type: "blocker", description: "Firebase emulator port conflict with existing project — resolved by switching to port 8081", principles: ["XVI"], artifact: "tasklog.md" },
+    { date: "2026-03-20", type: "discovery", description: "Content extraction pipeline identified 47 quiz templates in legacy system — migration path defined", principles: ["VI"], artifact: "workspace/rag-memory-of-legacy-quiz-templates.md" },
+    { date: "2026-03-19", type: "decision", description: "Chose Vitest over Jest for unit testing — 3x faster cold start, native ESM, compat with existing stack", principles: ["XIV", "IX"], artifact: "ADR-001" }
+  ],
+
+  // ── TASKLOG (open work items) ─────────────────────────────
+  tasklog: [
+    { id: "TL-014", task: "Implement adaptive difficulty algorithm for Feature 003", status: "in-progress", owner: "Agent", opened: "2026-03-22", age: 1, notes: "K-means clustering on quiz response patterns" },
+    { id: "TL-015", task: "Write E2E tests for quiz submission flow", status: "open", owner: "Agent", opened: "2026-03-23", age: 0, notes: "Playwright — covers timeout, retry, offline scenarios" },
+    { id: "TL-016", task: "Resolve quiz timer server-authoritative migration", status: "blocked", owner: "Agent", opened: "2026-03-22", age: 1, notes: "Blocked by ADR-004 decision on WebSocket vs polling" },
+    { id: "TL-017", task: "Seed Firestore with 47 legacy quiz templates", status: "open", owner: "Agent", opened: "2026-03-21", age: 2, notes: "Depends on extraction pipeline (Feature 003)" },
+    { id: "TL-018", task: "Update CONSTITUTION.md with offline resilience principle", status: "completed", owner: "Human", opened: "2026-03-20", age: 3, notes: "Done — Principle VI added in v1.1" },
+    { id: "TL-019", task: "Review Feature 004 spec for completeness before plan phase", status: "deferred", owner: "Human", opened: "2026-03-23", age: 0, notes: "Deferred until Feature 003 reaches implementation" }
+  ],
+
+  // ── DECISION LOG (ADRs) ───────────────────────────────────
+  decisionLog: [
+    { id: "ADR-001", title: "Use Vitest over Jest for unit testing", status: "accepted", date: "2026-03-19", context: "Need fast test runner for TDD workflow with ESM support", options: ["Jest (mature, large ecosystem)", "Vitest (fast, native ESM, Vite compat)", "uvu (minimal, fast but limited)"], decision: "Vitest — 3x faster cold start, native ESM, compatible with existing Vite toolchain", consequences: "All test files use .test.js extension, import from vitest. Jest plugins not available.", anchor: "Principle XIV (Simple First), Principle IX (TDD)" },
+    { id: "ADR-002", title: "Firebase Auth over custom JWT", status: "accepted", date: "2026-03-19", context: "Need authentication for quiz platform — teachers, students, parents", options: ["Custom JWT with bcrypt", "Firebase Auth (managed)", "Auth0 (third-party SaaS)"], decision: "Firebase Auth — zero server management, built-in providers, integrates with Firestore rules", consequences: "Vendor lock-in to Firebase ecosystem. Mitigated by abstraction layer in auth-service.js.", anchor: "Principle I (Client-Rendered, Cloud-Backed), Principle VII (Secure by Default)" },
+    { id: "ADR-003", title: "bcrypt over Argon2 for password hashing", status: "accepted", date: "2026-03-23", context: "Firebase Auth handles most auth but custom admin tokens need hashing", options: ["Argon2 (memory-hard, best security)", "bcrypt (battle-tested, native Node.js)", "scrypt (Node.js built-in)"], decision: "bcrypt — native Node.js support via bcryptjs, no C++ binding needed, proven security", consequences: "Slightly less memory-hard than Argon2. Acceptable for admin-only use case.", anchor: "Principle XIV (Simple First)" },
+    { id: "ADR-004", title: "Quiz timer: server-authoritative vs client", status: "proposed", date: "2026-03-22", context: "Quiz timers must be tamper-proof — students shouldn't manipulate remaining time", options: ["Client-side timer with server validation", "Server-authoritative via WebSocket", "Server-authoritative via polling (30s)"], decision: "Pending Socratic debate resolution", consequences: "TBD", anchor: "Principle VII (Secure by Default), Principle XV (BDD)" },
+    { id: "ADR-005", title: "Offline quiz sync strategy", status: "proposed", date: "2026-03-23", context: "Students in rural areas may lose connectivity mid-quiz", options: ["Service Worker + IndexedDB (full offline)", "LocalStorage cache (simple, limited)", "No offline (require connectivity)"], decision: "Pending — depends on Feature 007 scope finalization", consequences: "TBD", anchor: "Principle VIII (Offline Resilience)" }
+  ]
 };

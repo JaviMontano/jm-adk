@@ -6,6 +6,7 @@
   <title>Workspace &mdash; SDD ALM</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/search.js" defer></script>
   <script src="shared/data.js"></script>
   <script src="shared/nav.js" defer></script>
   <script src="shared/footer.js" defer></script>
@@ -116,6 +117,18 @@
       border:1px dashed var(--border-medium); border-radius:var(--radius-sm);
     }
 
+    /* ── Search & Filter ────────────────────────────────────── */
+    .sdd-search-bar { margin-bottom: 1.5rem; }
+    .sdd-search-input-wrap { position: relative; display: flex; align-items: center; }
+    .sdd-search-icon { position: absolute; left: 12px; width: 18px; height: 18px; color: #94A3B8; pointer-events: none; }
+    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Montserrat, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .sdd-search-input:focus { border-color: #FFD700; box-shadow: 0 0 0 2px rgba(255,215,0,0.15); }
+    .sdd-search-count { position: absolute; right: 12px; font-size: 11px; color: #64748B; font-family: var(--font-mono, 'JetBrains Mono', monospace); }
+    .sdd-filter-chips { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .sdd-chip { padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94A3B8; font-size: 12px; cursor: pointer; font-family: var(--font-body, Montserrat, sans-serif); transition: all 0.2s; }
+    .sdd-chip:hover { border-color: rgba(255,215,0,0.3); color: #E2E8F0; }
+    .sdd-chip.active { background: rgba(255,215,0,0.12); border-color: #FFD700; color: #FFD700; }
+
     @media(max-width:600px) {
       .rag-grid { grid-template-columns:1fr; }
     }
@@ -124,6 +137,7 @@
 <body>
 
 <main class="ws-main" id="ws-root">
+  <div id="page-search"></div>
   <!-- Populated by script -->
 </main>
 
@@ -355,6 +369,44 @@
     treeHTML +
     ragHTML +
     activityHTML;
+
+  // Search + Filter
+  setTimeout(function() {
+    var ctrl = SDD.search.init('page-search', {
+      placeholder: 'Search files...',
+      filters: [{label:'Markdown',value:'md'}, {label:'JSON',value:'json'}, {label:'Feature',value:'feature'}, {label:'RAG',value:'rag'}],
+      onSearch: function(q, f) { filterItems(q, f); },
+      onFilter: function(f, q) { filterItems(q, f); }
+    });
+    function filterItems(query, filter) {
+      // Filter file tree nodes
+      var files = document.querySelectorAll('.tree-file');
+      var folders = document.querySelectorAll('.tree-folder');
+      var shown = 0, total = files.length;
+      files.forEach(function(file) {
+        var name = (file.querySelector('.tree-file-name') || {}).textContent || '';
+        name = name.toLowerCase();
+        var matchQuery = !query || name.indexOf(query) !== -1;
+        var matchFilter = !filter || filter === 'all';
+        if (filter === 'md') matchFilter = name.indexOf('.md') !== -1;
+        else if (filter === 'json') matchFilter = name.indexOf('.json') !== -1;
+        else if (filter === 'feature') matchFilter = name.indexOf('.feature') !== -1;
+        else if (filter === 'rag') matchFilter = name.indexOf('rag') !== -1;
+        if (matchQuery && matchFilter) { file.style.display = ''; shown++; }
+        else { file.style.display = 'none'; }
+      });
+      // Also filter RAG cards
+      var ragCards = document.querySelectorAll('.rag-card');
+      ragCards.forEach(function(card) {
+        var text = card.textContent.toLowerCase();
+        var matchQuery = !query || text.indexOf(query) !== -1;
+        var matchFilter = !filter || filter === 'all' || filter === 'rag';
+        if (matchQuery && matchFilter) { card.style.display = ''; }
+        else { card.style.display = 'none'; }
+      });
+      ctrl.setCount(shown, total);
+    }
+  }, 100);
 })();
 </script>
 

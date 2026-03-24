@@ -6,6 +6,7 @@
   <title>SDD Command Center &mdash; Spec Driven Development by metodologIA</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/search.js" defer></script>
   <script src="shared/data.js"></script>
   <script src="shared/nav.js" defer></script>
   <style>
@@ -86,6 +87,21 @@
     .cc-footer .gold { color:var(--brand-gold); font-weight:600; }
 
     /* ── Responsive ────────────────────────────────────────── */
+    /* ── Global Search ──────────────────────────────────────── */
+    .sdd-search-bar { margin-bottom: 1.5rem; }
+    .sdd-search-input-wrap { position: relative; display: flex; align-items: center; }
+    .sdd-search-icon { position: absolute; left: 12px; width: 18px; height: 18px; color: #94A3B8; pointer-events: none; }
+    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Montserrat, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .sdd-search-input:focus { border-color: #FFD700; box-shadow: 0 0 0 2px rgba(255,215,0,0.15); }
+    .sdd-search-count { position: absolute; right: 12px; font-size: 11px; color: #64748B; font-family: var(--font-mono, 'JetBrains Mono', monospace); }
+    .global-search-wrap { margin-top:1.25rem; }
+    .global-search-wrap .sdd-search-input { font-size:15px; padding:12px 16px 12px 44px; }
+    .global-search-hint { font-size:0.7rem; color:var(--text-dim); margin-top:0.4rem; }
+    .activity-scroll { max-height:300px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--bg-raised) transparent; }
+    .activity-scroll::-webkit-scrollbar { width:4px; }
+    .activity-scroll::-webkit-scrollbar-track { background:transparent; }
+    .activity-scroll::-webkit-scrollbar-thumb { background:var(--bg-raised); border-radius:2px; }
+
     @media(max-width:960px) { .nav-grid { grid-template-columns:repeat(2,1fr); } }
     @media(max-width:600px) {
       .nav-grid { grid-template-columns:1fr; }
@@ -182,13 +198,13 @@
     '</a>';
   }).join('');
 
-  /* ── Recent activity ─────────────────────────────────────── */
-  var logs = get('sessionLog', []).slice(-5).reverse();
+  /* ── Session activity (ALL entries, scrollable) ──────────── */
+  var logs = get('sessionLog', []).slice().reverse();
   var activityHTML = '';
   if (logs.length) {
     activityHTML = '<section class="activity-section">' +
-      '<h3 class="section-title">\uD83D\uDD53 Recent Activity</h3>' +
-      '<div class="timeline">' +
+      '<h3 class="section-title">\uD83D\uDD53 Session Activity <span style="font-size:0.75rem;color:var(--text-dim);font-weight:400">' + logs.length + ' entries</span></h3>' +
+      '<div class="activity-scroll"><div class="timeline">' +
       logs.map(function (e) {
         var icon = ({ spec:'\uD83D\uDCCB', test:'\u2713', fix:'\uD83D\uDD27', deploy:'\uD83D\uDE80', sentinel:'\u25C9' })[e.type] || '\u2022';
         var time = e.timestamp || e.time || '';
@@ -197,7 +213,7 @@
           '<div class="tl-desc"><span class="tl-icon">' + icon + '</span>' + (e.description || e.message || e.type || '') + '</div>' +
         '</div>';
       }).join('') +
-      '</div></section>';
+      '</div></div></section>';
   }
 
   /* ── Smart banner ────────────────────────────────────────── */
@@ -235,6 +251,13 @@
       '<div class="hero-info">' +
         '<h1 class="hero-title"><span class="gold">\u2318</span> ' + projectName + '</h1>' +
         '<p class="hero-subtitle">' + pipelineSummary + '</p>' +
+        '<div class="global-search-wrap">' +
+          '<div class="sdd-search-input-wrap">' +
+            '<svg class="sdd-search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6"/><line x1="12.5" y1="12.5" x2="18" y2="18"/></svg>' +
+            '<input class="sdd-search-input" id="global-search" type="text" placeholder="Search across all pages..." />' +
+          '</div>' +
+          '<div class="global-search-hint">Press Enter to search</div>' +
+        '</div>' +
       '</div>' +
     '</section>' +
 
@@ -252,6 +275,21 @@
       'SDD v3.0 &middot; Spec Driven Development by metodolog<span class="gold">IA</span>' +
       (generatedAt ? '<br>Generated: ' + generatedAt : '') +
     '</footer>';
+
+  // Global search redirect
+  setTimeout(function() {
+    var searchInput = document.getElementById('global-search');
+    if (searchInput) {
+      searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          var val = searchInput.value.trim();
+          if (val) {
+            window.location.href = 'search.html?q=' + encodeURIComponent(val);
+          }
+        }
+      });
+    }
+  }, 100);
 })();
 </script>
 

@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search &mdash; SDD ALM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/data.js"></script>
+  <script src="shared/nav.js" defer></script>
+  <script src="shared/footer.js" defer></script>
+  <style>
+    /* ── Layout ────────────────────────────────────────────── */
+    .sr-main { max-width:1280px; margin:0 auto; padding:2rem 1.5rem 3rem; }
+
+    /* ── Hero Search ──────────────────────────────────────── */
+    .sr-hero {
+      display:flex; flex-direction:column; align-items:center;
+      padding:3rem 0 2rem; text-align:center;
+    }
+    .sr-hero-label {
+      font-family:var(--font-heading); font-size:0.85rem; font-weight:600;
+      color:var(--brand-gold); text-transform:uppercase; letter-spacing:0.12em;
+      margin-bottom:0.75rem;
+    }
+    .sr-search-wrap {
+      width:100%; max-width:720px; position:relative;
+    }
+    .sr-search-input {
+      width:100%; box-sizing:border-box;
+      background:transparent; border:none;
+      border-bottom:2px solid var(--border-medium);
+      font-family:var(--font-heading); font-size:2.5rem; font-weight:700;
+      color:var(--text-primary); padding:0.5rem 0;
+      outline:none; transition:border-color 0.25s;
+    }
+    .sr-search-input::placeholder { color:var(--text-dim); }
+    .sr-search-input:focus { border-bottom-color:var(--brand-gold); }
+    .sr-kbd-hint {
+      position:absolute; right:0; top:50%; transform:translateY(-50%);
+      font-family:var(--font-mono); font-size:0.7rem;
+      color:var(--text-dim); background:var(--bg-raised);
+      padding:0.2rem 0.45rem; border-radius:4px;
+      border:1px solid var(--border-subtle);
+    }
+
+    /* ── Category Chips ───────────────────────────────────── */
+    .sr-chips {
+      display:flex; flex-wrap:wrap; justify-content:center;
+      gap:0.5rem; margin:1.25rem 0 1.75rem;
+    }
+    .sr-chip {
+      font-family:var(--font-body); font-size:0.78rem; font-weight:500;
+      padding:0.35rem 0.85rem; border-radius:999px; cursor:pointer;
+      border:1px solid var(--border-medium); background:transparent;
+      color:var(--text-muted); transition:all 0.2s;
+    }
+    .sr-chip:hover { border-color:var(--brand-gold); color:var(--text-primary); }
+    .sr-chip.active {
+      background:var(--brand-gold); color:var(--text-inverse);
+      border-color:var(--brand-gold); font-weight:600;
+    }
+
+    /* ── Results Meta ─────────────────────────────────────── */
+    .sr-results-meta {
+      font-family:var(--font-body); font-size:0.82rem;
+      color:var(--text-muted); margin-bottom:1.25rem;
+      min-height:1.2em;
+    }
+    .sr-results-meta strong { color:var(--brand-gold); }
+
+    /* ── Result Cards ─────────────────────────────────────── */
+    .sr-results { display:flex; flex-direction:column; gap:0.65rem; }
+    .sr-card {
+      background:var(--bg-card);
+      backdrop-filter:var(--glass);
+      -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle);
+      border-radius:10px; padding:1rem 1.25rem;
+      transition:border-color 0.2s, box-shadow 0.2s;
+    }
+    .sr-card:hover {
+      border-color:var(--border-gold);
+      box-shadow:var(--shadow-glow-gold);
+    }
+    .sr-card-head {
+      display:flex; align-items:center; gap:0.6rem;
+      margin-bottom:0.4rem;
+    }
+    .sr-badge {
+      font-family:var(--font-mono); font-size:0.65rem; font-weight:700;
+      padding:0.15rem 0.5rem; border-radius:4px;
+      text-transform:uppercase; letter-spacing:0.04em;
+      flex-shrink:0;
+    }
+    .sr-badge-fr   { background:rgba(255,215,0,0.15);  color:#FFD700; }
+    .sr-badge-ts   { background:rgba(139,92,246,0.15);  color:#8B5CF6; }
+    .sr-badge-task { background:rgba(19,125,197,0.15);  color:#137DC5; }
+    .sr-badge-prin { background:rgba(255,215,0,0.15);  color:#FFD700; }
+    .sr-badge-log  { background:rgba(148,163,184,0.12); color:#94A3B8; }
+    .sr-badge-file { background:rgba(0,255,255,0.12);   color:#00FFFF; }
+    .sr-badge-bl   { background:rgba(236,72,153,0.15);  color:#EC4899; }
+
+    .sr-title {
+      font-family:var(--font-heading); font-size:0.95rem; font-weight:700;
+      color:var(--text-primary);
+    }
+    .sr-snippet {
+      font-family:var(--font-body); font-size:0.82rem;
+      color:var(--text-muted); line-height:1.5;
+      margin-bottom:0.35rem;
+    }
+    .sr-source {
+      font-family:var(--font-body); font-size:0.72rem;
+      color:var(--text-dim); margin-bottom:0.25rem;
+    }
+    .sr-link {
+      font-family:var(--font-body); font-size:0.75rem; font-weight:600;
+      color:var(--brand-blue); text-decoration:none; cursor:pointer;
+    }
+    .sr-link:hover { text-decoration:underline; }
+
+    /* ── Show More ────────────────────────────────────────── */
+    .sr-show-more {
+      display:none; margin:1.25rem auto 0; text-align:center;
+    }
+    .sr-show-more button {
+      font-family:var(--font-body); font-size:0.82rem; font-weight:600;
+      color:var(--brand-gold); background:transparent;
+      border:1px solid var(--brand-gold); border-radius:6px;
+      padding:0.5rem 1.5rem; cursor:pointer; transition:all 0.2s;
+    }
+    .sr-show-more button:hover {
+      background:var(--brand-gold); color:var(--text-inverse);
+    }
+
+    /* ── Empty State ──────────────────────────────────────── */
+    .sr-empty {
+      text-align:center; padding:4rem 1rem; display:block;
+    }
+    .sr-empty-icon {
+      font-size:3rem; margin-bottom:1rem; opacity:0.4;
+    }
+    .sr-empty-text {
+      font-family:var(--font-body); font-size:1rem;
+      color:var(--text-muted); margin-bottom:0.75rem;
+    }
+    .sr-empty-hint {
+      font-family:var(--font-mono); font-size:0.75rem;
+      color:var(--text-dim);
+    }
+    .sr-empty-hint kbd {
+      background:var(--bg-raised); padding:0.15rem 0.4rem;
+      border-radius:3px; border:1px solid var(--border-subtle);
+    }
+
+    /* ── No Results ───────────────────────────────────────── */
+    .sr-no-results {
+      text-align:center; padding:3rem 1rem; display:none;
+    }
+    .sr-no-results-text {
+      font-family:var(--font-body); font-size:0.95rem;
+      color:var(--text-muted);
+    }
+
+    /* ── Responsive ───────────────────────────────────────── */
+    @media (max-width:640px) {
+      .sr-search-input { font-size:1.5rem; }
+      .sr-kbd-hint { display:none; }
+      .sr-card { padding:0.85rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sr-main">
+    <!-- Hero Search -->
+    <div class="sr-hero">
+      <div class="sr-hero-label">Global Search</div>
+      <div class="sr-search-wrap">
+        <input
+          id="sr-input"
+          class="sr-search-input"
+          type="text"
+          placeholder="Search all artifacts..."
+          autofocus
+        />
+        <span class="sr-kbd-hint" id="sr-kbd-hint">Ctrl+K</span>
+      </div>
+    </div>
+
+    <!-- Category Chips -->
+    <div class="sr-chips" id="sr-chips">
+      <button class="sr-chip active" data-cat="all">All</button>
+      <button class="sr-chip" data-cat="requirement">Requirements</button>
+      <button class="sr-chip" data-cat="test">Tests</button>
+      <button class="sr-chip" data-cat="task">Tasks</button>
+      <button class="sr-chip" data-cat="principle">Principles</button>
+      <button class="sr-chip" data-cat="log">Logs</button>
+      <button class="sr-chip" data-cat="file">Files</button>
+      <button class="sr-chip" data-cat="backlog">Backlog</button>
+    </div>
+
+    <!-- Results Meta -->
+    <div class="sr-results-meta" id="sr-meta"></div>
+
+    <!-- Results -->
+    <div class="sr-results" id="sr-results"></div>
+
+    <!-- Show More -->
+    <div class="sr-show-more" id="sr-show-more">
+      <button id="sr-show-more-btn">Show more results</button>
+    </div>
+
+    <!-- No Results -->
+    <div class="sr-no-results" id="sr-no-results">
+      <div class="sr-no-results-text">No results found. Try a different query or category.</div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="sr-empty" id="sr-empty">
+      <div class="sr-empty-icon">&#128269;</div>
+      <div class="sr-empty-text">Type to search across all project artifacts</div>
+      <div class="sr-empty-hint">
+        Press <kbd>Ctrl</kbd>+<kbd>K</kbd> to focus &middot; <kbd>Esc</kbd> to clear
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Search Engine ─────────────────────────────────────── -->
+  <script>
+  (function () {
+    'use strict';
+
+    var D         = window.DASHBOARD_DATA || {};
+    var input     = document.getElementById('sr-input');
+    var chipsWrap = document.getElementById('sr-chips');
+    var metaEl    = document.getElementById('sr-meta');
+    var resultsEl = document.getElementById('sr-results');
+    var emptyEl   = document.getElementById('sr-empty');
+    var noResEl   = document.getElementById('sr-no-results');
+    var moreWrap  = document.getElementById('sr-show-more');
+    var moreBtn   = document.getElementById('sr-show-more-btn');
+
+    var activeCat    = 'all';
+    var allEntries   = [];
+    var lastResults  = [];
+    var visibleCount = 50;
+    var debounceId   = null;
+
+    /* ── Page map for links ───────────────────────────────── */
+    var PAGE_MAP = {
+      requirement: { page: 'specs.html',        label: 'View in Specs' },
+      test:        { page: 'quality.html',       label: 'View in Quality' },
+      task:        { page: 'pipeline.html',      label: 'View in Pipeline' },
+      principle:   { page: 'governance.html',    label: 'View in Governance' },
+      log:         { page: 'intelligence.html',  label: 'View in Intelligence' },
+      file:        { page: 'workspace.html',     label: 'View in Workspace' },
+      backlog:     { page: 'pipeline.html',      label: 'View in Backlog' }
+    };
+
+    /* ── Badge class map ──────────────────────────────────── */
+    var BADGE_MAP = {
+      requirement: { cls: 'sr-badge-fr',   text: 'FR' },
+      test:        { cls: 'sr-badge-ts',   text: 'TS' },
+      task:        { cls: 'sr-badge-task', text: 'Task' },
+      principle:   { cls: 'sr-badge-prin', text: 'Principle' },
+      log:         { cls: 'sr-badge-log',  text: 'Log' },
+      file:        { cls: 'sr-badge-file', text: 'File' },
+      backlog:     { cls: 'sr-badge-bl',   text: 'Backlog' }
+    };
+
+    /* ── Build Inverted Index ─────────────────────────────── */
+    function buildIndex(data) {
+      var entries = [];
+
+      // Features → requirements, tests, tasks
+      var features = data.features || [];
+      features.forEach(function (feat) {
+        var fName = feat.name || feat.id || 'Feature';
+
+        (feat.requirements || []).forEach(function (r) {
+          entries.push({
+            category: 'requirement',
+            id:       r.id || '',
+            title:    r.id || r.name || 'Requirement',
+            text:     (r.name || '') + ' ' + (r.description || '') + ' ' + (r.acceptance || ''),
+            source:   'Feature: ' + fName,
+            page:     'specs.html'
+          });
+        });
+
+        (feat.tests || []).forEach(function (t) {
+          entries.push({
+            category: 'test',
+            id:       t.id || '',
+            title:    t.id || t.name || 'Test',
+            text:     (t.name || '') + ' ' + (t.scenario || '') + ' ' + (t.description || ''),
+            source:   'Feature: ' + fName,
+            page:     'quality.html'
+          });
+        });
+
+        (feat.tasks || []).forEach(function (tk) {
+          entries.push({
+            category: 'task',
+            id:       tk.id || '',
+            title:    tk.id || tk.name || 'Task',
+            text:     (tk.name || '') + ' ' + (tk.description || '') + ' ' + (tk.status || ''),
+            source:   'Feature: ' + fName,
+            page:     'pipeline.html'
+          });
+        });
+      });
+
+      // Constitution → principles
+      var constitution = data.constitution || {};
+      (constitution.principles || []).forEach(function (p) {
+        entries.push({
+          category: 'principle',
+          id:       p.number || '',
+          title:    p.number ? ('P-' + p.number) : (p.name || 'Principle'),
+          text:     (p.name || '') + ' ' + (p.text || '') + ' ' + (p.description || ''),
+          source:   'Constitution',
+          page:     'governance.html'
+        });
+      });
+
+      // Logs — sessionLog, changelog, tasklog, decisionLog
+      var logSources = [
+        { key: 'sessionLog',  label: 'Session Log',  prefix: 'SL' },
+        { key: 'changelog',   label: 'Changelog',    prefix: 'CL' },
+        { key: 'tasklog',     label: 'Task Log',     prefix: 'TL' },
+        { key: 'decisionLog', label: 'Decision Log', prefix: 'DL' }
+      ];
+      logSources.forEach(function (src) {
+        (data[src.key] || []).forEach(function (entry, i) {
+          var idx = String(i + 1);
+          while (idx.length < 3) idx = '0' + idx;
+          entries.push({
+            category: 'log',
+            id:       src.prefix + '-' + idx,
+            title:    src.prefix + '-' + idx,
+            text:     (entry.message || '') + ' ' + (entry.description || '') +
+                      ' ' + (entry.action || '') + ' ' + (entry.event || '') +
+                      ' ' + (entry.title || '') + ' ' + (entry.summary || ''),
+            source:   src.label,
+            page:     'intelligence.html'
+          });
+        });
+      });
+
+      // Workspace → files
+      var ws = data.workspace || {};
+      (ws.files || []).forEach(function (f) {
+        entries.push({
+          category: 'file',
+          id:       f.path || '',
+          title:    f.path || 'File',
+          text:     (f.abstract || '') + ' ' + ((f.tags || []).join(' ')),
+          source:   'Workspace',
+          page:     'workspace.html'
+        });
+      });
+
+      // Backlog
+      (data.backlog || []).forEach(function (b, i) {
+        var idx = String(i + 1);
+        while (idx.length < 3) idx = '0' + idx;
+        entries.push({
+          category: 'backlog',
+          id:       'BL-' + idx,
+          title:    b.name || ('BL-' + idx),
+          text:     (b.name || '') + ' ' + (b.description || ''),
+          source:   'Backlog',
+          page:     'pipeline.html'
+        });
+      });
+
+      return entries;
+    }
+
+    /* ── Search Filter ────────────────────────────────────── */
+    function search(query, category, entries) {
+      var q = query.toLowerCase().trim();
+      if (!q) return [];
+      return entries.filter(function (e) {
+        if (category !== 'all' && e.category !== category) return false;
+        return (e.title + ' ' + e.text).toLowerCase().indexOf(q) !== -1;
+      });
+    }
+
+    /* ── Highlight matches ────────────────────────────────── */
+    function highlight(text, query) {
+      if (!query) return esc(text);
+      var safe = esc(text);
+      var q    = esc(query);
+      var re   = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+      return safe.replace(re, '<mark style="background:#FFD700;color:#020617">$1</mark>');
+    }
+
+    function esc(s) {
+      var d = document.createElement('div');
+      d.appendChild(document.createTextNode(s));
+      return d.innerHTML;
+    }
+
+    /* ── Snippet (max 100 chars around first match) ───────── */
+    function snippet(text, query) {
+      var lower = text.toLowerCase();
+      var qi    = lower.indexOf(query.toLowerCase());
+      var start = 0;
+      var raw;
+      if (qi > 40) start = qi - 40;
+      raw = text.substring(start, start + 100);
+      if (start > 0) raw = '...' + raw;
+      if (start + 100 < text.length) raw = raw + '...';
+      return highlight(raw, query);
+    }
+
+    /* ── Count unique categories ──────────────────────────── */
+    function countCats(results) {
+      var seen = {};
+      results.forEach(function (r) { seen[r.category] = true; });
+      return Object.keys(seen).length;
+    }
+
+    /* ── Render ────────────────────────────────────────────── */
+    function render() {
+      var q = input.value.trim();
+
+      // Reset visibility
+      emptyEl.style.display   = 'none';
+      noResEl.style.display   = 'none';
+      moreWrap.style.display  = 'none';
+      resultsEl.innerHTML     = '';
+      metaEl.innerHTML        = '';
+
+      if (!q) {
+        emptyEl.style.display = 'block';
+        lastResults = [];
+        return;
+      }
+
+      lastResults  = search(q, activeCat, allEntries);
+      visibleCount = 50;
+
+      if (lastResults.length === 0) {
+        noResEl.style.display = 'block';
+        metaEl.innerHTML = '';
+        return;
+      }
+
+      var catCount = countCats(lastResults);
+      metaEl.innerHTML = 'Found <strong>' + lastResults.length +
+        '</strong> result' + (lastResults.length !== 1 ? 's' : '') +
+        ' for \u201c<strong>' + esc(q) + '</strong>\u201d across ' +
+        catCount + ' categor' + (catCount !== 1 ? 'ies' : 'y');
+
+      renderCards(q);
+    }
+
+    function renderCards(q) {
+      var html  = '';
+      var limit = Math.min(visibleCount, lastResults.length);
+
+      for (var i = 0; i < limit; i++) {
+        var e     = lastResults[i];
+        var badge = BADGE_MAP[e.category] || { cls: 'sr-badge-log', text: e.category };
+        var pm    = PAGE_MAP[e.category]  || { page: '#', label: 'View' };
+        var snip  = snippet(e.text, q);
+
+        html += '<div class="sr-card">';
+        html += '<div class="sr-card-head">';
+        html += '<span class="sr-badge ' + badge.cls + '">' + badge.text + '</span>';
+        html += '<span class="sr-title">' + highlight(e.title, q) + '</span>';
+        html += '</div>';
+        html += '<div class="sr-snippet">' + snip + '</div>';
+        html += '<div class="sr-source">' + esc(e.source) + '</div>';
+        html += '<a class="sr-link" href="' + pm.page + '">' + pm.label + ' &rarr;</a>';
+        html += '</div>';
+      }
+
+      resultsEl.innerHTML = html;
+
+      if (lastResults.length > visibleCount) {
+        moreWrap.style.display = 'block';
+      } else {
+        moreWrap.style.display = 'none';
+      }
+    }
+
+    /* ── Debounced input handler ──────────────────────────── */
+    function onInput() {
+      clearTimeout(debounceId);
+      debounceId = setTimeout(render, 200);
+    }
+
+    /* ── Chip selection ───────────────────────────────────── */
+    function onChipClick(e) {
+      var btn = e.target.closest('.sr-chip');
+      if (!btn) return;
+      activeCat = btn.getAttribute('data-cat') || 'all';
+      var chips = chipsWrap.querySelectorAll('.sr-chip');
+      for (var i = 0; i < chips.length; i++) {
+        chips[i].classList.toggle('active', chips[i] === btn);
+      }
+      render();
+    }
+
+    /* ── Show more ────────────────────────────────────────── */
+    function onShowMore() {
+      visibleCount += 50;
+      renderCards(input.value.trim());
+    }
+
+    /* ── Keyboard shortcuts ───────────────────────────────── */
+    function onKeyDown(e) {
+      // Ctrl+K or Cmd+K → focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        input.focus();
+        input.select();
+        return;
+      }
+      // Escape → clear search
+      if (e.key === 'Escape') {
+        input.value = '';
+        input.blur();
+        render();
+        return;
+      }
+    }
+
+    /* ── Init ─────────────────────────────────────────────── */
+    allEntries = buildIndex(D);
+
+    input.addEventListener('input', onInput);
+    chipsWrap.addEventListener('click', onChipClick);
+    moreBtn.addEventListener('click', onShowMore);
+    document.addEventListener('keydown', onKeyDown);
+
+    // Detect Mac for shortcut hint
+    if (navigator.platform && navigator.platform.indexOf('Mac') !== -1) {
+      var hint = document.getElementById('sr-kbd-hint');
+      if (hint) hint.textContent = '\u2318K';
+    }
+
+    // Initial state
+    render();
+  })();
+  </script>
+</body>
+</html>

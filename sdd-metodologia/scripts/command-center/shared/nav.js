@@ -15,6 +15,9 @@
     { id: 'intelligence', label: 'Intel',           icon: '\u25C9' },
     { id: 'workspace',    label: 'Workspace',      icon: '\uD83D\uDCC1' },
     { id: 'governance',   label: 'Governance',     icon: '\u2696' },
+    { id: 'logs',         label: 'Logs',           icon: '\uD83D\uDCDC' },
+    { id: 'backlog',      label: 'Backlog',        icon: '\uD83D\uDCE5' },
+    { id: 'search',       label: 'Search',         icon: '\uD83D\uDD0D' },
     { id: 'tour',         label: 'Tour',           icon: '\uD83C\uDF93' },
     { id: 'docs/index',   label: 'Docs',           icon: '\uD83D\uDCD6' }
   ];

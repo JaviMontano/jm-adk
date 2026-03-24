@@ -6,6 +6,7 @@
   <title>Intelligence &mdash; SDD ALM</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/search.js" defer></script>
   <script src="shared/data.js"></script>
   <script src="shared/nav.js" defer></script>
   <script src="shared/footer.js" defer></script>
@@ -127,6 +128,18 @@
       .grid-3 { grid-template-columns:repeat(2,1fr); }
       .grid-4 { grid-template-columns:repeat(2,1fr); }
     }
+    /* ── Search & Filter ────────────────────────────────────── */
+    .sdd-search-bar { margin-bottom: 1.5rem; }
+    .sdd-search-input-wrap { position: relative; display: flex; align-items: center; }
+    .sdd-search-icon { position: absolute; left: 12px; width: 18px; height: 18px; color: #94A3B8; pointer-events: none; }
+    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Montserrat, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .sdd-search-input:focus { border-color: #FFD700; box-shadow: 0 0 0 2px rgba(255,215,0,0.15); }
+    .sdd-search-count { position: absolute; right: 12px; font-size: 11px; color: #64748B; font-family: var(--font-mono, 'JetBrains Mono', monospace); }
+    .sdd-filter-chips { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .sdd-chip { padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94A3B8; font-size: 12px; cursor: pointer; font-family: var(--font-body, Montserrat, sans-serif); transition: all 0.2s; }
+    .sdd-chip:hover { border-color: rgba(255,215,0,0.3); color: #E2E8F0; }
+    .sdd-chip.active { background: rgba(255,215,0,0.12); border-color: #FFD700; color: #FFD700; }
+
     @media(max-width:600px) {
       .grid-2, .grid-3, .grid-4 { grid-template-columns:1fr; }
       .health-hero { flex-direction:column; align-items:flex-start; }
@@ -137,6 +150,7 @@
 <body>
 
 <main class="intel-main" id="intel-root">
+  <div id="page-search"></div>
   <!-- Populated by script -->
 </main>
 
@@ -394,6 +408,44 @@
     recsHTML +
 
     velocityHTML;
+
+  // Search + Filter
+  setTimeout(function() {
+    var ctrl = SDD.search.init('page-search', {
+      placeholder: 'Search findings...',
+      filters: [{label:'High',value:'HIGH'}, {label:'Medium',value:'MEDIUM'}, {label:'Low',value:'LOW'}, {label:'Info',value:'INFO'}],
+      onSearch: function(q, f) { filterItems(q, f); },
+      onFilter: function(f, q) { filterItems(q, f); }
+    });
+    function filterItems(query, filter) {
+      // Filter recommendation items and risk cards
+      var items = document.querySelectorAll('.rec-item');
+      var shown = 0, total = items.length;
+      items.forEach(function(item) {
+        var text = item.textContent.toLowerCase();
+        var matchQuery = !query || text.indexOf(query) !== -1;
+        var matchFilter = !filter || filter === 'all';
+        // Map severity filters to content keywords
+        if (filter === 'HIGH') matchFilter = text.indexOf('critical') !== -1 || text.indexOf('stale') !== -1;
+        else if (filter === 'MEDIUM') matchFilter = text.indexOf('coverage') !== -1 || text.indexOf('orphan') !== -1;
+        else if (filter === 'LOW') matchFilter = text.indexOf('history') !== -1 || text.indexOf('nominal') !== -1;
+        else if (filter === 'INFO') matchFilter = text.indexOf('sentinel') !== -1 || text.indexOf('enable') !== -1;
+        if (filter === 'all') matchFilter = true;
+        if (matchQuery && matchFilter) { item.style.display = ''; shown++; }
+        else { item.style.display = 'none'; }
+      });
+      // Also filter velocity bars
+      var bars = document.querySelectorAll('.velocity-bar-row');
+      var barShown = 0;
+      bars.forEach(function(bar) {
+        var text = bar.textContent.toLowerCase();
+        var matchQuery = !query || text.indexOf(query) !== -1;
+        if (matchQuery) { bar.style.display = ''; barShown++; }
+        else { bar.style.display = 'none'; }
+      });
+      ctrl.setCount(shown + barShown, total + bars.length);
+    }
+  }, 100);
 })();
 </script>
 
