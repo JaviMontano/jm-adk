@@ -3,12 +3,12 @@
   "$description": "Canonical source of truth for all visual tokens. Read by generate-dashboard.js, brand-overlay.sh, verify-brand.sh.",
 
   "colors": {
-    "bg-body": "#020617",
-    "bg-surface": "#0F172A",
-    "bg-surface-raised": "#1E293B",
-    "bg-nav": "rgba(2, 6, 23, 0.8)",
+    "bg-body": "#0F172A",
+    "bg-surface": "#1E293B",
+    "bg-surface-raised": "#29344D",
+    "bg-nav": "rgba(15, 23, 42, 0.8)",
 
-    "brand-navy": "#122562",
+    "brand-navy": "#0A122A",
     "brand-gold": "#FFD700",
     "brand-gold-dark": "#FFA000",
     "brand-gold-light": "#FFF176",

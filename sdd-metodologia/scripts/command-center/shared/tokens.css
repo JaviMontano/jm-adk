@@ -4,15 +4,15 @@
    ============================================================ */
 
 :root {
-  /* Backgrounds */
-  --bg-body: #020617;
-  --bg-surface: #0F172A;
+  /* Backgrounds — aligned with metodologia.info */
+  --bg-body: #0F172A;
+  --bg-surface: #1E293B;
   --bg-raised: #1E293B;
   --bg-card: rgba(255,255,255,0.03);
   --bg-overlay: rgba(2,6,23,0.85);
 
   /* Brand */
-  --brand-navy: #122562;
+  --brand-navy: #0A122A;
   --brand-gold: #FFD700;
   --brand-gold-dark: #FFA000;
   --brand-blue: #137DC5;
@@ -51,7 +51,7 @@
 
   /* Fonts — Neo-Swiss Clean */
   --font-heading: 'Poppins', sans-serif;
-  --font-body: 'Trebuchet MS', 'Lucida Grande', sans-serif;
+  --font-body: 'Montserrat', sans-serif;
   --font-footnote: 'Futura', 'Century Gothic', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
