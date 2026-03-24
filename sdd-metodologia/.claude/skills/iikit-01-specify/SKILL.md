@@ -88,6 +88,27 @@ Scan for implementation details per [phase-separation-rules.md](../iikit-core/re
 
 Generate `FEATURE_DIR/checklists/requirements.md` covering: content quality (no implementation details), requirement completeness, feature readiness.
 
+### 5b. Generate QA Acceptance Criteria
+
+Generate `FEATURE_DIR/qa/acceptance-criteria.md` from the spec's SC-XXX success criteria:
+
+```markdown
+# Acceptance Criteria — {Feature Name}
+Generated from spec.md | {date}
+
+## Success Criteria Checklist
+- [ ] SC-001: {description} — Target: {measurable target}
+- [ ] SC-002: {description} — Target: {measurable target}
+...
+
+## Traceability
+| SC | Linked FR | Verifiable By |
+|----|-----------|---------------|
+| SC-001 | FR-001, FR-002 | Unit test / E2E |
+```
+
+Each SC-XXX from spec.md becomes a checkable acceptance criterion with a measurable target.
+
 ### 6. Handle Clarifications
 
 If `[NEEDS CLARIFICATION]` markers remain, present each as a question with options table and wait for user response.

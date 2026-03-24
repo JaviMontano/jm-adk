@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230A122A'/%3E%3Cstop offset='100%25' stop-color='%2313315C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='36' height='36' rx='10' fill='url(%23g)'/%3E%3Crect x='10' y='12' width='4' height='12' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='12' width='4' height='8' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='22' width='4' height='2' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='12' width='4' height='6' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='20' width='4' height='4' rx='.5' fill='%23FFF'/%3E%3Ccircle cx='18' cy='8' r='2' fill='%23FFD700'/%3E%3C/svg%3E">
+  <title>Tour — SDD by metodologIA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/data.js"></script>
+  <script src="shared/filter.js" defer></script>
+  <script src="shared/i18n.js" defer></script>
+  <script src="shared/nav.js" defer></script>
+  <script src="shared/footer.js" defer></script>
+  <style>
+    /* ── Tour Modal Overlay ────────────────────────────────── */
+    .tour-overlay {
+      position:fixed; inset:0; z-index:9999;
+      background:rgba(2,6,23,.88);
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; transition:opacity .3s; pointer-events:none;
+    }
+    .tour-overlay.active { opacity:1; pointer-events:all; }
+
+    .tour-modal {
+      background:var(--bg-surface);
+      border:1px solid var(--border-subtle);
+      border-radius:20px;
+      width:92%; max-width:700px; max-height:88vh;
+      overflow-y:auto; padding:2.25rem 2.5rem;
+      position:relative;
+      transform:translateY(20px) scale(.97);
+      transition:transform .3s;
+      backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+    }
+    .tour-overlay.active .tour-modal { transform:translateY(0) scale(1); }
+
+    .tour-modal::-webkit-scrollbar { width:5px; }
+    .tour-modal::-webkit-scrollbar-track { background:transparent; }
+    .tour-modal::-webkit-scrollbar-thumb { background:var(--border-medium); border-radius:4px; }
+
+    /* ── Step counter ──────────────────────────────────────── */
+    .tour-step-counter {
+      font-family:var(--font-mono); font-size:.72rem;
+      color:var(--text-dim); margin-bottom:1rem;
+      letter-spacing:.5px;
+    }
+    .tour-step-counter span { color:var(--brand-gold); font-weight:700; }
+
+    /* ── Title & Subtitle ─────────────────────────────────── */
+    .tour-title {
+      font-family:var(--font-heading); font-size:1.75rem; font-weight:900;
+      color:var(--text-primary); margin:0 0 .75rem; line-height:1.2;
+    }
+    .tour-subtitle {
+      font-size:1rem; color:var(--text-muted); margin:0 0 1.5rem;
+      line-height:1.7; font-family:var(--font-body);
+    }
+
+    /* ── Visual container ─────────────────────────────────── */
+    .tour-visual {
+      background:var(--bg-raised);
+      border:1px solid var(--border-subtle);
+      border-radius:14px; padding:1.5rem;
+      margin:1.25rem 0;
+    }
+    .tour-visual svg { display:block; margin:0 auto; }
+
+    /* ── Callout ──────────────────────────────────────────── */
+    .tour-callout {
+      background:rgba(255,215,0,.06);
+      border:1px solid rgba(255,215,0,.15);
+      border-radius:10px; padding:.85rem 1.1rem;
+      margin:1rem 0; font-size:.88rem;
+      color:var(--text-muted); line-height:1.6;
+    }
+    .tour-callout code {
+      font-family:var(--font-mono); font-size:.82rem;
+      color:var(--brand-gold); background:rgba(255,215,0,.08);
+      padding:.12rem .4rem; border-radius:4px;
+    }
+    .tour-callout strong { color:var(--brand-gold); }
+
+    /* ── Tip ──────────────────────────────────────────────── */
+    .tour-tip {
+      font-size:.78rem; color:var(--text-muted);
+      margin-top:.75rem; padding-left:1rem;
+      border-left:2px solid var(--brand-gold);
+      font-style:italic; line-height:1.5;
+    }
+
+    /* ── Navigation ───────────────────────────────────────── */
+    .tour-nav {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-top:1.75rem; padding-top:1.25rem;
+      border-top:1px solid var(--border-subtle);
+    }
+    .tour-btn {
+      font-family:var(--font-heading); font-size:.85rem; font-weight:600;
+      padding:.55rem 1.3rem; border-radius:8px; border:none;
+      cursor:pointer; transition:all .15s;
+    }
+    .tour-btn-prev {
+      background:transparent; color:var(--text-muted);
+      border:1px solid var(--border-subtle);
+    }
+    .tour-btn-prev:hover { color:var(--text-primary); border-color:var(--text-muted); }
+    .tour-btn-next { background:var(--brand-gold); color:#020617; font-weight:700; }
+    .tour-btn-next:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(255,215,0,.25); }
+    .tour-btn-skip {
+      background:transparent; color:var(--text-dim); border:none;
+      cursor:pointer; font-size:.75rem; text-decoration:underline;
+      display:block; text-align:center; margin-top:.75rem;
+    }
+
+    /* ── Dots ─────────────────────────────────────────────── */
+    .tour-dots { display:flex; gap:7px; justify-content:center; }
+    .tour-dot { width:9px; height:9px; border-radius:50%; background:var(--border-subtle); transition:all .2s; }
+    .tour-dot.active { background:var(--brand-gold); transform:scale(1.3); }
+    .tour-dot.done { background:var(--brand-blue); }
+
+    /* ── Highlight Callout on Pages ────────────────────────── */
+    .tour-highlight { position:relative; }
+    .tour-highlight::after { content:''; position:absolute; inset:-4px; border:2px solid var(--brand-gold); border-radius:12px; pointer-events:none; animation:tour-pulse 1.5s infinite; }
+    @keyframes tour-pulse { 0%,100% { opacity:.3; } 50% { opacity:.8; } }
+
+    /* ── Page Content (visible when tour dismissed) ─────── */
+    .tour-page { padding:3rem 0; text-align:center; }
+    .tour-page h1 { font-family:var(--font-heading); font-size:2.25rem; font-weight:900; color:var(--text-primary); margin:0 0 .75rem; }
+    .tour-page p { color:var(--text-muted); max-width:520px; margin:.5rem auto; font-size:1rem; line-height:1.6; }
+
+    .tour-restart-gold {
+      display:inline-flex; align-items:center; gap:.5rem;
+      margin-top:2rem; padding:.85rem 2rem;
+      background:linear-gradient(135deg, #FFD700, #FFA000);
+      color:#020617; font-weight:700; font-size:1rem;
+      border:none; border-radius:10px;
+      text-decoration:none; font-family:var(--font-heading);
+      cursor:pointer; transition:all .2s;
+      box-shadow:0 4px 20px rgba(255,215,0,.2);
+    }
+    .tour-restart-gold:hover { transform:translateY(-2px); box-shadow:0 6px 28px rgba(255,215,0,.35); }
+    .tour-restart-gold svg { width:18px; height:18px; }
+
+    .tour-restart-subtle {
+      display:inline-block; margin-top:1rem;
+      padding:.5rem 1.2rem;
+      background:rgba(255,215,0,.08); color:var(--brand-gold);
+      border:1px solid rgba(255,215,0,.15); border-radius:8px;
+      text-decoration:none; font-family:var(--font-heading);
+      font-weight:600; font-size:.82rem;
+      cursor:pointer; transition:all .15s;
+    }
+    .tour-restart-subtle:hover { background:rgba(255,215,0,.15); }
+
+    /* ── Step-specific visual helpers ─────────────────────── */
+    .pipeline-mini { display:flex; gap:4px; align-items:center; justify-content:center; margin:.75rem 0; flex-wrap:wrap; }
+    .pipeline-mini .phase { width:30px; height:30px; border-radius:50%; border:2px solid var(--brand-gold); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:.65rem; color:var(--brand-gold); font-weight:700; }
+    .pipeline-mini .phase.filled { background:var(--brand-gold); color:#020617; }
+    .pipeline-mini .conn { width:14px; height:2px; background:var(--border-subtle); }
+    .pipeline-mini .gate { width:22px; height:22px; transform:rotate(45deg); border:2px solid var(--brand-blue); display:flex; align-items:center; justify-content:center; font-size:.5rem; color:var(--brand-blue); font-weight:700; }
+
+    .nav-card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.65rem; margin:.75rem 0; }
+    .nav-card-mini { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:10px; padding:.65rem; text-align:center; font-size:.72rem; color:var(--text-muted); font-family:var(--font-heading); font-weight:600; transition:border-color .15s; }
+    .nav-card-mini:hover { border-color:var(--brand-gold); }
+    .nav-card-mini svg { display:block; margin:0 auto .35rem; width:18px; height:18px; color:var(--brand-gold); }
+
+    .learn-list { list-style:none; padding:0; margin:.5rem 0; text-align:left; }
+    .learn-list li { font-size:.85rem; color:var(--text-muted); padding:.3rem 0; display:flex; align-items:baseline; gap:.5rem; line-height:1.5; }
+    .learn-list li::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--brand-gold); flex-shrink:0; margin-top:.35rem; }
+
+    /* RAG flow visual */
+    .rag-flow { display:flex; align-items:center; justify-content:center; gap:.5rem; flex-wrap:wrap; padding:.5rem 0; }
+    .rag-flow .rag-node { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:10px; padding:.6rem .85rem; text-align:center; min-width:80px; }
+    .rag-flow .rag-node .rag-icon { font-size:1.1rem; margin-bottom:.2rem; display:block; }
+    .rag-flow .rag-node .rag-label { font-family:var(--font-heading); font-size:.68rem; font-weight:600; color:var(--text-muted); }
+    .rag-flow .rag-arrow { color:var(--brand-gold); font-size:1rem; flex-shrink:0; }
+    .rag-flow .rag-arrow svg { width:20px; height:20px; }
+
+    /* QA gates visual */
+    .qa-gates { display:flex; align-items:center; justify-content:center; gap:0; padding:.5rem 0; }
+    .qa-gate-node { display:flex; flex-direction:column; align-items:center; gap:.3rem; }
+    .qa-gate-diamond { width:40px; height:40px; transform:rotate(45deg); border:2px solid var(--brand-blue); display:flex; align-items:center; justify-content:center; background:rgba(19,125,197,.08); border-radius:4px; }
+    .qa-gate-diamond span { transform:rotate(-45deg); font-family:var(--font-mono); font-size:.7rem; font-weight:700; color:var(--brand-blue); }
+    .qa-gate-label { font-family:var(--font-body); font-size:.65rem; color:var(--text-dim); margin-top:.25rem; white-space:nowrap; }
+    .qa-gate-connector { width:32px; height:2px; background:linear-gradient(90deg, var(--brand-blue), var(--brand-gold)); margin:0 .25rem; margin-bottom:1.2rem; }
+
+    /* Ready cards */
+    .ready-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:.65rem; margin:.75rem 0; }
+    .ready-card { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:12px; padding:1rem .85rem; text-align:center; transition:border-color .15s, transform .15s; }
+    .ready-card:hover { border-color:var(--brand-gold); transform:translateY(-2px); }
+    .ready-card .rc-icon { margin-bottom:.4rem; }
+    .ready-card .rc-icon svg { width:24px; height:24px; color:var(--brand-gold); }
+    .ready-card .rc-title { font-family:var(--font-heading); font-size:.82rem; font-weight:700; color:var(--text-primary); margin-bottom:.2rem; }
+    .ready-card .rc-desc { font-size:.7rem; color:var(--text-dim); line-height:1.4; }
+    .ready-card .rc-cmd { font-family:var(--font-mono); font-size:.68rem; color:var(--brand-gold); margin-top:.35rem; background:rgba(255,215,0,.06); padding:.15rem .4rem; border-radius:4px; display:inline-block; }
+
+    /* ── Floating Tour Button ─────────────────────────────── */
+    .tour-fab {
+      position:fixed; bottom:1.25rem; right:1.25rem; z-index:9990;
+      width:40px; height:40px; border-radius:50%;
+      background:var(--bg-surface); border:1px solid var(--border-subtle);
+      color:var(--brand-gold); cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:all .2s; box-shadow:0 2px 12px rgba(0,0,0,.3);
+      opacity:.7;
+    }
+    .tour-fab:hover { opacity:1; transform:scale(1.1); box-shadow:0 4px 20px rgba(255,215,0,.15); }
+    .tour-fab svg { width:18px; height:18px; }
+  </style>
+</head>
+<body>
+<main role="main" aria-label="Page content">
+
+<!-- Page content (shows after tour is dismissed) -->
+<div class="tour-page" id="tourPage">
+  <h1 data-i18n="tour.title">SDD Tour</h1>
+  <p>An 8-step interactive walkthrough of SDD &mdash; Spec Driven Development by metodologIA. Learn the full pipeline, from constitution to deployment.</p>
+  <div>
+    <button class="tour-restart-gold" id="restartTour">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="7"/><path d="M9 6l2.5 3L9 12 6.5 9 9 6z"/></svg>
+      <span data-i18n="tour.restart">Start Tour</span>
+    </button>
+  </div>
+  <div>
+    <button class="tour-restart-subtle" id="restartTourSubtle">or press T to quick-launch</button>
+  </div>
+</div>
+
+</main>
+
+<!-- Tour Modal Overlay -->
+<div class="tour-overlay" id="tourOverlay">
+  <div class="tour-modal" id="tourModal">
+    <div class="tour-step-counter">Step <span id="tourStepNum">1</span> of <span id="tourStepTotal">8</span></div>
+    <h2 class="tour-title" id="tourTitle"></h2>
+    <p class="tour-subtitle" id="tourSubtitle"></p>
+    <div class="tour-visual" id="tourVisual"></div>
+    <div class="tour-callout" id="tourCallout"></div>
+    <div class="tour-tip" id="tourTip"></div>
+    <div class="tour-nav">
+      <button class="tour-btn tour-btn-prev" id="tourPrev">Back</button>
+      <div class="tour-dots" id="tourDots"></div>
+      <button class="tour-btn tour-btn-next" id="tourNext">Next</button>
+    </div>
+    <button class="tour-btn-skip" id="tourSkip">Skip tour</button>
+  </div>
+</div>
+
+<!-- Floating Tour FAB -->
+<button class="tour-fab" id="tourFab" title="Reopen SDD Tour" aria-label="Open Tour">
+  <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="7"/><path d="M9 6l2.5 3L9 12 6.5 9 9 6z"/></svg>
+</button>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ── Step Definitions (8 steps) ─────────────────────────── */
+  var STEPS = [
+    {
+      title: 'Welcome to SDD',
+      subtitle: 'Spec Driven Development by metodologIA. A specification-first pipeline that preserves your intent from idea to deployment with cryptographic BDD verification.\n\nEvery feature flows through 9 phases, 3 quality gates, and ambient monitoring. Nothing is skipped. Nothing is assumed.',
+      visual: '<div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap">'
+        + '<svg width="100" height="100" viewBox="0 0 36 36"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0A122A"/><stop offset="100%" stop-color="#13315C"/></linearGradient></defs><rect width="36" height="36" rx="10" fill="url(#lg1)"/><rect x="10" y="12" width="4" height="12" rx=".5" fill="#FFF"/><rect x="16" y="12" width="4" height="8" rx=".5" fill="#FFF"/><rect x="16" y="22" width="4" height="2" rx=".5" fill="#FFF"/><rect x="22" y="12" width="4" height="6" rx=".5" fill="#FFF"/><rect x="22" y="20" width="4" height="4" rx=".5" fill="#FFF"/><circle cx="18" cy="8" r="2" fill="#FFD700"/></svg>'
+        + '<ul class="learn-list">'
+        + '<li>The 9-phase pipeline and 3 quality gates</li>'
+        + '<li>ALM dashboard, heartbeat, and knowledge graph</li>'
+        + '<li>RAG memory capture and quality governance</li>'
+        + '<li>How to initialize and run your first feature</li>'
+        + '</ul>'
+        + '</div>',
+      callout: 'SDD is a plugin for Claude Code. Run <code>/sdd:init</code> in any project to start.',
+      tip: 'You can reopen this tour anytime from the sidebar or the floating button in the bottom-right corner.'
+    },
+    {
+      title: 'The 9-Phase Pipeline',
+      subtitle: 'Every feature flows through 9 sequential phases with 3 quality gates. No phase can be skipped, and gates halt progress when violations are detected.\n\nThe pipeline transforms your intent into verified, traceable code that matches what you actually meant.',
+      visual: '<div class="pipeline-mini">'
+        + '<div class="phase filled">0</div><div class="conn"></div>'
+        + '<div class="phase">1</div><div class="conn"></div>'
+        + '<div class="phase">2</div><div class="conn"></div>'
+        + '<div class="gate">G1</div><div class="conn"></div>'
+        + '<div class="phase">3</div><div class="conn"></div>'
+        + '<div class="phase">4</div><div class="conn"></div>'
+        + '<div class="phase">5</div><div class="conn"></div>'
+        + '<div class="phase">6</div><div class="conn"></div>'
+        + '<div class="gate">G2</div><div class="conn"></div>'
+        + '<div class="phase">7</div><div class="conn"></div>'
+        + '<div class="gate">G3</div><div class="conn"></div>'
+        + '<div class="phase">8</div>'
+        + '</div>'
+        + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin-top:1rem;font-size:.7rem;font-family:var(--font-mono);color:var(--text-dim);text-align:center">'
+        + '<div><strong style="color:var(--brand-gold)">P0</strong> Constitution</div>'
+        + '<div><strong style="color:var(--brand-gold)">P1</strong> User Specs</div>'
+        + '<div><strong style="color:var(--brand-gold)">P2</strong> Tech Specs</div>'
+        + '<div><strong style="color:var(--brand-gold)">P3</strong> BDD Analysis</div>'
+        + '<div><strong style="color:var(--brand-gold)">P4</strong> Test</div>'
+        + '<div><strong style="color:var(--brand-gold)">P5</strong> Task</div>'
+        + '<div><strong style="color:var(--brand-gold)">P6</strong> Organize</div>'
+        + '<div><strong style="color:var(--brand-gold)">P7</strong> Deliver</div>'
+        + '<div><strong style="color:var(--brand-gold)">P8</strong> Ship</div>'
+        + '</div>',
+      callout: '<strong>G1</strong> after Technical Specs &mdash; <strong>G2</strong> after Organize Plan &mdash; <strong>G3</strong> after Deliver. Each gate is a hard stop.',
+      tip: 'Use /sdd:status at any time to see where you are in the pipeline and what the next step is.'
+    },
+    {
+      title: 'The ALM Dashboard',
+      subtitle: 'Every phase produces artifacts. The ALM (Application Lifecycle Manager) visualizes everything in one place: pipeline, specs, quality, intelligence, workspace, and governance.\n\nIt is a multi-page micro-frontend you can serve locally and share with your team.',
+      visual: '<div class="nav-card-grid">'
+        + '<div class="nav-card-mini"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5.5" height="5.5" rx="1"/><rect x="10.5" y="2" width="5.5" height="5.5" rx="1"/><rect x="2" y="10.5" width="5.5" height="5.5" rx="1"/><rect x="10.5" y="10.5" width="5.5" height="5.5" rx="1"/></svg>Hub</div>'
+        + '<div class="nav-card-mini"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="3.5" cy="9" r="2"/><circle cx="14.5" cy="9" r="2"/><circle cx="9" cy="9" r="2"/></svg>Pipeline</div>'
+        + '<div class="nav-card-mini"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>Specs</div>'
+        + '<div class="nav-card-mini"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 1.5L2 5v4.5c0 4.14 2.99 8.01 7 9 4.01-.99 7-4.86 7-9V5L9 1.5z"/></svg>Quality</div>'
+        + '<div class="nav-card-mini"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2a4.5 4.5 0 0 1 4.5 4.5c0 1.6-.83 3-2.08 3.8V12a1 1 0 0 1-1 1H7.58a1 1 0 0 1-1-1v-1.7A4.5 4.5 0 0 1 9 2z"/></svg>Intel</div>'
+        + '<div class="nav-card-mini"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="9" y1="2" x2="9" y2="16"/><path d="M4 5l5 4-5 4"/><path d="M14 5l-5 4 5 4"/></svg>Govern</div>'
+        + '</div>',
+      callout: 'Run <code>/sdd:dashboard</code> to generate the ALM. Then serve it: <code>npx serve .specify/ -p 3001</code>',
+      tip: 'The dashboard auto-refreshes data when you run pipeline commands. Keep it open in a browser tab while you work.'
+    },
+    {
+      title: 'Ambient Heartbeat',
+      subtitle: 'SDD monitors your project silently on every prompt. Under 100ms, zero LLM cost. It checks for stale artifacts, missing files, and health regression.\n\nWhen everything is healthy, it stays completely silent. When something needs attention, a one-line alert appears.',
+      visual: '<svg width="260" height="70" viewBox="0 0 260 70">'
+        + '<path d="M10 35 L50 35 L60 12 L75 58 L88 22 L100 45 L110 35 L250 35" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>'
+        + '<circle cx="75" cy="58" r="3" fill="#FFD700"><animate attributeName="opacity" values="1;.2;1" dur="1.5s" repeatCount="indefinite"/></circle>'
+        + '<text x="130" y="20" fill="#64748B" font-family="JetBrains Mono" font-size="8" text-anchor="middle">HEALTHY: SILENT</text>'
+        + '<text x="130" y="60" fill="#FFD700" font-family="JetBrains Mono" font-size="7" text-anchor="middle" opacity=".6">DRIFT DETECTED: ALERT</text>'
+        + '</svg>',
+      callout: 'If everything is healthy: <strong>silence</strong>. If stale artifacts or drift detected: a one-line alert appears before your response.',
+      tip: 'Run /sdd:sentinel manually for a full perceive-decide-act diagnostic cycle with detailed findings.'
+    },
+    {
+      title: 'Knowledge Graph',
+      subtitle: 'Trace every principle to its requirements, tests, and tasks. The knowledge graph makes the invisible connections in your codebase visible and auditable.\n\nOrphans are detected automatically: untested requirements, untraced principles, and unlinked tasks.',
+      visual: '<svg width="280" height="90" viewBox="0 0 280 90">'
+        + '<circle cx="35" cy="45" r="14" fill="none" stroke="#FFD700" stroke-width="2"/>'
+        + '<text x="35" y="49" text-anchor="middle" fill="#FFD700" font-size="8" font-family="Poppins" font-weight="700">P-I</text>'
+        + '<rect x="85" y="31" width="28" height="28" rx="3" fill="none" stroke="#137DC5" stroke-width="2"/>'
+        + '<text x="99" y="49" text-anchor="middle" fill="#137DC5" font-size="8" font-family="JetBrains Mono" font-weight="600">FR</text>'
+        + '<polygon points="175,31 189,59 161,59" fill="none" stroke="#8B5CF6" stroke-width="2"/>'
+        + '<text x="175" y="52" text-anchor="middle" fill="#8B5CF6" font-size="8" font-family="JetBrains Mono" font-weight="600">TS</text>'
+        + '<circle cx="240" cy="45" r="12" fill="none" stroke="#94A3B8" stroke-width="2"/>'
+        + '<text x="240" y="49" text-anchor="middle" fill="#94A3B8" font-size="8" font-family="JetBrains Mono" font-weight="600">T</text>'
+        + '<line x1="49" y1="45" x2="85" y2="45" stroke="#FFD700" stroke-width="1.5" opacity=".5" stroke-dasharray="4 2"/>'
+        + '<line x1="113" y1="45" x2="161" y2="45" stroke="#137DC5" stroke-width="1.5" opacity=".5" stroke-dasharray="4 2"/>'
+        + '<line x1="189" y1="45" x2="228" y2="45" stroke="#8B5CF6" stroke-width="1.5" opacity=".5" stroke-dasharray="4 2"/>'
+        + '<text x="67" y="40" fill="#64748B" font-size="6" font-family="JetBrains Mono" text-anchor="middle">governs</text>'
+        + '<text x="137" y="40" fill="#64748B" font-size="6" font-family="JetBrains Mono" text-anchor="middle">verified</text>'
+        + '<text x="209" y="40" fill="#64748B" font-size="6" font-family="JetBrains Mono" text-anchor="middle">implements</text>'
+        + '<text x="35" y="72" fill="#FFD700" font-size="6.5" text-anchor="middle" opacity=".7">Principle</text>'
+        + '<text x="99" y="72" fill="#137DC5" font-size="6.5" text-anchor="middle" opacity=".7">Requirement</text>'
+        + '<text x="175" y="72" fill="#8B5CF6" font-size="6.5" text-anchor="middle" opacity=".7">Test</text>'
+        + '<text x="240" y="72" fill="#94A3B8" font-size="6.5" text-anchor="middle" opacity=".7">Task</text>'
+        + '</svg>',
+      callout: 'Run <code>/sdd:graph</code> to build. Gold = Principle, Blue = Requirement, Purple = Test, Gray = Task.',
+      tip: 'The Intelligence tab in the dashboard renders this graph as an interactive force-directed SVG you can explore.'
+    },
+    {
+      title: 'RAG Memory',
+      subtitle: 'Every file you share in a session gets captured as structured memory. SDD extracts an abstract, key takeaways, and insights, then stores the full content for retrieval.\n\nSupports HTML, images, audio, PDFs, and slides. All entries are indexed for cross-session search.',
+      visual: '<div class="rag-flow">'
+        + '<div class="rag-node"><span class="rag-icon"><svg width="22" height="22" viewBox="0 0 18 18" fill="none" stroke="#FFD700" stroke-width="1.5"><path d="M5 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><line x1="6" y1="6" x2="12" y2="6"/><line x1="6" y1="9" x2="12" y2="9"/></svg></span><span class="rag-label">Source File</span></div>'
+        + '<div class="rag-arrow"><svg viewBox="0 0 20 20" fill="none" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12 6 16 10 12 14"/></svg></div>'
+        + '<div class="rag-node"><span class="rag-icon"><svg width="22" height="22" viewBox="0 0 18 18" fill="none" stroke="#137DC5" stroke-width="1.5"><rect x="3" y="3" width="12" height="12" rx="2"/><line x1="6" y1="7" x2="12" y2="7"/><line x1="6" y1="11" x2="10" y2="11"/></svg></span><span class="rag-label">Abstract</span></div>'
+        + '<div class="rag-arrow"><svg viewBox="0 0 20 20" fill="none" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12 6 16 10 12 14"/></svg></div>'
+        + '<div class="rag-node"><span class="rag-icon"><svg width="22" height="22" viewBox="0 0 18 18" fill="none" stroke="#8B5CF6" stroke-width="1.5"><circle cx="9" cy="9" r="6"/><line x1="9" y1="6" x2="9" y2="12"/><line x1="6" y1="9" x2="12" y2="9"/></svg></span><span class="rag-label">RAG Index</span></div>'
+        + '</div>',
+      callout: 'Run <code>/sdd:capture &lt;file&gt;</code> for any HTML, image, audio, PDF, or slides. Indexed in <code>rag-index.json</code>.',
+      tip: 'Use /sdd:memory to browse and search your RAG archive. The Workspace view in the dashboard also shows all captured files.'
+    },
+    {
+      title: 'Quality Governance',
+      subtitle: 'The Constitution defines governance principles. QA-PLAN.md tracks Definition of Done, acceptance criteria, and per-feature quality metrics.\n\nThree quality gates enforce compliance at critical pipeline junctures. Each gate halts progress when violations are detected.',
+      visual: '<div class="qa-gates">'
+        + '<div class="qa-gate-node"><div class="qa-gate-diamond"><span>G1</span></div><div class="qa-gate-label">Tech Specs</div></div>'
+        + '<div class="qa-gate-connector"></div>'
+        + '<div class="qa-gate-node"><div class="qa-gate-diamond"><span>G2</span></div><div class="qa-gate-label">Organize</div></div>'
+        + '<div class="qa-gate-connector"></div>'
+        + '<div class="qa-gate-node"><div class="qa-gate-diamond"><span>G3</span></div><div class="qa-gate-label">Deliver</div></div>'
+        + '</div>'
+        + '<div style="text-align:center;margin-top:.75rem;font-size:.72rem;color:var(--text-dim);font-family:var(--font-mono)">'
+        + 'Constitution &rarr; Principles &rarr; Requirements &rarr; Tests &rarr; Verified Code'
+        + '</div>',
+      callout: '<strong>G1</strong> validates architecture alignment &mdash; <strong>G2</strong> validates cross-artifact consistency &mdash; <strong>G3</strong> validates implementation completeness.',
+      tip: 'Run /sdd:qa to generate or refresh QA-PLAN.md with gate status, acceptance criteria, and coverage metrics.'
+    },
+    {
+      title: 'Ready to Start',
+      subtitle: 'You have seen the full SDD pipeline. Initialize SDD in any project and start building with intent integrity.\n\nHere are your three next steps to get started right away:',
+      visual: '<div class="ready-cards">'
+        + '<div class="ready-card">'
+        + '<div class="rc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div>'
+        + '<div class="rc-title">Initialize</div>'
+        + '<div class="rc-desc">Set up SDD in your project with constitution and context</div>'
+        + '<div class="rc-cmd">/sdd:init</div>'
+        + '</div>'
+        + '<div class="ready-card">'
+        + '<div class="rc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg></div>'
+        + '<div class="rc-title">First Spec</div>'
+        + '<div class="rc-desc">Describe a feature in plain language and let SDD structure it</div>'
+        + '<div class="rc-cmd">/sdd:spec</div>'
+        + '</div>'
+        + '<div class="ready-card">'
+        + '<div class="rc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>'
+        + '<div class="rc-title">Dashboard</div>'
+        + '<div class="rc-desc">Generate the ALM and visualize your pipeline progress</div>'
+        + '<div class="rc-cmd">/sdd:dashboard</div>'
+        + '</div>'
+        + '</div>',
+      callout: 'Run <code>/sdd:init</code> in your project. Then <code>/sdd:spec</code> for your first feature. The pipeline guides you from there.',
+      tip: 'Try /sdd:demo to generate a complete demo project with sample data so you can explore the dashboard without setting up a real project.'
+    }
+  ];
+
+  /* ── DOM References ─────────────────────────────────────── */
+  var currentStep = 0;
+  var overlay = document.getElementById('tourOverlay');
+  var modal = document.getElementById('tourModal');
+  var titleEl = document.getElementById('tourTitle');
+  var subtitleEl = document.getElementById('tourSubtitle');
+  var visualEl = document.getElementById('tourVisual');
+  var calloutEl = document.getElementById('tourCallout');
+  var tipEl = document.getElementById('tourTip');
+  var stepNumEl = document.getElementById('tourStepNum');
+  var stepTotalEl = document.getElementById('tourStepTotal');
+  var dotsEl = document.getElementById('tourDots');
+  var prevBtn = document.getElementById('tourPrev');
+  var nextBtn = document.getElementById('tourNext');
+  var skipBtn = document.getElementById('tourSkip');
+  var restartBtn = document.getElementById('restartTour');
+  var restartSubtle = document.getElementById('restartTourSubtle');
+  var fab = document.getElementById('tourFab');
+
+  stepTotalEl.textContent = STEPS.length;
+
+  /* ── Render Step ────────────────────────────────────────── */
+  function renderStep() {
+    var s = STEPS[currentStep];
+    stepNumEl.textContent = currentStep + 1;
+    titleEl.textContent = s.title;
+
+    /* Convert \n to <br> for subtitle paragraphs */
+    subtitleEl.innerHTML = s.subtitle.replace(/\n\n/g, '<br><br>').replace(/\n/g, ' ');
+
+    visualEl.innerHTML = s.visual || '';
+    visualEl.style.display = s.visual ? '' : 'none';
+    calloutEl.innerHTML = s.callout;
+
+    /* Tip */
+    if (s.tip) {
+      tipEl.textContent = s.tip;
+      tipEl.style.display = '';
+    } else {
+      tipEl.style.display = 'none';
+    }
+
+    prevBtn.style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+    nextBtn.textContent = currentStep === STEPS.length - 1 ? 'Finish' : 'Next';
+
+    /* Dots */
+    var dots = '';
+    for (var i = 0; i < STEPS.length; i++) {
+      var cls = i === currentStep ? 'active' : (i < currentStep ? 'done' : '');
+      dots += '<div class="tour-dot ' + cls + '"></div>';
+    }
+    dotsEl.innerHTML = dots;
+
+    /* Scroll modal to top on step change */
+    modal.scrollTop = 0;
+  }
+
+  /* ── Open / Close ───────────────────────────────────────── */
+  function openTour() {
+    currentStep = 0;
+    renderStep();
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeTour() {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    localStorage.setItem('sdd-tour-completed', 'true');
+  }
+
+  /* ── Event Listeners ────────────────────────────────────── */
+  nextBtn.addEventListener('click', function() {
+    if (currentStep < STEPS.length - 1) { currentStep++; renderStep(); }
+    else closeTour();
+  });
+
+  prevBtn.addEventListener('click', function() {
+    if (currentStep > 0) { currentStep--; renderStep(); }
+  });
+
+  skipBtn.addEventListener('click', closeTour);
+  restartBtn.addEventListener('click', openTour);
+  if (restartSubtle) restartSubtle.addEventListener('click', openTour);
+  if (fab) fab.addEventListener('click', openTour);
+
+  /* Click overlay background to close */
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeTour();
+  });
+
+  /* Keyboard navigation */
+  document.addEventListener('keydown', function(e) {
+    /* T key to open tour (when not already open and not typing in input) */
+    if (e.key === 't' || e.key === 'T') {
+      if (!overlay.classList.contains('active') && !isTyping(e)) {
+        openTour();
+        return;
+      }
+    }
+    if (!overlay.classList.contains('active')) return;
+    if (e.key === 'ArrowRight') nextBtn.click();
+    if (e.key === 'ArrowLeft') prevBtn.click();
+    if (e.key === 'Escape') closeTour();
+  });
+
+  function isTyping(e) {
+    var tag = (e.target.tagName || '').toLowerCase();
+    return tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
+  }
+
+  /* ── Auto-launch on first visit ─────────────────────────── */
+  if (!localStorage.getItem('sdd-tour-completed')) {
+    setTimeout(openTour, 500);
+  }
+
+  /* ── Expose global for nav.js sidebar integration ───────── */
+  window.SDD_TOUR_OPEN = openTour;
+
+})();
+</script>
+
+<!-- Patch nav.js: Make sidebar Tour link open the modal instead of navigating -->
+<script>
+(function() {
+  'use strict';
+
+  /* Wait for nav.js to finish injecting the sidebar */
+  function patchTourLink() {
+    var tourLinks = document.querySelectorAll('a.nav-item[data-page="tour"]');
+    tourLinks.forEach(function(link) {
+      /* Only patch if we are on the tour page (modal exists) */
+      if (document.getElementById('tourOverlay')) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (window.SDD_TOUR_OPEN) window.SDD_TOUR_OPEN();
+        });
+      }
+    });
+  }
+
+  /* Run after a short delay to ensure nav.js has injected */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(patchTourLink, 100); });
+  } else {
+    setTimeout(patchTourLink, 100);
+  }
+})();
+</script>
+
+</body>
+</html>

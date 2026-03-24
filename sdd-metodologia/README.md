@@ -2,7 +2,7 @@
 
 > **by metodolog*IA***
 
-[![Version](https://img.shields.io/badge/version-3.0.0-FFD700?style=flat-square&labelColor=122562)](https://github.com/JaviMontano/sdd-metodologia)
+[![Version](https://img.shields.io/badge/version-3.3.0-FFD700?style=flat-square&labelColor=122562)](https://github.com/JaviMontano/sdd-metodologia)
 [![License](https://img.shields.io/badge/license-GPL--3.0-137DC5?style=flat-square&labelColor=122562)](LICENSE)
 [![Commands](https://img.shields.io/badge/commands-37-FFD700?style=flat-square&labelColor=122562)]()
 [![Upstream](https://img.shields.io/badge/upstream-IIC%2Fkit-137DC5?style=flat-square&labelColor=122562)](https://github.com/intent-integrity-chain/kit)
@@ -76,7 +76,7 @@ git clone https://github.com/JaviMontano/sdd-metodologia.git ~/.claude/plugins/s
 
 ```
 sdd-metodologia/
-├── .claude-plugin/plugin.json     # v3.0.0 manifest
+├── .claude-plugin/plugin.json     # v3.3.0 manifest
 ├── AGENTS.md (→ CLAUDE.md)        # Orchestrator
 ├── CONSTITUTION.md                # Framework governance
 ├── HEARTBEAT.md                   # Sentinel spec (perceive-decide-act)
@@ -132,8 +132,12 @@ sdd-metodologia/
 
 ## Credits
 
+- **Co-creators**: Javier Montano & Katherin Oquendo
 - **Upstream**: [Intent Integrity Chain / Kit](https://github.com/intent-integrity-chain/kit) (MIT)
-- **Brand**: MetodologIA by Javier Montano (GPL-3.0)
+- **Brand**: MetodologIA (GPL-3.0)
 - **Aesthetic**: Neo-Swiss Clean
+- **Powered by**: Claude Code, Antigravity & Agente Pristino
 
-*SDD v3.0 · Spec Driven Development · by metodologIA*
+*Built with much love.*
+
+*SDD v3.2 · Spec Driven Development · by metodologIA*

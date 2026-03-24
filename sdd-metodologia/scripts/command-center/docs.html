@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230A122A'/%3E%3Cstop offset='100%25' stop-color='%2313315C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='36' height='36' rx='10' fill='url(%23g)'/%3E%3Crect x='10' y='12' width='4' height='12' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='12' width='4' height='8' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='22' width='4' height='2' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='12' width='4' height='6' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='20' width='4' height='4' rx='.5' fill='%23FFF'/%3E%3Ccircle cx='18' cy='8' r='2' fill='%23FFD700'/%3E%3C/svg%3E">
+  <title>Docs — SDD by metodologIA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/data.js"></script>
+  <script src="shared/filter.js" defer></script>
+  <script src="shared/i18n.js" defer></script>
+  <script src="shared/nav.js" defer></script>
+  <script src="shared/footer.js" defer></script>
+  <style>
+    .docs-hero { text-align:center; padding:2rem 0 1.5rem; }
+    .docs-hero h1 { font-family:var(--font-heading); font-size:2rem; font-weight:900; color:var(--text-primary); margin:0 0 .5rem; }
+    .docs-hero p { color:var(--text-muted); max-width:600px; margin:0 auto; }
+
+    .docs-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1.25rem; margin:1.5rem 0; }
+
+    .doc-card { background:var(--bg-card); backdrop-filter:blur(16px) saturate(180%); border:1px solid var(--border-subtle); border-radius:16px; padding:1.5rem; transition:transform .2s, box-shadow .2s; cursor:pointer; text-decoration:none; display:block; }
+    .doc-card:hover { transform:translateY(-4px) scale(1.01); box-shadow:0 8px 32px rgba(255,215,0,.12); }
+    .doc-card-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:.75rem; }
+    .doc-card-icon svg { width:20px; height:20px; stroke-width:1.5; }
+    .doc-card-icon.gold { background:rgba(255,215,0,.1); color:var(--gold); }
+    .doc-card-icon.blue { background:rgba(19,125,197,.1); color:var(--blue); }
+    .doc-card-icon.purple { background:rgba(187,160,204,.1); color:#BBA0CC; }
+    .doc-card-icon.navy { background:rgba(18,37,98,.15); color:#BBA0CC; }
+    .doc-card h3 { font-family:var(--font-heading); font-size:1rem; font-weight:700; color:var(--text-primary); margin:0 0 .4rem; }
+    .doc-card p { font-size:.85rem; color:var(--text-muted); margin:0 0 .75rem; line-height:1.5; }
+    .doc-card-links { display:flex; flex-wrap:wrap; gap:.5rem; }
+    .doc-link { font-size:.75rem; font-family:var(--font-mono); padding:.25rem .6rem; border-radius:6px; background:rgba(255,215,0,.08); color:var(--gold); border:1px solid rgba(255,215,0,.15); text-decoration:none; transition:background .15s; }
+    .doc-link:hover { background:rgba(255,215,0,.18); }
+    .doc-link.blue { background:rgba(19,125,197,.08); color:var(--blue); border-color:rgba(19,125,197,.15); }
+    .doc-link.blue:hover { background:rgba(19,125,197,.18); }
+
+    .section-label { font-family:var(--font-heading); font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); margin:2rem 0 .75rem; padding-left:.25rem; }
+
+    .repo-banner { background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:12px; padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1rem; margin:1.5rem 0; }
+    .repo-banner svg { width:28px; height:28px; color:var(--text-muted); flex-shrink:0; }
+    .repo-info { flex:1; }
+    .repo-info h4 { font-family:var(--font-heading); font-size:.9rem; font-weight:700; color:var(--text-primary); margin:0 0 .2rem; }
+    .repo-info p { font-size:.8rem; color:var(--text-muted); margin:0; }
+    .repo-link { font-size:.8rem; font-family:var(--font-mono); padding:.4rem .8rem; border-radius:8px; background:rgba(255,215,0,.1); color:var(--gold); border:1px solid rgba(255,215,0,.2); text-decoration:none; white-space:nowrap; }
+    .repo-link:hover { background:rgba(255,215,0,.2); }
+
+    .cmd-ref-table { width:100%; border-collapse:separate; border-spacing:0; border-radius:12px; overflow:hidden; margin:1rem 0; background:var(--bg-surface); }
+    .cmd-ref-table th { font-family:var(--font-heading); font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--gold); padding:.6rem 1rem; text-align:left; background:rgba(255,215,0,.06); border-bottom:1px solid var(--border-subtle); }
+    .cmd-ref-table td { font-size:.82rem; padding:.5rem 1rem; color:var(--text-secondary); border-bottom:1px solid var(--border-faint); }
+    .cmd-ref-table tr:last-child td { border-bottom:none; }
+    .cmd-ref-table tr:hover td { background:rgba(255,255,255,.02); }
+    .cmd-ref-table code { font-family:var(--font-mono); font-size:.78rem; color:var(--gold); background:rgba(255,215,0,.06); padding:.15rem .4rem; border-radius:4px; }
+    .cmd-ref-table .gate { font-size:.65rem; padding:.15rem .4rem; border-radius:4px; background:rgba(19,125,197,.1); color:var(--blue); font-weight:600; margin-left:.35rem; }
+
+    @media(max-width:600px) { .repo-banner { flex-direction:column; text-align:center; } .docs-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<main role="main" aria-label="Page content">
+
+<div class="docs-hero">
+  <h1 data-i18n="docs.title">Documentation</h1>
+  <p>Guides, references, and source repos for SDD — Spec Driven Development by metodologIA.</p>
+</div>
+
+<!-- Repo banners -->
+<div class="section-label" data-i18n="docs.repos">Repositories</div>
+
+<div class="repo-banner">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+  <div class="repo-info">
+    <h4>SDD MetodologIA</h4>
+    <p>Plugin source — 38 commands, 22 scripts, 4 hooks, ALM dashboard</p>
+  </div>
+  <a href="https://github.com/JaviMontano/sdd-metodologia" target="_blank" class="repo-link">Open on GitHub</a>
+</div>
+
+<div class="repo-banner">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+  <div class="repo-info">
+    <h4>JM Agentic Development Kit</h4>
+    <p>Parent kit — SDD + Sovereign Architecture + Plugin QA (188 commands, 70 agents)</p>
+  </div>
+  <a href="https://github.com/JaviMontano/jm-agentic-development-kit" target="_blank" class="repo-link">Open on GitHub</a>
+</div>
+
+<div class="repo-banner">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+  <div class="repo-info">
+    <h4>Intent Integrity Chain / Kit</h4>
+    <p>Upstream engine (MIT) — specification-driven development with BDD verification</p>
+  </div>
+  <a href="https://github.com/intent-integrity-chain/kit" target="_blank" class="repo-link">Open on GitHub</a>
+</div>
+
+<!-- Guides -->
+<div class="section-label" data-i18n="docs.guides">Guides</div>
+
+<div class="docs-grid">
+  <a class="doc-card" href="tour.html">
+    <div class="doc-card-icon gold"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor"><circle cx="9" cy="9" r="7"/><path d="M9 6l2.5 3L9 12 6.5 9 9 6z"/></svg></div>
+    <h3>Guided Tour</h3>
+    <p>8-step interactive walkthrough of the SDD pipeline, dashboard, and key concepts.</p>
+    <div class="doc-card-links"><span class="doc-link">8 steps</span><span class="doc-link">Interactive</span></div>
+  </a>
+
+  <a class="doc-card" href="https://github.com/JaviMontano/sdd-metodologia#quick-start" target="_blank">
+    <div class="doc-card-icon blue"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor"><path d="M3 9l4 4 8-8"/></svg></div>
+    <h3>Quick Start</h3>
+    <p>5-minute guide: init, constitution, spec, plan, dashboard. Terminal mockups included.</p>
+    <div class="doc-card-links"><span class="doc-link blue">README</span><span class="doc-link blue">5 min</span></div>
+  </a>
+
+  <a class="doc-card" href="https://github.com/JaviMontano/sdd-metodologia/blob/main/HEARTBEAT.md" target="_blank">
+    <div class="doc-card-icon purple"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor"><path d="M2 9h3l2-4 2 8 2-4h5"/></svg></div>
+    <h3>Heartbeat Sentinel</h3>
+    <p>Per-prompt ambient intelligence: perceive-decide-act loop, suppression, health scoring.</p>
+    <div class="doc-card-links"><span class="doc-link">HEARTBEAT.md</span></div>
+  </a>
+
+  <a class="doc-card" href="https://github.com/JaviMontano/sdd-metodologia/blob/main/CONSTITUTION.md" target="_blank">
+    <div class="doc-card-icon navy"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor"><line x1="9" y1="2" x2="9" y2="16"/><path d="M4 5l5 4-5 4"/><path d="M14 5l-5 4 5 4"/></svg></div>
+    <h3>Constitution Framework</h3>
+    <p>Plugin governance: Skills-First, Multi-Agent, Phase Separation, Self-Validating.</p>
+    <div class="doc-card-links"><span class="doc-link">CONSTITUTION.md</span></div>
+  </a>
+</div>
+
+<!-- Command Reference -->
+<div class="section-label" data-i18n="docs.commands">Pipeline Commands</div>
+
+<table class="cmd-ref-table">
+  <thead><tr><th>Phase</th><th>Command</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>Init</td><td><code>/sdd:init</code></td><td>Project initialization, status, feature selection</td></tr>
+    <tr><td>P0</td><td><code>/sdd:00-constitution</code></td><td>Governance principles and coding standards</td></tr>
+    <tr><td>P1</td><td><code>/sdd:spec</code></td><td>User Specs — stories, FR, SC from natural language</td></tr>
+    <tr><td>P2</td><td><code>/sdd:plan</code></td><td>Technical Specs — architecture, data model, API contracts <span class="gate">G1</span></td></tr>
+    <tr><td>P3</td><td><code>/sdd:check</code></td><td>BDD Analysis — requirements quality checklists</td></tr>
+    <tr><td>P4</td><td><code>/sdd:test</code></td><td>Test — Gherkin BDD scenarios with assertion hashing</td></tr>
+    <tr><td>P5</td><td><code>/sdd:tasks</code></td><td>Task — dependency-ordered task breakdown</td></tr>
+    <tr><td>P6</td><td><code>/sdd:analyze</code></td><td>Organize Plan — cross-artifact consistency <span class="gate">G2</span></td></tr>
+    <tr><td>P7</td><td><code>/sdd:impl</code></td><td>Deliver — iterative TDD implementation <span class="gate">G3</span></td></tr>
+    <tr><td>P8</td><td><code>/sdd:issues</code></td><td>Ship — export to GitHub Issues, deploy</td></tr>
+  </tbody>
+</table>
+
+<div class="section-label">Intelligence Commands</div>
+
+<table class="cmd-ref-table">
+  <thead><tr><th>Command</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>/sdd:sentinel</code></td><td>Full sentinel cycle (perceive-decide-act, zero LLM cost)</td></tr>
+    <tr><td><code>/sdd:insights</code></td><td>Health trends, risk indicators, smart recommendations</td></tr>
+    <tr><td><code>/sdd:graph</code></td><td>Knowledge graph (Constitution to FR to TS to Tasks)</td></tr>
+    <tr><td><code>/sdd:qa</code></td><td>QA Plan — DoD, acceptance criteria, gate status</td></tr>
+    <tr><td><code>/sdd:dashboard</code></td><td>Generate ALM Command Center (multi-page)</td></tr>
+    <tr><td><code>/sdd:capture</code></td><td>Capture session inputs into RAG memory</td></tr>
+    <tr><td><code>/sdd:memory</code></td><td>Browse and search RAG memory archive</td></tr>
+  </tbody>
+</table>
+
+</main>
+
+<script>
+'use strict';
+/* Tour launch button */
+document.querySelectorAll('a[href="tour.html"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    if (window.location.pathname.indexOf('tour.html') === -1) return; /* let nav handle */
+  });
+});
+</script>
+
+</body>
+</html>

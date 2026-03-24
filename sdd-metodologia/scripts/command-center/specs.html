@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230A122A'/%3E%3Cstop offset='100%25' stop-color='%2313315C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='36' height='36' rx='10' fill='url(%23g)'/%3E%3Crect x='10' y='12' width='4' height='12' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='12' width='4' height='8' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='22' width='4' height='2' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='12' width='4' height='6' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='20' width='4' height='4' rx='.5' fill='%23FFF'/%3E%3Ccircle cx='18' cy='8' r='2' fill='%23FFD700'/%3E%3C/svg%3E">
   <title>Specifications &mdash; SDD ALM</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/tokens.css">
   <script src="shared/search.js" defer></script>
   <script src="shared/data.js"></script>
+  <script src="shared/filter.js" defer></script>
+  <script src="shared/i18n.js" defer></script>
   <script src="shared/nav.js" defer></script>
   <script src="shared/footer.js" defer></script>
   <style>
@@ -104,17 +107,96 @@
     .sdd-search-bar { margin-bottom: 1.5rem; }
     .sdd-search-input-wrap { position: relative; display: flex; align-items: center; }
     .sdd-search-icon { position: absolute; left: 12px; width: 18px; height: 18px; color: #94A3B8; pointer-events: none; }
-    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Montserrat, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Trebuchet MS, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
     .sdd-search-input:focus { border-color: #FFD700; box-shadow: 0 0 0 2px rgba(255,215,0,0.15); }
     .sdd-search-count { position: absolute; right: 12px; font-size: 11px; color: #64748B; font-family: var(--font-mono, 'JetBrains Mono', monospace); }
     .sdd-filter-chips { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-    .sdd-chip { padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94A3B8; font-size: 12px; cursor: pointer; font-family: var(--font-body, Montserrat, sans-serif); transition: all 0.2s; }
+    .sdd-chip { padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94A3B8; font-size: 12px; cursor: pointer; font-family: var(--font-body, Trebuchet MS, sans-serif); transition: all 0.2s; }
     .sdd-chip:hover { border-color: rgba(255,215,0,0.3); color: #E2E8F0; }
     .sdd-chip.active { background: rgba(255,215,0,0.12); border-color: #FFD700; color: #FFD700; }
+
+    /* ── FR Drill-Down Detail Panel ──────────────────────── */
+    .req-table tbody tr:not(.fr-detail) { cursor:pointer; }
+    .req-table tbody tr:not(.fr-detail):hover td { background:rgba(255,255,255,0.025); }
+    .req-table tbody tr.expanded td { background:rgba(255,215,0,.04); border-bottom-color:transparent; }
+
+    .fr-detail td { padding:0 !important; border-bottom:1px solid var(--border-subtle); }
+    .fr-detail-panel {
+      background:rgba(255,255,255,0.02); border-left:3px solid #FFD700;
+      border-radius:0 12px 12px 0; margin:0; padding:1.25rem; animation:fr-slide-in .2s ease;
+    }
+    @keyframes fr-slide-in { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+
+    .fr-detail-header {
+      display:flex; align-items:center; gap:.75rem; margin-bottom:1rem;
+      padding-bottom:.75rem; border-bottom:1px solid var(--border-faint);
+    }
+    .fr-detail-id { font-family:var(--font-mono); font-size:1rem; font-weight:700; color:var(--brand-gold); }
+    .fr-detail-name { font-size:.9rem; color:var(--text-primary); }
+    .fr-detail-feature { font-size:.7rem; color:var(--text-dim); margin-left:auto; font-family:var(--font-footnote); }
+
+    .fr-chain {
+      display:flex; align-items:center; gap:.5rem; margin-bottom:1rem;
+      padding:.75rem 1rem; background:var(--bg-deep); border-radius:8px; flex-wrap:wrap;
+    }
+    .fr-chain-node {
+      display:inline-flex; align-items:center; gap:.3rem;
+      font-family:var(--font-mono); font-size:.75rem; font-weight:600;
+      padding:.25rem .6rem; border-radius:6px;
+    }
+    .fr-chain-node.principle { background:rgba(255,215,0,.1); color:var(--brand-gold); border:1px solid rgba(255,215,0,.2); }
+    .fr-chain-node.requirement { background:rgba(19,125,197,.1); color:var(--brand-blue); border:1px solid rgba(19,125,197,.2); }
+    .fr-chain-node.test { background:rgba(139,92,246,.1); color:#8B5CF6; border:1px solid rgba(139,92,246,.2); }
+    .fr-chain-node.task { background:rgba(148,163,184,.1); color:var(--text-muted); border:1px solid rgba(148,163,184,.2); }
+    .fr-chain-arrow { color:var(--text-dim); font-size:.7rem; }
+    .fr-chain-arrow svg { width:14px; height:14px; vertical-align:middle; }
+
+    .fr-linked-section { margin-top:.75rem; }
+    .fr-linked-label {
+      font-family:var(--font-heading); font-size:.7rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim); margin-bottom:.4rem;
+    }
+    .fr-linked-list { display:flex; flex-direction:column; gap:.35rem; }
+    .fr-linked-item {
+      display:flex; align-items:center; gap:.5rem; padding:.4rem .6rem;
+      background:var(--bg-card); border:1px solid var(--border-faint); border-radius:8px;
+      font-size:.78rem; transition:background .15s;
+    }
+    .fr-linked-item:hover { background:rgba(255,255,255,.03); }
+    .fr-linked-item-id { font-family:var(--font-mono); font-weight:600; min-width:65px; }
+    .fr-linked-item-id.test-id { color:#8B5CF6; }
+    .fr-linked-item-id.task-id { color:var(--text-muted); }
+    .fr-linked-item-id.bug-id { color:var(--brand-red); }
+    .fr-linked-item-title { color:var(--text-secondary); flex:1; }
+    .fr-linked-item-status {
+      font-size:.65rem; font-weight:600; padding:.15rem .5rem; border-radius:6px;
+      font-family:var(--font-footnote);
+    }
+    .fr-linked-item-status.passed { background:rgba(19,125,197,.1); color:var(--brand-blue); }
+    .fr-linked-item-status.failed { background:rgba(239,68,68,.1); color:var(--brand-red); }
+    .fr-linked-item-status.pending { background:rgba(148,163,184,.1); color:var(--text-dim); }
+    .fr-linked-item-status.done { background:rgba(19,125,197,.1); color:var(--brand-blue); }
+    .fr-linked-item-status.wip { background:rgba(255,215,0,.1); color:var(--brand-gold); }
+    .fr-linked-item-status.open { background:rgba(148,163,184,.1); color:var(--text-dim); }
+
+    .fr-no-links { color:var(--text-dim); font-size:.8rem; font-style:italic; padding:.5rem 0; }
+
+    /* ── Mini SVG Graph ──────────────────────────────────── */
+    .fr-mini-graph { margin-top:1rem; }
+    .fr-mini-graph-label {
+      font-family:var(--font-heading); font-size:.7rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim); margin-bottom:.4rem;
+    }
+    .fr-mini-graph svg { display:block; width:100%; max-width:500px; height:200px; }
+    .fr-mini-graph text {
+      font-family:'JetBrains Mono', monospace; font-size:10px; fill:var(--text-muted);
+      dominant-baseline:central; text-anchor:middle;
+    }
 
     @media(max-width:600px) {
       .spec-card { width:170px; }
       .req-table { font-size:0.75rem; }
+      .fr-chain { flex-direction:column; align-items:flex-start; }
     }
   </style>
 </head>
@@ -128,6 +210,9 @@
 (function () {
   'use strict';
 
+  /* ── i18n helper ── */
+  function t(key, fallback) { return (window.SDD && SDD.i18n ? SDD.i18n.t(key) : fallback); }
+
   function D() { return window.DASHBOARD_DATA || null; }
   function get(path, fallback) {
     try { return path.split('.').reduce(function(o,k){ return o[k]; }, D()) || fallback; }
@@ -138,10 +223,10 @@
 
   if (!D() || !get('features', null)) {
     root.innerHTML =
-      '<h1 class="page-title"><span class="gold">&#x1F4CB;</span> Specifications</h1>' +
+      '<h1 class="page-title"><span class="gold">&#x1F4CB;</span> ' + t('specs.title','Specifications') + '</h1>' +
       '<div class="no-data">' +
         '<div class="no-data-icon">&#x1F4CB;</div>' +
-        '<h2 style="margin-bottom:0.5rem">No Data Yet</h2>' +
+        '<h2 style="margin-bottom:0.5rem" data-i18n="common.nodata">No Data Yet</h2>' +
         '<p class="no-data-text">Run <code style="color:var(--brand-gold)">/sdd:spec</code> to create specifications,<br>then <code style="color:var(--brand-gold)">/sdd:dashboard</code> to refresh.</p>' +
       '</div>' +
       '<footer class="cc-footer">SDD v3.0 &middot; Spec Driven Development by metodolog<span class="gold">IA</span></footer>';
@@ -177,7 +262,8 @@
     /* Fallback: derive from tasks if no stories */
     if (!us && f.tasks) { us = Array.isArray(f.tasks) ? f.tasks.length : (parseInt(f.tasks,10) || 0); }
 
-    return '<div class="spec-card">' +
+    var fid = f.id || f.name || '';
+    return '<div class="spec-card" data-feature="' + fid + '">' +
       '<div class="sc-name">' + (f.name || f.id || 'Feature') + '</div>' +
       '<div class="sc-stats">' +
         '<span class="sc-stat"><span class="val">' + fr + '</span> FR</span>' +
@@ -221,7 +307,7 @@
         linked = (typeof t === 'string') ? t : (t.id || '');
         if (linked) status = 'covered';
       }
-      allReqs.push({ id:id, name:name, feature:f.name||f.id, linked:linked, status:status });
+      allReqs.push({ id:id, name:name, feature:f.name||f.id, featureId:f.id||f.name||'', linked:linked, status:status });
     });
   });
 
@@ -229,7 +315,7 @@
   if (allReqs.length) {
     var rows = allReqs.map(function(r) {
       var rowCls = r.status === 'orphan' ? ' class="orphan-row"' : '';
-      return '<tr' + rowCls + '>' +
+      return '<tr' + rowCls + ' data-feature="' + r.featureId + '">' +
         '<td><span class="req-id">' + r.id + '</span></td>' +
         '<td>' + (r.name || r.feature) + '</td>' +
         '<td><span class="req-linked">' + (r.linked || '&mdash;') + '</span></td>' +
@@ -240,18 +326,18 @@
     var orphanCount = allReqs.filter(function(r){ return r.status === 'orphan'; }).length;
 
     reqHTML = '<section class="req-section">' +
-      '<h3 class="section-title">&#x1F4D1; Requirements ' +
+      '<h3 class="section-title">&#x1F4D1; ' + t('specs.requirements','Requirements') + ' ' +
         '<span style="font-size:0.75rem;color:var(--text-dim);font-weight:400">' + allReqs.length + ' total' +
         (orphanCount ? ', <span style="color:var(--brand-red)">' + orphanCount + ' orphan</span>' : '') +
         '</span></h3>' +
       '<table class="req-table">' +
-        '<thead><tr><th>ID</th><th>Requirement</th><th>Linked Test</th><th>Status</th></tr></thead>' +
+        '<thead><tr><th>ID</th><th>Requirement</th><th>Linked Test</th><th data-i18n="common.status">' + t('common.status','Status') + '</th></tr></thead>' +
         '<tbody>' + rows + '</tbody>' +
       '</table>' +
     '</section>';
   } else {
     reqHTML = '<section class="req-section">' +
-      '<h3 class="section-title">&#x1F4D1; Requirements</h3>' +
+      '<h3 class="section-title">&#x1F4D1; ' + t('specs.requirements','Requirements') + '</h3>' +
       '<p style="color:var(--text-dim);font-size:0.85rem;padding:1rem 0">No requirements extracted yet &mdash; run <code style="color:var(--brand-gold)">/sdd:spec</code></p>' +
     '</section>';
   }
@@ -265,11 +351,11 @@
   });
 
   root.innerHTML =
-    '<h1 class="page-title"><span class="gold">&#x1F4CB;</span> Specifications</h1>' +
+    '<h1 class="page-title"><span class="gold">&#x1F4CB;</span> ' + t('specs.title','Specifications') + '</h1>' +
     '<p class="page-subtitle">' + projectName + ' &mdash; ' + totalFR + ' FR, ' + totalUS + ' US, ' + totalSC + ' SC across ' + features.length + ' feature' + (features.length !== 1 ? 's' : '') + '</p>' +
 
     '<section class="story-map">' +
-      '<h3 class="section-title">&#x1F5FA; Story Map</h3>' +
+      '<h3 class="section-title">&#x1F5FA; ' + t('specs.storymap','Story Map') + '</h3>' +
       storyMapHTML +
     '</section>' +
 
@@ -280,13 +366,14 @@
   // Search + Filter
   setTimeout(function() {
     var ctrl = SDD.search.init('page-search', {
-      placeholder: 'Search requirements...',
-      filters: [{label:'Covered',value:'covered'}, {label:'Orphan',value:'orphan'}],
+      placeholder: t('common.search','Search') + '...',
+      filters: [{label:t('specs.covered','Covered'),value:'covered'}, {label:t('specs.orphan','Orphan'),value:'orphan'}],
       onSearch: function(q, f) { filterItems(q, f); },
       onFilter: function(f, q) { filterItems(q, f); }
     });
     function filterItems(query, filter) {
-      var rows = document.querySelectorAll('.req-table tbody tr');
+      closeAllDetails(); // close any open drill-down on filter change
+      var rows = document.querySelectorAll('.req-table tbody tr:not(.fr-detail)');
       var shown = 0, total = rows.length;
       rows.forEach(function(row) {
         var text = row.textContent.toLowerCase();
@@ -300,6 +387,247 @@
       ctrl.setCount(shown, total);
     }
   }, 100);
+
+  // ── FR Drill-Down: Click a requirement row to expand traceability ──
+  var arrowSVG = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h6m0 0l-2.5-2.5M10 7l-2.5 2.5"/></svg>';
+
+  function findLinkedTests(reqId, feature) {
+    if (!feature || !feature.tests || !Array.isArray(feature.tests)) return [];
+    return feature.tests.filter(function(t) {
+      if (typeof t === 'string') return false;
+      var refs = (t.requirement || t.ref || t.linkedFR || t.frRef || '').toString();
+      return refs.indexOf(reqId) !== -1 || (t.id && allReqs.some(function(r) { return r.id === reqId && r.linked === t.id; }));
+    });
+  }
+
+  function findLinkedTasks(reqId, feature) {
+    var results = [];
+    if (!feature) return results;
+    // Check feature.tasks
+    if (feature.tasks && Array.isArray(feature.tasks)) {
+      feature.tasks.forEach(function(t) {
+        if (typeof t === 'string') return;
+        var refs = (t.requirement || t.ref || t.linkedFR || t.frRef || '').toString();
+        if (refs.indexOf(reqId) !== -1) results.push(t);
+      });
+    }
+    // Also check feature.taskItems (alternate field name)
+    if (feature.taskItems && Array.isArray(feature.taskItems)) {
+      feature.taskItems.forEach(function(t) {
+        if (typeof t === 'string') return;
+        var refs = (t.requirement || t.ref || t.linkedFR || t.frRef || '').toString();
+        if (refs.indexOf(reqId) !== -1) results.push(t);
+      });
+    }
+    return results;
+  }
+
+  function findLinkedBugs(reqId) {
+    var d = D();
+    if (!d) return [];
+    var bugs = [];
+    if (d.quality && d.quality.bugs) bugs = bugs.concat(d.quality.bugs);
+    (d.features || []).forEach(function(f) { if (f.bugs) bugs = bugs.concat(f.bugs); });
+    return bugs.filter(function(b) { return (b.requirement || '').indexOf(reqId) !== -1; });
+  }
+
+  function getFeatureForReq(reqId) {
+    var fs = D().features || [];
+    for (var i = 0; i < fs.length; i++) {
+      var reqs = fs[i].requirements || [];
+      for (var j = 0; j < reqs.length; j++) {
+        var rid = typeof reqs[j] === 'string' ? reqs[j] : (reqs[j].id || '');
+        if (rid === reqId) return fs[i];
+      }
+    }
+    return null;
+  }
+
+  function renderDetailPanel(reqData) {
+    var feature = getFeatureForReq(reqData.id);
+    var tests = feature ? findLinkedTests(reqData.id, feature) : [];
+    var tasks = feature ? findLinkedTasks(reqData.id, feature) : [];
+    var bugs = findLinkedBugs(reqData.id);
+
+    // Traceability chain
+    var chainHTML = '<div class="fr-chain">';
+    chainHTML += '<span class="fr-chain-node principle">P-*</span>';
+    chainHTML += '<span class="fr-chain-arrow">' + arrowSVG + '</span>';
+    chainHTML += '<span class="fr-chain-node requirement">' + reqData.id + '</span>';
+    if (tests.length) {
+      chainHTML += '<span class="fr-chain-arrow">' + arrowSVG + '</span>';
+      chainHTML += '<span class="fr-chain-node test">' + tests.length + ' TS</span>';
+    }
+    if (tasks.length) {
+      chainHTML += '<span class="fr-chain-arrow">' + arrowSVG + '</span>';
+      chainHTML += '<span class="fr-chain-node task">' + tasks.length + ' T</span>';
+    }
+    if (bugs.length) {
+      chainHTML += '<span class="fr-chain-arrow">' + arrowSVG + '</span>';
+      chainHTML += '<span class="fr-chain-node" style="background:rgba(239,68,68,.1);color:var(--brand-red);border:1px solid rgba(239,68,68,.2)">' + bugs.length + ' BUG</span>';
+    }
+    chainHTML += '</div>';
+
+    // Linked tests
+    var testsHTML = '';
+    if (tests.length) {
+      testsHTML = '<div class="fr-linked-section"><div class="fr-linked-label">Linked Tests</div><div class="fr-linked-list">';
+      tests.forEach(function(t) {
+        var st = (t.status || 'pending').toLowerCase();
+        testsHTML += '<div class="fr-linked-item"><span class="fr-linked-item-id test-id">' + (t.id || '?') + '</span><span class="fr-linked-item-title">' + (t.title || t.name || '') + '</span><span class="fr-linked-item-status ' + st + '">' + st + '</span></div>';
+      });
+      testsHTML += '</div></div>';
+    }
+
+    // Linked tasks
+    var tasksHTML = '';
+    if (tasks.length) {
+      tasksHTML = '<div class="fr-linked-section"><div class="fr-linked-label">Linked Tasks</div><div class="fr-linked-list">';
+      tasks.forEach(function(t) {
+        var st = (t.status || 'open').toLowerCase();
+        tasksHTML += '<div class="fr-linked-item"><span class="fr-linked-item-id task-id">' + (t.id || '?') + '</span><span class="fr-linked-item-title">' + (t.title || t.name || '') + '</span><span class="fr-linked-item-status ' + st + '">' + st + '</span></div>';
+      });
+      tasksHTML += '</div></div>';
+    }
+
+    // Linked bugs
+    var bugsHTML = '';
+    if (bugs.length) {
+      bugsHTML = '<div class="fr-linked-section"><div class="fr-linked-label">Linked Bugs</div><div class="fr-linked-list">';
+      bugs.forEach(function(b) {
+        bugsHTML += '<div class="fr-linked-item"><span class="fr-linked-item-id bug-id">' + (b.id || '?') + '</span><span class="fr-linked-item-title">' + (b.title || b.description || '') + '</span><span class="fr-linked-item-status" style="background:rgba(239,68,68,.1);color:var(--brand-red)">' + (b.severity || 'bug') + '</span></div>';
+      });
+      bugsHTML += '</div></div>';
+    }
+
+    var noLinks = (!tests.length && !tasks.length && !bugs.length) ? '<div class="fr-no-links">No linked artifacts found for this requirement.</div>' : '';
+
+    // Mini SVG graph: FR (gold circle) → TS (purple diamonds) + Task (blue squares)
+    var graphHTML = '';
+    if (tests.length || tasks.length || bugs.length) {
+      var svgW = 500, svgH = 200;
+      var cx = 80, cy = svgH / 2; // FR node center
+      var nodes = []; // {x, y, type, label}
+      var edges = []; // {x1, y1, x2, y2}
+
+      // Collect right-side nodes
+      var rightItems = [];
+      tests.forEach(function(t) { rightItems.push({ type:'test', label: t.id || 'TS', status: (t.status||'pending').toLowerCase() }); });
+      tasks.forEach(function(t) { rightItems.push({ type:'task', label: t.id || 'T', status: (t.status||'open').toLowerCase() }); });
+      bugs.forEach(function(b) { rightItems.push({ type:'bug', label: b.id || 'BUG', status: (b.severity||'bug').toLowerCase() }); });
+
+      var spacing = Math.min(36, (svgH - 40) / Math.max(rightItems.length, 1));
+      var startY = cy - ((rightItems.length - 1) * spacing) / 2;
+      var rightX = 280;
+
+      var svgContent = '';
+      // Draw edges
+      rightItems.forEach(function(item, i) {
+        var ny = startY + i * spacing;
+        svgContent += '<line x1="' + (cx + 18) + '" y1="' + cy + '" x2="' + (rightX - 14) + '" y2="' + ny + '" stroke="rgba(148,163,184,0.25)" stroke-width="1.5"/>';
+      });
+
+      // FR node (gold circle)
+      svgContent += '<circle cx="' + cx + '" cy="' + cy + '" r="18" fill="rgba(255,215,0,0.15)" stroke="#FFD700" stroke-width="2"/>';
+      svgContent += '<text x="' + cx + '" y="' + cy + '" fill="#FFD700" font-size="9" font-weight="700">' + reqData.id + '</text>';
+
+      // Right-side nodes
+      rightItems.forEach(function(item, i) {
+        var ny = startY + i * spacing;
+        if (item.type === 'test') {
+          // Purple diamond
+          svgContent += '<polygon points="' + rightX + ',' + (ny-12) + ' ' + (rightX+12) + ',' + ny + ' ' + rightX + ',' + (ny+12) + ' ' + (rightX-12) + ',' + ny + '" fill="rgba(139,92,246,0.15)" stroke="#8B5CF6" stroke-width="1.5"/>';
+          svgContent += '<text x="' + (rightX + 22) + '" y="' + ny + '" fill="#8B5CF6" font-size="9" text-anchor="start">' + item.label + '</text>';
+          // Status dot
+          var stColor = item.status === 'passed' ? '#137DC5' : item.status === 'failed' ? '#EF4444' : '#64748B';
+          svgContent += '<circle cx="' + (rightX + 22 + (item.label.length * 5.5) + 8) + '" cy="' + ny + '" r="3" fill="' + stColor + '"/>';
+        } else if (item.type === 'task') {
+          // Blue square
+          svgContent += '<rect x="' + (rightX-10) + '" y="' + (ny-10) + '" width="20" height="20" rx="3" fill="rgba(19,125,197,0.15)" stroke="#137DC5" stroke-width="1.5"/>';
+          svgContent += '<text x="' + (rightX + 22) + '" y="' + ny + '" fill="#137DC5" font-size="9" text-anchor="start">' + item.label + '</text>';
+          var stColor2 = item.status === 'done' ? '#137DC5' : item.status === 'wip' ? '#FFD700' : item.status === 'blocked' ? '#EF4444' : '#64748B';
+          svgContent += '<circle cx="' + (rightX + 22 + (item.label.length * 5.5) + 8) + '" cy="' + ny + '" r="3" fill="' + stColor2 + '"/>';
+        } else {
+          // Bug: red circle
+          svgContent += '<circle cx="' + rightX + '" cy="' + ny + '" r="10" fill="rgba(239,68,68,0.15)" stroke="#EF4444" stroke-width="1.5"/>';
+          svgContent += '<text x="' + (rightX + 18) + '" y="' + ny + '" fill="#EF4444" font-size="9" text-anchor="start">' + item.label + '</text>';
+        }
+      });
+
+      graphHTML = '<div class="fr-mini-graph"><div class="fr-mini-graph-label">Traceability Graph</div>' +
+        '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" xmlns="http://www.w3.org/2000/svg">' + svgContent + '</svg></div>';
+    }
+
+    return '<div class="fr-detail-header">' +
+      '<span class="fr-detail-id">' + reqData.id + '</span>' +
+      '<span class="fr-detail-name">' + (reqData.name || reqData.feature) + '</span>' +
+      '<span class="fr-detail-feature">' + (feature ? (feature.name || feature.id) : '') + '</span>' +
+    '</div>' +
+    chainHTML +
+    noLinks + testsHTML + tasksHTML + bugsHTML + graphHTML;
+  }
+
+  // Close all open detail panels
+  function closeAllDetails() {
+    document.querySelectorAll('tr.fr-detail').forEach(function(el) { el.remove(); });
+    document.querySelectorAll('.req-table tbody tr.expanded').forEach(function(el) { el.classList.remove('expanded'); });
+  }
+
+  // Attach click handlers to requirement rows (after DOM renders)
+  setTimeout(function() {
+    var rows = document.querySelectorAll('.req-table tbody tr');
+    rows.forEach(function(row) {
+      row.addEventListener('click', function(e) {
+        // Ignore clicks on detail rows themselves
+        if (row.classList.contains('fr-detail')) return;
+
+        var reqId = (row.querySelector('.req-id') || {}).textContent || '';
+        var reqObj = allReqs.find(function(r) { return r.id === reqId; });
+        if (!reqObj) return;
+
+        // Check if this row's detail is already open
+        var next = row.nextElementSibling;
+        var wasOpen = next && next.classList.contains('fr-detail');
+
+        // Close any open detail (only one at a time)
+        closeAllDetails();
+
+        if (wasOpen) return; // Toggle off — already closed above
+
+        // Create detail row
+        row.classList.add('expanded');
+        var detailTR = document.createElement('tr');
+        detailTR.className = 'fr-detail';
+        var detailTD = document.createElement('td');
+        detailTD.setAttribute('colspan', '4');
+        var detailDiv = document.createElement('div');
+        detailDiv.className = 'fr-detail-panel';
+        detailDiv.innerHTML = renderDetailPanel(reqObj);
+        detailTD.appendChild(detailDiv);
+        detailTR.appendChild(detailTD);
+        row.parentNode.insertBefore(detailTR, row.nextSibling);
+      });
+    });
+
+    // Escape key closes open detail panel
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeAllDetails();
+    });
+  }, 200);
+
+  // Feature filter integration
+  window.addEventListener('sdd:filter-applied', function() {
+    var active = window.SDD && SDD.filter && SDD.filter.active();
+    // Filter spec cards in story map
+    document.querySelectorAll('.spec-card[data-feature]').forEach(function(card) {
+      card.style.display = (!active || SDD.filter.matchesFeature(card.getAttribute('data-feature'))) ? '' : 'none';
+    });
+    closeAllDetails(); // close drill-down on feature filter
+    // Filter requirement rows
+    document.querySelectorAll('.req-table tbody tr[data-feature]:not(.fr-detail)').forEach(function(row) {
+      row.style.display = (!active || SDD.filter.matchesFeature(row.getAttribute('data-feature'))) ? '' : 'none';
+    });
+  });
 })();
 </script>
 

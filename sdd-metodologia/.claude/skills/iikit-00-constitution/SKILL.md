@@ -14,7 +14,18 @@ Create or update the project constitution at `CONSTITUTION.md` — the governing
 
 ## Scope
 
-**MUST contain**: governance principles, non-negotiable development rules, quality standards, amendment procedures, compliance expectations.
+**MUST contain**: governance principles, non-negotiable development rules, quality standards, amendment procedures, compliance expectations, quality governance section referencing QA-PLAN.md.
+
+**Quality Governance section** (MUST be included in every constitution):
+```markdown
+### Quality Governance
+QA-PLAN.md is the authoritative quality artifact for this project. It aggregates:
+- Global Definition of Done and acceptance criteria (derived from this constitution)
+- Per-feature qa/ subdirectories (created emergently by /sdd:spec and /sdd:test)
+- Quality gate status (updated by /sdd:analyze)
+- Feature quality registry (AC coverage, test coverage, checklist completion)
+Run /sdd:qa to generate or refresh. Auto-invoked by /sdd:analyze.
+```
 
 **MUST NOT contain**: technology stack, frameworks, databases, implementation details, specific tools or versions. These belong in `/iikit-02-plan`. See [phase-separation-rules.md](../iikit-core/references/phase-separation-rules.md).
 

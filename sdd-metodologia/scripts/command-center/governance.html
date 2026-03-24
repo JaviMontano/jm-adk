@@ -3,234 +3,243 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230A122A'/%3E%3Cstop offset='100%25' stop-color='%2313315C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='36' height='36' rx='10' fill='url(%23g)'/%3E%3Crect x='10' y='12' width='4' height='12' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='12' width='4' height='8' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='22' width='4' height='2' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='12' width='4' height='6' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='20' width='4' height='4' rx='.5' fill='%23FFF'/%3E%3Ccircle cx='18' cy='8' r='2' fill='%23FFD700'/%3E%3C/svg%3E">
   <title>Governance &mdash; SDD ALM</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/tokens.css">
   <script src="shared/search.js" defer></script>
   <script src="shared/data.js"></script>
+  <script src="shared/filter.js" defer></script>
+  <script src="shared/i18n.js" defer></script>
   <script src="shared/nav.js" defer></script>
   <script src="shared/footer.js" defer></script>
   <style>
     .gov-main { max-width:1280px; margin:0 auto; padding:2rem 1.5rem 3rem; }
-    .page-header { margin-bottom:2rem; }
-    .page-title { font-size:1.75rem; font-weight:900; margin-bottom:0.25rem; }
+    .page-header { margin-bottom:1.75rem; }
+    .page-title { font-family:var(--font-heading); font-size:1.75rem; font-weight:900; margin:0 0 0.25rem; }
     .page-title .gold { color:var(--brand-gold); }
-    .page-subtitle { color:var(--text-muted); font-size:0.9rem; }
+    .page-subtitle { color:var(--text-muted); font-size:0.9rem; font-family:var(--font-body); margin:0; }
 
-    .section-title {
-      font-size:1.1rem; font-weight:700; margin-bottom:1rem;
-      display:flex; align-items:center; gap:0.5rem;
+    /* ── Search & Filter ──────────────────────────────── */
+    .gov-controls { display:flex; align-items:center; gap:1rem; margin-bottom:1.75rem; flex-wrap:wrap; }
+    .search-wrap { position:relative; flex:1; min-width:200px; }
+    .search-input {
+      width:100%; box-sizing:border-box; padding:0.55rem 0.75rem 0.55rem 2.25rem;
+      background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-sm);
+      color:var(--text-primary); font-family:var(--font-body); font-size:0.85rem; outline:none;
+      transition:border-color var(--transition-fast);
     }
+    .search-input:focus { border-color:var(--brand-gold); box-shadow:0 0 0 2px rgba(255,215,0,0.1); }
+    .search-input::placeholder { color:var(--text-dim); }
+    .search-icon { position:absolute; left:0.65rem; top:50%; transform:translateY(-50%); color:var(--text-dim); pointer-events:none; }
+    .search-icon svg { width:16px; height:16px; }
+    .filter-chips { display:flex; gap:0.35rem; }
+    .filter-chip {
+      font-family:var(--font-body); font-size:0.75rem; font-weight:500;
+      padding:0.35rem 0.75rem; border-radius:var(--radius-full); cursor:pointer;
+      border:1px solid var(--border-medium); background:transparent; color:var(--text-muted);
+      transition:all var(--transition-fast);
+    }
+    .filter-chip:hover { border-color:var(--brand-gold); color:var(--text-primary); }
+    .filter-chip.active { background:var(--brand-gold); color:var(--text-inverse); border-color:var(--brand-gold); font-weight:600; }
 
-    /* Constitution */
-    .constitution-section { margin-bottom:2.5rem; }
-    .constitution-toggle {
-      display:flex; align-items:center; gap:0.5rem;
-      cursor:pointer; user-select:none; width:100%;
-      background:none; border:none; text-align:left;
-      font-family:var(--font-heading); font-size:1rem; font-weight:700;
-      color:var(--text-primary); padding:0.75rem 1rem;
+    /* ── Section Titles ───────────────────────────────── */
+    .section-header {
+      display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem; margin-top:2rem;
     }
-    .constitution-toggle .toggle-chevron {
-      display:inline-block; transition:transform var(--transition-fast);
-      font-size:0.8rem; color:var(--text-dim);
-    }
-    .constitution-toggle .toggle-chevron.open { transform:rotate(90deg); }
-    .constitution-body { padding:0 1rem 1rem; }
-    .constitution-body.collapsed { display:none; }
-
-    .principle-item {
-      display:flex; gap:0.75rem; padding:0.75rem 0;
-      border-bottom:1px solid var(--border-subtle);
-    }
-    .principle-item:last-child { border-bottom:none; }
-    .principle-number {
-      font-family:var(--font-heading); font-weight:900; font-size:1.2rem;
-      color:var(--brand-gold); min-width:48px; text-align:center;
-      flex-shrink:0;
-    }
-    .principle-content { flex:1; }
-    .principle-name {
-      font-family:var(--font-heading); font-weight:700; font-size:0.9rem;
-      color:var(--text-primary); margin-bottom:0.2rem;
-      display:flex; align-items:center; gap:0.5rem;
-    }
-    .level-badge {
-      font-size:0.65rem; font-weight:700; padding:1px 7px;
-      border-radius:10px; text-transform:uppercase;
-    }
-    .level-must { background:rgba(255,215,0,0.15); color:var(--brand-gold); }
-    .level-should { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
-    .principle-text { font-size:0.82rem; color:var(--text-muted); line-height:1.55; }
-    .principle-rationale { font-size:0.75rem; color:var(--text-dim); margin-top:0.25rem; font-style:italic; }
-
-    /* Radar Chart */
-    .radar-section { margin-bottom:2.5rem; }
-    .radar-container { display:flex; justify-content:center; padding:1rem; }
-    .radar-svg { max-width:420px; width:100%; height:auto; }
-    .radar-axis-label {
-      font-family:var(--font-body); font-size:11px; fill:var(--text-muted);
-      text-anchor:middle; dominant-baseline:central;
+    .section-header:first-child { margin-top:0; }
+    .section-header svg { width:20px; height:20px; color:var(--brand-gold); flex-shrink:0; }
+    .section-title { font-family:var(--font-heading); font-size:1.1rem; font-weight:700; color:var(--text-primary); }
+    .section-badge {
+      font-family:var(--font-mono); font-size:0.62rem; font-weight:600;
+      padding:2px 8px; border-radius:var(--radius-full);
+      background:rgba(255,215,0,0.1); color:var(--brand-gold);
     }
 
-    /* Quality Gates */
-    .gates-section { margin-bottom:2.5rem; }
-    .gates-flow { display:flex; align-items:center; gap:0; justify-content:center; flex-wrap:wrap; }
-    .gate-card {
-      display:flex; flex-direction:column; align-items:center; gap:0.4rem;
-      padding:1.25rem 1.5rem; min-width:140px;
-      background:var(--bg-card); backdrop-filter:var(--glass);
+    /* ── Constitution Cards ────────────────────────────── */
+    .principles-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:0.85rem; margin-bottom:2rem; }
+    .principle-card {
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
       border:1px solid var(--border-subtle); border-radius:var(--radius-card);
-      transition:transform var(--transition-normal), box-shadow var(--transition-normal);
+      padding:1.1rem 1.25rem; cursor:pointer;
+      transition:transform var(--transition-fast), box-shadow var(--transition-fast);
     }
-    .gate-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-glow-gold); }
-    .gate-name { font-family:var(--font-heading); font-weight:900; font-size:1.1rem; }
-    .gate-label { font-size:0.75rem; color:var(--text-muted); }
-    .gate-status-badge {
-      font-size:0.7rem; font-weight:600; padding:2px 10px;
-      border-radius:12px; text-transform:uppercase;
+    .principle-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-glow-gold); }
+    .principle-card.expanded .pc-expand { display:block; }
+
+    .pc-header { display:flex; align-items:flex-start; gap:0.65rem; margin-bottom:0.4rem; }
+    .pc-num {
+      width:32px; height:32px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-heading); font-weight:900; font-size:0.8rem;
+      background:rgba(255,215,0,0.12); color:var(--brand-gold);
     }
-    .gate-passed { background:rgba(19,125,197,0.15); color:var(--brand-blue); }
-    .gate-pending { background:rgba(255,215,0,0.12); color:var(--brand-gold); }
-    .gate-blocked { background:rgba(239,68,68,0.12); color:var(--brand-red); }
-    .gate-connector {
-      width:40px; height:2px; background:var(--border-medium); flex-shrink:0;
-      position:relative;
+    .pc-title-wrap { flex:1; min-width:0; }
+    .pc-name { font-family:var(--font-heading); font-weight:700; font-size:0.88rem; color:var(--text-primary); }
+    .pc-level {
+      font-family:var(--font-body); font-size:0.6rem; font-weight:700;
+      padding:2px 8px; border-radius:var(--radius-full); text-transform:uppercase; margin-left:0.4rem;
     }
-    .gate-connector::after {
-      content:''; position:absolute; right:-3px; top:-4px;
-      width:0; height:0;
-      border-left:6px solid var(--border-medium);
-      border-top:5px solid transparent;
-      border-bottom:5px solid transparent;
+    .lv-must { background:rgba(255,215,0,0.15); color:var(--brand-gold); }
+    .lv-should { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
+
+    .pc-text {
+      font-family:var(--font-body); font-size:0.82rem; color:var(--text-muted);
+      line-height:1.55; display:-webkit-box; -webkit-line-clamp:2;
+      -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .principle-card.expanded .pc-text { -webkit-line-clamp:unset; overflow:visible; }
+    .pc-expand { display:none; margin-top:0.5rem; }
+    .pc-rationale {
+      font-family:var(--font-body); font-size:0.78rem; color:var(--text-dim);
+      font-style:italic; line-height:1.5; padding-top:0.4rem;
+      border-top:1px solid var(--border-subtle);
     }
 
-    /* Evidence Tags */
-    .evidence-section { margin-bottom:2.5rem; }
-    .evidence-pills { display:flex; flex-wrap:wrap; gap:0.75rem; }
-    .evidence-pill {
-      display:inline-flex; align-items:center; gap:0.4rem;
-      padding:0.5rem 1rem; border-radius:var(--radius-full);
-      font-family:var(--font-mono); font-size:0.8rem; font-weight:600;
-      border:1px solid var(--border-subtle);
-      background:var(--bg-card); backdrop-filter:var(--glass);
+    /* ── Quality Gates Flow ────────────────────────────── */
+    .gates-flow { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:wrap; margin-bottom:2rem; }
+    .gate-card {
+      display:flex; flex-direction:column; align-items:center; gap:0.35rem;
+      padding:1.15rem 1.5rem; min-width:140px;
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle); border-radius:var(--radius-card);
+      transition:transform var(--transition-fast), box-shadow var(--transition-fast);
     }
-    .pill-code { border-color:rgba(19,125,197,0.25); color:var(--brand-blue); }
-    .pill-config { border-color:rgba(255,215,0,0.25); color:var(--brand-gold); }
-    .pill-doc { border-color:rgba(139,92,246,0.25); color:var(--brand-purple); }
-    .pill-inference { border-color:rgba(249,115,22,0.25); color:var(--brand-orange); }
-    .pill-assumption { border-color:rgba(239,68,68,0.25); color:var(--brand-red); }
+    .gate-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-glow-gold); }
+    .gate-name { font-family:var(--font-heading); font-weight:900; font-size:1.1rem; color:var(--brand-gold); }
+    .gate-label { font-family:var(--font-body); font-size:0.75rem; color:var(--text-muted); text-align:center; }
+    .gate-status {
+      font-family:var(--font-body); font-size:0.65rem; font-weight:700;
+      padding:2px 10px; border-radius:var(--radius-full); text-transform:uppercase;
+    }
+    .gs-passed { background:rgba(19,125,197,0.15); color:var(--brand-blue); }
+    .gs-pending { background:rgba(148,163,184,0.12); color:var(--text-muted); }
+    .gs-blocked { background:rgba(239,68,68,0.12); color:var(--brand-red); }
+    .gate-time { font-family:var(--font-mono); font-size:0.62rem; color:var(--text-dim); margin-top:0.15rem; }
+    .gate-connector { width:40px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .gate-connector svg { width:24px; height:24px; color:var(--border-medium); }
 
-    /* DoD Section */
-    .dod-section { margin-bottom:2.5rem; }
-    .dod-toggle {
-      display:flex; align-items:center; gap:0.5rem;
-      cursor:pointer; user-select:none; width:100%;
-      background:none; border:none; text-align:left;
-      font-family:var(--font-heading); font-size:0.95rem; font-weight:700;
-      color:var(--text-primary); padding:0.65rem 1rem;
+    /* ── Evidence Tags ─────────────────────────────────── */
+    .evidence-row { display:flex; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.5rem; }
+    .ev-pill {
+      display:flex; flex-direction:column; align-items:center; gap:0.3rem;
+      padding:0.65rem 1rem; border-radius:var(--radius-card);
+      font-family:var(--font-mono); font-size:0.78rem; font-weight:700;
+      border:1px solid var(--border-subtle); background:var(--bg-card);
+      backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      min-width:100px; text-align:center;
     }
-    .dod-toggle .toggle-chevron {
-      display:inline-block; transition:transform var(--transition-fast);
-      font-size:0.8rem; color:var(--text-dim);
-    }
-    .dod-toggle .toggle-chevron.open { transform:rotate(90deg); }
-    .dod-body { padding:0 1rem 1rem; }
-    .dod-body.collapsed { display:none; }
-    .dod-phase {
-      padding:0.5rem 0; border-bottom:1px solid var(--border-subtle);
-    }
-    .dod-phase:last-child { border-bottom:none; }
-    .dod-phase-name {
-      font-family:var(--font-heading); font-weight:600; font-size:0.85rem;
-      color:var(--brand-gold); margin-bottom:0.2rem;
-    }
-    .dod-criteria { font-size:0.8rem; color:var(--text-muted); line-height:1.55; }
+    .ev-pill .ev-tag { font-size:0.82rem; }
+    .ev-pill .ev-desc { font-family:var(--font-body); font-size:0.65rem; font-weight:400; color:var(--text-dim); }
+    .ev-code { border-color:rgba(19,125,197,0.25); color:var(--brand-blue); }
+    .ev-config { border-color:rgba(255,215,0,0.25); color:var(--brand-gold); }
+    .ev-doc { border-color:rgba(139,92,246,0.25); color:var(--brand-purple); }
+    .ev-inference { border-color:rgba(249,115,22,0.25); color:#F59E0B; }
+    .ev-assumption { border-color:rgba(239,68,68,0.25); color:var(--brand-red); }
+    .evidence-note { font-family:var(--font-body); font-size:0.78rem; color:var(--text-dim); margin-top:0.5rem; margin-bottom:2rem; }
 
-    /* Operational Logs */
-    .ops-section { margin-bottom:2rem; }
-    .ops-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
-    .ops-card .card { text-align:center; }
-    .ops-icon { font-size:1.5rem; margin-bottom:0.5rem; }
-    .ops-name { font-family:var(--font-heading); font-weight:700; font-size:0.9rem; margin-bottom:0.25rem; }
-    .ops-count { font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted); }
-    .ops-status-dot {
-      display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:0.3rem;
+    /* ── DoD Tracker ──────────────────────────────────── */
+    .dod-wrap {
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle); border-radius:var(--radius-card); overflow:hidden;
+      margin-bottom:2rem;
     }
-    .ops-exists { background:var(--brand-blue); }
-    .ops-missing { background:var(--brand-red); }
+    .dod-table { width:100%; border-collapse:collapse; }
+    .dod-table thead th {
+      font-family:var(--font-body); font-size:0.65rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim);
+      padding:0.7rem 1rem; text-align:left; border-bottom:1px solid var(--border-subtle);
+    }
+    .dod-table tbody tr { border-bottom:1px solid rgba(255,255,255,0.03); transition:background var(--transition-fast); }
+    .dod-table tbody tr:hover { background:rgba(255,215,0,0.03); }
+    .dod-table tbody td { padding:0.6rem 1rem; font-family:var(--font-body); font-size:0.82rem; color:var(--text-muted); vertical-align:middle; }
+    .dod-phase-name { font-family:var(--font-heading); font-weight:600; color:var(--brand-gold); font-size:0.82rem; }
+    .dod-status { display:flex; align-items:center; gap:0.35rem; }
+    .dod-status svg { width:16px; height:16px; }
+    .dod-status-passed { color:var(--brand-blue); }
+    .dod-status-progress { color:var(--brand-gold); }
+    .dod-status-pending { color:var(--text-dim); }
 
-    /* No data */
-    .no-data { text-align:center; padding:3rem 1rem; }
-    .no-data-icon { font-size:3rem; margin-bottom:1rem; opacity:0.4; }
-    .no-data-text { color:var(--text-dim); font-size:0.95rem; margin-bottom:1rem; }
-    .empty-state {
-      text-align:center; padding:2rem; color:var(--text-dim); font-size:0.85rem;
-      border:1px dashed var(--border-medium); border-radius:var(--radius-sm);
+    /* ── Operational Logs Tabs ─────────────────────────── */
+    .ops-tabs { display:flex; gap:0; border-bottom:1px solid var(--border-subtle); margin-bottom:1rem; }
+    .ops-tab {
+      font-family:var(--font-body); font-size:0.82rem; font-weight:600;
+      padding:0.6rem 1.25rem; border:none; cursor:pointer;
+      background:transparent; color:var(--text-dim);
+      border-bottom:2px solid transparent;
+      transition:color var(--transition-fast), border-color var(--transition-fast);
     }
+    .ops-tab.active { color:var(--brand-gold); border-bottom-color:var(--brand-gold); }
+    .ops-tab:hover:not(.active) { color:var(--text-muted); }
+    .ops-pane { display:none; }
+    .ops-pane.active { display:block; }
 
-    /* ── Search & Filter ────────────────────────────────────── */
-    .sdd-search-bar { margin-bottom: 1.5rem; }
-    .sdd-search-input-wrap { position: relative; display: flex; align-items: center; }
-    .sdd-search-icon { position: absolute; left: 12px; width: 18px; height: 18px; color: #94A3B8; pointer-events: none; }
-    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Montserrat, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
-    .sdd-search-input:focus { border-color: #FFD700; box-shadow: 0 0 0 2px rgba(255,215,0,0.15); }
-    .sdd-search-count { position: absolute; right: 12px; font-size: 11px; color: #64748B; font-family: var(--font-mono, 'JetBrains Mono', monospace); }
-    .sdd-filter-chips { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-    .sdd-chip { padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94A3B8; font-size: 12px; cursor: pointer; font-family: var(--font-body, Montserrat, sans-serif); transition: all 0.2s; }
-    .sdd-chip:hover { border-color: rgba(255,215,0,0.3); color: #E2E8F0; }
-    .sdd-chip.active { background: rgba(255,215,0,0.12); border-color: #FFD700; color: #FFD700; }
+    /* Ops entries */
+    .ops-timeline { padding-left:1.5rem; border-left:2px solid var(--border-medium); max-height:420px; overflow-y:auto; }
+    .ops-entry { position:relative; padding:0.5rem 0 0.5rem 1.1rem; }
+    .ops-entry::before {
+      content:''; position:absolute; left:-1.5rem; top:0.7rem; transform:translateX(-50%);
+      width:8px; height:8px; border-radius:50%; border:2px solid var(--bg-body);
+    }
+    .ops-entry.t-changelog::before { background:var(--brand-blue); }
+    .ops-entry.t-tasklog::before { background:var(--brand-gold); }
+    .ops-entry.t-decision::before { background:var(--brand-purple); }
+    .ops-entry.t-session::before { background:var(--text-dim); }
+    .ops-date { font-family:var(--font-mono); font-size:0.68rem; color:var(--text-dim); }
+    .ops-row { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; }
+    .ops-badge {
+      font-size:0.6rem; font-weight:700; padding:1px 7px; border-radius:10px;
+      text-transform:uppercase; font-family:var(--font-body);
+    }
+    .ob-changelog { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
+    .ob-tasklog { background:rgba(255,215,0,0.12); color:var(--brand-gold); }
+    .ob-decision { background:rgba(139,92,246,0.12); color:var(--brand-purple); }
+    .ob-session { background:rgba(148,163,184,0.12); color:var(--text-muted); }
+    .ops-desc { font-family:var(--font-body); font-size:0.82rem; color:var(--text-muted); }
+    .ops-principles { font-family:var(--font-mono); font-size:0.68rem; color:var(--text-dim); font-style:italic; margin-top:0.1rem; }
 
-    /* ── Operational Logs Timeline ──────────────────────────── */
-    .ops-timeline-section { margin-bottom:2rem; }
-    .ops-timeline { display:flex; flex-direction:column; gap:0; padding-left:1.5rem; border-left:2px solid var(--border-medium); max-height:400px; overflow-y:auto; }
-    .ops-tl-item { position:relative; padding:0.55rem 0 0.55rem 1.25rem; }
-    .ops-tl-item::before {
-      content:''; position:absolute; left:-1.5rem; top:0.75rem; transform:translateX(-50%);
-      width:10px; height:10px; border-radius:50%;
-      border:2px solid var(--bg-body);
-    }
-    .ops-tl-item.type-changelog::before { background:var(--brand-blue); }
-    .ops-tl-item.type-tasklog::before { background:var(--brand-gold); }
-    .ops-tl-item.type-decision::before { background:var(--brand-purple); }
-    .ops-tl-item.type-default::before { background:var(--text-dim); }
-    .ops-tl-date { font-size:0.7rem; color:var(--text-dim); font-family:var(--font-mono); }
-    .ops-tl-row { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
-    .ops-tl-badge {
-      font-size:0.65rem; font-weight:600; padding:1px 6px;
-      border-radius:10px; text-transform:uppercase;
-    }
-    .ops-tl-badge.badge-changelog { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
-    .ops-tl-badge.badge-tasklog { background:rgba(255,215,0,0.12); color:var(--brand-gold); }
-    .ops-tl-badge.badge-decision { background:rgba(139,92,246,0.12); color:var(--brand-purple); }
-    .ops-tl-badge.badge-default { background:rgba(148,163,184,0.12); color:var(--text-muted); }
-    .ops-tl-desc { font-size:0.82rem; color:var(--text-muted); }
-    .ops-tl-principles { font-size:0.7rem; color:var(--text-dim); font-style:italic; margin-top:0.15rem; }
-    .adr-badge {
-      font-size:0.6rem; font-weight:700; padding:1px 5px; border-radius:6px;
-      display:inline-block; margin-left:0.4rem;
+    /* ADR compact */
+    .adr-status-pill {
+      font-size:0.58rem; font-weight:700; padding:1px 6px; border-radius:6px;
+      display:inline-block; margin-left:0.3rem;
     }
     .adr-accepted { background:rgba(19,125,197,0.15); color:var(--brand-blue); }
     .adr-proposed { background:rgba(255,215,0,0.12); color:var(--brand-gold); }
-    .adr-rejected { background:rgba(239,68,68,0.12); color:var(--brand-red); }
+    .adr-superseded { background:rgba(148,163,184,0.12); color:var(--text-muted); }
 
-    @media(max-width:960px) { .ops-grid { grid-template-columns:repeat(2,1fr); } }
-    @media(max-width:600px) {
-      .ops-grid { grid-template-columns:1fr; }
+    /* Task status pills */
+    .tl-status {
+      font-size:0.58rem; font-weight:700; padding:1px 6px; border-radius:6px;
+      text-transform:uppercase; margin-left:0.3rem;
+    }
+    .tl-done { background:rgba(19,125,197,0.15); color:var(--brand-blue); }
+    .tl-wip { background:rgba(255,215,0,0.15); color:var(--brand-gold); }
+    .tl-blocked { background:rgba(239,68,68,0.15); color:var(--brand-red); }
+    .tl-open { background:rgba(148,163,184,0.12); color:var(--text-muted); }
+
+    /* ── Empty / No Data ──────────────────────────────── */
+    .empty-state {
+      text-align:center; padding:3rem 2rem; font-family:var(--font-body); color:var(--text-dim);
+    }
+    .empty-state svg { width:48px; height:48px; margin-bottom:0.75rem; opacity:0.4; }
+    .empty-state .empty-msg { font-size:0.9rem; }
+    .empty-state code {
+      font-family:var(--font-mono); font-size:0.82rem;
+      background:rgba(255,215,0,0.08); color:var(--brand-gold);
+      padding:2px 8px; border-radius:4px;
+    }
+
+    @media(max-width:768px) {
+      .principles-grid { grid-template-columns:1fr; }
       .gates-flow { flex-direction:column; }
-      .gate-connector { width:2px; height:30px; }
-      .gate-connector::after {
-        right:auto; top:auto; bottom:-3px; left:-4px;
-        border-left:5px solid transparent; border-right:5px solid transparent;
-        border-top:6px solid var(--border-medium); border-bottom:none;
-      }
+      .gate-connector { transform:rotate(90deg); }
+      .gov-controls { flex-direction:column; align-items:stretch; }
     }
   </style>
 </head>
 <body>
 
 <main class="gov-main" id="gov-root">
-  <div id="page-search"></div>
   <!-- Populated by script -->
 </main>
 
@@ -239,385 +248,327 @@
   'use strict';
 
   function D() { return window.DASHBOARD_DATA || null; }
-  function get(path, fallback) {
-    try {
-      return path.split('.').reduce(function (o, k) { return o[k]; }, D()) ?? fallback;
-    } catch (_) { return fallback; }
+  function get(obj, path, def) {
+    if (!obj) return def;
+    try { return path.split('.').reduce(function(o,k){ return o[k]; }, obj) ?? def; }
+    catch(_) { return def; }
   }
+  function esc(s) { var t = document.createElement('span'); t.textContent = s || ''; return t.innerHTML; }
 
   var root = document.getElementById('gov-root');
 
+  /* ── Icons ──────────────────────────────────────────── */
+  var ICO = {
+    shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+    gate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h18v18H3zM3 9h18M9 3v18"/></svg>',
+    tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><circle cx="7" cy="7" r="1"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5"/></svg>',
+    list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+    arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>',
+    dash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14"/></svg>',
+    empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+  };
+
   if (!D()) {
-    root.innerHTML =
-      '<div class="no-data">' +
-        '<div class="no-data-icon">&#x2696;</div>' +
-        '<h2 style="margin-bottom:0.5rem">No Data Loaded</h2>' +
-        '<p class="no-data-text">Run <code style="color:var(--brand-gold)">/sdd:dashboard</code> to generate the <code>data.js</code> file, then refresh this page.</p>' +
-      '</div>';
+    root.innerHTML = '<div class="empty-state">'+ICO.empty+'<div class="empty-msg">No data loaded -- run <code>/sdd:dashboard</code> to generate the data.js file, then refresh.</div></div>';
     return;
   }
 
-  var projectName = get('project.name', 'SDD Project');
+  var data = D();
+  var projectName = get(data, 'project.name', 'SDD Project');
 
-  /* ── Constitution ─────────────────────────────────────────── */
-  var principles = get('constitution.principles', []);
+  /* ════════════════════════════════════════════════════
+     1. CONSTITUTION
+     ════════════════════════════════════════════════════ */
+  var principles = get(data, 'constitution.principles', []);
+  var constitutionVersion = get(data, 'constitution.version', '');
 
   var constitutionHTML = '';
-  if (principles.length > 0) {
-    constitutionHTML =
-      '<section class="constitution-section">' +
-        '<h3 class="section-title">&#x1F4DC; Constitution</h3>' +
-        '<div class="card" style="padding:0;overflow:hidden">' +
-          '<button class="constitution-toggle" onclick="this.querySelector(\'.toggle-chevron\').classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'collapsed\')">' +
-            '<span class="toggle-chevron open">&#x25B6;</span>' +
-            '<span>' + principles.length + ' Principle' + (principles.length !== 1 ? 's' : '') + '</span>' +
-          '</button>' +
-          '<div class="constitution-body">' +
-          principles.map(function (p) {
-            var num = p.number || p.id || '?';
-            var name = p.name || p.title || 'Principle';
-            var level = (p.level || 'MUST').toUpperCase();
-            var levelClass = level === 'MUST' ? 'level-must' : 'level-should';
-            var text = p.text || p.description || '';
-            var rationale = p.rationale || '';
-            return '<div class="principle-item">' +
-              '<div class="principle-number">' + num + '</div>' +
-              '<div class="principle-content">' +
-                '<div class="principle-name">' + name + ' <span class="level-badge ' + levelClass + '">' + level + '</span></div>' +
-                (text ? '<div class="principle-text">' + text + '</div>' : '') +
-                (rationale ? '<div class="principle-rationale">' + rationale + '</div>' : '') +
-              '</div>' +
-            '</div>';
-          }).join('') +
-          '</div>' +
-        '</div>' +
-      '</section>';
-  } else {
-    constitutionHTML =
-      '<section class="constitution-section">' +
-        '<h3 class="section-title">&#x1F4DC; Constitution</h3>' +
-        '<div class="empty-state">No constitution defined yet &mdash; run <code style="color:var(--brand-gold)">/sdd:00-constitution</code> to create governance principles</div>' +
-      '</section>';
-  }
-
-  /* ── Radar Chart ──────────────────────────────────────────── */
-  var radarAxes = [
-    { label: 'Skills-First', key: 'skills-first' },
-    { label: 'Multi-Agent', key: 'multi-agent' },
-    { label: 'Cross-Platform', key: 'cross-platform' },
-    { label: 'Phase Separation', key: 'phase-separation' },
-    { label: 'Self-Validating', key: 'self-validating' }
-  ];
-
-  // Derive scores from principles presence
-  var radarScores = radarAxes.map(function (axis) {
-    var found = false;
-    principles.forEach(function (p) {
-      var text = ((p.name || '') + ' ' + (p.text || '')).toLowerCase();
-      if (text.indexOf(axis.key.replace('-', ' ')) !== -1 || text.indexOf(axis.key) !== -1) {
-        found = true;
-      }
+  if (principles.length) {
+    constitutionHTML += '<div class="section-header">'+ICO.shield+'<span class="section-title">'+(window.SDD && SDD.i18n ? SDD.i18n.t('governance.constitution') : 'Constitution')+(constitutionVersion ? ' v'+esc(constitutionVersion) : '')+'</span><span class="section-badge">'+principles.length+' principle'+(principles.length!==1?'s':'')+'</span></div>';
+    constitutionHTML += '<div class="principles-grid" id="principles-grid">';
+    principles.forEach(function(p) {
+      var num = p.number || p.id || '?';
+      var name = p.name || p.title || 'Principle';
+      var level = (p.level || 'MUST').toUpperCase();
+      var lvCls = level === 'MUST' ? 'lv-must' : 'lv-should';
+      var text = p.text || p.description || '';
+      var rationale = p.rationale || '';
+      constitutionHTML += '<div class="principle-card" data-level="'+level+'">';
+      constitutionHTML += '<div class="pc-header"><span class="pc-num">'+esc(String(num))+'</span><div class="pc-title-wrap"><span class="pc-name">'+esc(name)+'</span><span class="pc-level '+lvCls+'">'+level+'</span></div></div>';
+      if (text) constitutionHTML += '<div class="pc-text">'+esc(text)+'</div>';
+      if (rationale) constitutionHTML += '<div class="pc-expand"><div class="pc-rationale">'+esc(rationale)+'</div></div>';
+      constitutionHTML += '</div>';
     });
-    // Default to 0.7 if we have principles, scale by principle count
-    if (principles.length === 0) return 0;
-    return found ? 0.85 : 0.45;
-  });
-
-  var CX = 200, CY = 200, R_MAX = 150;
-  var N = radarAxes.length;
-  var angleStep = (2 * Math.PI) / N;
-  var startAngle = -Math.PI / 2;
-
-  function polar(cx, cy, r, angle) {
-    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+    constitutionHTML += '</div>';
+  } else {
+    constitutionHTML = '<div class="section-header">'+ICO.shield+'<span class="section-title">'+(window.SDD && SDD.i18n ? SDD.i18n.t('governance.constitution') : 'Constitution')+'</span></div><div class="empty-state" style="padding:2rem">'+ICO.empty+'<div class="empty-msg" style="margin-top:0.5rem">No constitution defined yet -- run <code>/sdd:00-constitution</code> to create governance principles</div></div>';
   }
 
-  // Grid rings
-  var rings = [0.25, 0.5, 0.75, 1.0];
-  var gridLines = rings.map(function (frac) {
-    var pts = [];
-    for (var i = 0; i < N; i++) {
-      var p = polar(CX, CY, R_MAX * frac, startAngle + i * angleStep);
-      pts.push(p.x.toFixed(1) + ',' + p.y.toFixed(1));
+  /* ════════════════════════════════════════════════════
+     2. QUALITY GATES
+     ════════════════════════════════════════════════════ */
+  var features = get(data, 'features', []);
+  var qaplan = get(data, 'qaplan', {});
+  var qagates = get(data, 'qaplan.gates', null);
+
+  function gateStatus(gName) {
+    if (qagates && qagates[gName]) {
+      var g = qagates[gName];
+      if (g.status) return g.status.toLowerCase();
+      if (g.passed || g.passedAt) return 'passed';
+      if (g.blocked || g.blocker) return 'blocked';
     }
-    return '<polygon points="' + pts.join(' ') + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>';
-  }).join('');
-
-  // Axis lines
-  var axisLines = '';
-  for (var i = 0; i < N; i++) {
-    var ep = polar(CX, CY, R_MAX, startAngle + i * angleStep);
-    axisLines += '<line x1="' + CX + '" y1="' + CY + '" x2="' + ep.x.toFixed(1) + '" y2="' + ep.y.toFixed(1) + '" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
-  }
-
-  // Data polygon
-  var dataPoints = radarScores.map(function (s, i) {
-    var p = polar(CX, CY, R_MAX * s, startAngle + i * angleStep);
-    return p.x.toFixed(1) + ',' + p.y.toFixed(1);
-  }).join(' ');
-
-  // Labels
-  var labels = radarAxes.map(function (axis, i) {
-    var lp = polar(CX, CY, R_MAX + 28, startAngle + i * angleStep);
-    return '<text class="radar-axis-label" x="' + lp.x.toFixed(1) + '" y="' + lp.y.toFixed(1) + '">' + axis.label + '</text>';
-  }).join('');
-
-  // Dots
-  var dots = radarScores.map(function (s, i) {
-    var p = polar(CX, CY, R_MAX * s, startAngle + i * angleStep);
-    return '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4" fill="#FFD700" stroke="var(--bg-body)" stroke-width="2"/>';
-  }).join('');
-
-  var radarHTML =
-    '<section class="radar-section">' +
-      '<h3 class="section-title">&#x1F578; Principles Radar</h3>' +
-      '<div class="card">' +
-        '<div class="radar-container">' +
-          '<svg class="radar-svg" viewBox="0 0 400 400">' +
-            gridLines +
-            axisLines +
-            '<polygon points="' + dataPoints + '" fill="rgba(255,215,0,0.15)" stroke="#FFD700" stroke-width="2"/>' +
-            dots +
-            labels +
-          '</svg>' +
-        '</div>' +
-      '</div>' +
-    '</section>';
-
-  /* ── Quality Gates ────────────────────────────────────────── */
-  var features = get('features', []);
-  var phases = {};
-  features.forEach(function (f) {
-    var ph = (f.phase || f.status || '').toLowerCase();
-    phases[ph] = true;
-  });
-
-  function gateStatus(gatePhases) {
-    var passed = gatePhases.some(function (p) { return phases[p]; });
-    if (passed) return 'passed';
-    if (features.length === 0) return 'pending';
     return 'pending';
+  }
+  function gateTime(gName) {
+    if (qagates && qagates[gName] && qagates[gName].passedAt) return qagates[gName].passedAt;
+    return null;
+  }
+  function gateBlocker(gName) {
+    if (qagates && qagates[gName] && qagates[gName].blocker) return qagates[gName].blocker;
+    return null;
   }
 
   var gates = [
-    { name: 'G0', label: 'Constitution', phases: ['constitution', 'phase-0'] },
-    { name: 'G1', label: 'Spec + Plan', phases: ['plan', 'phase-2', 'specify'] },
-    { name: 'G2', label: 'Test + Analyze', phases: ['analyze', 'phase-6', 'testify'] },
-    { name: 'G3', label: 'Implement + Ship', phases: ['implement', 'ship', 'phase-7', 'phase-8'] }
+    { key:'G1', label:'Spec + Plan' },
+    { key:'G2', label:'Test + Analyze' },
+    { key:'G3', label:'Implement + Ship' }
   ];
 
-  var gatesHTML =
-    '<section class="gates-section">' +
-      '<h3 class="section-title">&#x1F6A7; Quality Gates</h3>' +
-      '<div class="gates-flow">' +
-      gates.map(function (g, idx) {
-        var status = gateStatus(g.phases);
-        var statusClass = 'gate-' + status;
-        var statusText = status.charAt(0).toUpperCase() + status.slice(1);
-        var connector = idx < gates.length - 1 ? '<div class="gate-connector"></div>' : '';
-        return '<div class="gate-card">' +
-          '<div class="gate-name" style="color:var(--brand-gold)">' + g.name + '</div>' +
-          '<div class="gate-label">' + g.label + '</div>' +
-          '<span class="gate-status-badge ' + statusClass + '">' + statusText + '</span>' +
-        '</div>' + connector;
-      }).join('') +
-      '</div>' +
-    '</section>';
+  var gatesHTML = '<div class="section-header">'+ICO.gate+'<span class="section-title">'+(window.SDD && SDD.i18n ? SDD.i18n.t('governance.gates') : 'Quality Gates')+'</span></div>';
+  gatesHTML += '<div class="gates-flow">';
+  gates.forEach(function(g, idx) {
+    var st = gateStatus(g.key);
+    var stCls = st==='passed'?'gs-passed':st==='blocked'?'gs-blocked':'gs-pending';
+    var stText = st.charAt(0).toUpperCase()+st.slice(1);
+    var time = gateTime(g.key);
+    var blocker = gateBlocker(g.key);
+    gatesHTML += '<div class="gate-card"><div class="gate-name">'+g.key+'</div><div class="gate-label">'+g.label+'</div><span class="gate-status '+stCls+'">'+stText+'</span>';
+    if (time) gatesHTML += '<div class="gate-time">'+esc(time)+'</div>';
+    if (blocker) gatesHTML += '<div class="gate-time" style="color:var(--brand-red)">'+esc(blocker)+'</div>';
+    gatesHTML += '</div>';
+    if (idx < gates.length - 1) gatesHTML += '<div class="gate-connector">'+ICO.arrow+'</div>';
+  });
+  gatesHTML += '</div>';
 
-  /* ── Evidence Tags ────────────────────────────────────────── */
-  var evidenceHTML =
-    '<section class="evidence-section">' +
-      '<h3 class="section-title">&#x1F3F7; Evidence Tags</h3>' +
-      '<div class="evidence-pills">' +
-        '<span class="evidence-pill pill-code">[CODE]</span>' +
-        '<span class="evidence-pill pill-config">[CONFIG]</span>' +
-        '<span class="evidence-pill pill-doc">[DOC]</span>' +
-        '<span class="evidence-pill pill-inference">[INFERENCE]</span>' +
-        '<span class="evidence-pill pill-assumption">[ASSUMPTION]</span>' +
-      '</div>' +
-      '<p style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-dim)">Every claim in SDD artifacts must carry an evidence tag. If &gt;30% are [ASSUMPTION], a warning banner is mandatory.</p>' +
-    '</section>';
+  /* ════════════════════════════════════════════════════
+     3. EVIDENCE TAGS
+     ════════════════════════════════════════════════════ */
+  var evidenceHTML = '<div class="section-header">'+ICO.tag+'<span class="section-title">'+(window.SDD && SDD.i18n ? SDD.i18n.t('governance.evidence') : 'Evidence Tags')+'</span></div>';
+  evidenceHTML += '<div class="evidence-row">';
+  evidenceHTML += '<div class="ev-pill ev-code"><span class="ev-tag">[CODE]</span><span class="ev-desc">Verified in source</span></div>';
+  evidenceHTML += '<div class="ev-pill ev-config"><span class="ev-tag">[CONFIG]</span><span class="ev-desc">From configuration</span></div>';
+  evidenceHTML += '<div class="ev-pill ev-doc"><span class="ev-tag">[DOC]</span><span class="ev-desc">From documentation</span></div>';
+  evidenceHTML += '<div class="ev-pill ev-inference"><span class="ev-tag">[INFERENCE]</span><span class="ev-desc">Derived logically</span></div>';
+  evidenceHTML += '<div class="ev-pill ev-assumption"><span class="ev-tag">[ASSUMPTION]</span><span class="ev-desc">Needs validation</span></div>';
+  evidenceHTML += '</div>';
+  evidenceHTML += '<p class="evidence-note">Every claim in SDD artifacts must carry an evidence tag. If &gt;30% are [ASSUMPTION], a warning banner is mandatory.</p>';
 
-  /* ── Definition of Done ───────────────────────────────────── */
-  var dodPhases = [
-    { name: 'Phase 0 &mdash; Constitution', criteria: 'Principles defined, numbered, with MUST/SHOULD levels and rationale.' },
-    { name: 'Phase 1 &mdash; Specify', criteria: 'User stories in Given/When/Then, FR numbered, acceptance criteria complete.' },
-    { name: 'Phase 2 &mdash; Plan', criteria: 'Architecture diagram, data model, API contracts. Gate G1 passed.' },
-    { name: 'Phase 3 &mdash; Checklist', criteria: 'Requirements quality checklist completed. All items addressed.' },
-    { name: 'Phase 4 &mdash; Testify', criteria: 'Gherkin scenarios with assertion hashes. Coverage &ge; 80%.' },
-    { name: 'Phase 5 &mdash; Tasks', criteria: 'Dependency-ordered task breakdown. Estimated effort assigned.' },
-    { name: 'Phase 6 &mdash; Analyze', criteria: 'Cross-artifact consistency verified. Gate G2 passed. Zero orphans.' },
-    { name: 'Phase 7 &mdash; Implement', criteria: 'All tests passing. Code review done. Gate G3 passed.' },
-    { name: 'Phase 8 &mdash; Ship', criteria: 'GitHub Issues exported. Deployment verified. Loop closed.' }
+  /* ════════════════════════════════════════════════════
+     4. DoD TRACKER
+     ════════════════════════════════════════════════════ */
+  var dodPhases = get(data, 'qaplan.dod', null) || [
+    { phase:'Phase 0 -- Constitution', criterion:'Principles defined, numbered, with MUST/SHOULD levels and rationale.', target:'100%' },
+    { phase:'Phase 1 -- Specify', criterion:'User stories in Given/When/Then, FR numbered, acceptance criteria complete.', target:'100%' },
+    { phase:'Phase 2 -- Plan', criterion:'Architecture diagram, data model, API contracts. Gate G1 passed.', target:'G1' },
+    { phase:'Phase 3 -- Checklist', criterion:'Requirements quality checklist completed. All items addressed.', target:'100%' },
+    { phase:'Phase 4 -- Testify', criterion:'Gherkin scenarios with assertion hashes. Coverage >= 80%.', target:'>=80%' },
+    { phase:'Phase 5 -- Tasks', criterion:'Dependency-ordered task breakdown. Estimated effort assigned.', target:'100%' },
+    { phase:'Phase 6 -- Analyze', criterion:'Cross-artifact consistency verified. Gate G2 passed. Zero orphans.', target:'G2' },
+    { phase:'Phase 7 -- Implement', criterion:'All tests passing. Code review done. Gate G3 passed.', target:'G3' },
+    { phase:'Phase 8 -- Ship', criterion:'GitHub Issues exported. Deployment verified. Loop closed.', target:'100%' }
   ];
 
-  var dodHTML =
-    '<section class="dod-section">' +
-      '<h3 class="section-title">&#x2705; Definition of Done</h3>' +
-      '<div class="card" style="padding:0;overflow:hidden">' +
-        '<button class="dod-toggle" onclick="this.querySelector(\'.toggle-chevron\').classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'collapsed\')">' +
-          '<span class="toggle-chevron">&#x25B6;</span>' +
-          '<span>Per-Phase DoD (' + dodPhases.length + ' phases)</span>' +
-        '</button>' +
-        '<div class="dod-body collapsed">' +
-        dodPhases.map(function (ph) {
-          return '<div class="dod-phase">' +
-            '<div class="dod-phase-name">' + ph.name + '</div>' +
-            '<div class="dod-criteria">' + ph.criteria + '</div>' +
-          '</div>';
-        }).join('') +
-        '</div>' +
-      '</div>' +
-    '</section>';
-
-  /* ── Operational Logs ─────────────────────────────────────── */
-  var sessionLog = get('sessionLog', []);
-  var workspace = get('workspace', {});
-  var wsFiles = workspace.files || [];
-  var fileNames = [];
-  if (Array.isArray(wsFiles)) {
-    wsFiles.forEach(function (f) {
-      fileNames.push(typeof f === 'string' ? f : (f.path || f.name || ''));
-    });
-  }
-
-  function logExists(pattern) {
-    return fileNames.some(function (fn) { return fn.indexOf(pattern) !== -1; });
-  }
-
-  var opsLogs = [
-    {
-      name: 'Task Log',
-      icon: '&#x1F4CB;',
-      pattern: 'tasklog',
-      count: sessionLog.filter(function (e) { return (e.type || '').indexOf('task') !== -1; }).length
-    },
-    {
-      name: 'Changelog',
-      icon: '&#x1F4DD;',
-      pattern: 'changelog',
-      count: sessionLog.filter(function (e) { return (e.type || '').indexOf('change') !== -1; }).length
-    },
-    {
-      name: 'Decision Log',
-      icon: '&#x2696;',
-      pattern: 'decision',
-      count: sessionLog.filter(function (e) { return (e.type || '').indexOf('decision') !== -1; }).length
+  var dodHTML = '<div class="section-header">'+ICO.check+'<span class="section-title">'+(window.SDD && SDD.i18n ? SDD.i18n.t('governance.dod') : 'Definition of Done')+'</span></div>';
+  dodHTML += '<div class="dod-wrap"><table class="dod-table"><thead><tr><th>PHASE</th><th>CRITERION</th><th>TARGET</th><th>STATUS</th></tr></thead><tbody>';
+  dodPhases.forEach(function(ph) {
+    var phaseName = ph.phase || ph.name || '';
+    var criterion = ph.criterion || ph.criteria || '';
+    var target = ph.target || '--';
+    var status = (ph.status || 'pending').toLowerCase();
+    var statusIcon, statusCls;
+    if (status === 'passed' || status === 'done' || status === 'complete') {
+      statusIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+      statusCls = 'dod-status-passed';
+    } else if (status === 'in-progress' || status === 'wip' || status === 'active') {
+      statusIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>';
+      statusCls = 'dod-status-progress';
+    } else {
+      statusIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14"/></svg>';
+      statusCls = 'dod-status-pending';
     }
-  ];
+    dodHTML += '<tr><td class="dod-phase-name">'+esc(phaseName)+'</td><td>'+esc(criterion)+'</td><td style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim)">'+esc(target)+'</td><td><div class="dod-status '+statusCls+'">'+statusIcon+'<span style="font-size:0.75rem">'+esc(status.charAt(0).toUpperCase()+status.slice(1))+'</span></div></td></tr>';
+  });
+  dodHTML += '</tbody></table></div>';
 
-  var opsHTML =
-    '<section class="ops-section">' +
-      '<h3 class="section-title">&#x1F4C8; Operational Logs</h3>' +
-      '<div class="ops-grid">' +
-      opsLogs.map(function (log) {
-        var exists = logExists(log.pattern);
-        return '<div class="ops-card"><div class="card">' +
-          '<div class="ops-icon">' + log.icon + '</div>' +
-          '<div class="ops-name">' + log.name + '</div>' +
-          '<div class="ops-count">' +
-            '<span class="ops-status-dot ' + (exists || log.count > 0 ? 'ops-exists' : 'ops-missing') + '"></span>' +
-            (exists || log.count > 0 ? log.count + ' entries' : 'Not found') +
-          '</div>' +
-        '</div></div>';
-      }).join('') +
-      '</div>' +
-    '</section>';
+  /* ════════════════════════════════════════════════════
+     5. OPERATIONAL LOGS (4 sub-tabs)
+     ════════════════════════════════════════════════════ */
+  var changelog = get(data, 'changelog', []);
+  var tasklog = get(data, 'tasklog', []);
+  var decisionLog = get(data, 'decisionLog', []);
+  var sessionLog = get(data, 'sessionLog', []);
 
-  /* ── Operational Logs Timeline ─────────────────────────────── */
-  var changelog = get('changelog', []);
-  var tasklog = get('tasklog', []);
-  var decisionLog = get('decisionLog', []);
+  function taskStatusPill(s) {
+    if (!s) return '';
+    var lc = s.toLowerCase().replace(/[\s-]/g,'');
+    var c = 'tl-open';
+    if (lc==='done'||lc==='closed'||lc==='completed') c='tl-done';
+    else if (lc==='wip'||lc==='inprogress') c='tl-wip';
+    else if (lc==='blocked') c='tl-blocked';
+    return '<span class="tl-status '+c+'">'+esc(s)+'</span>';
+  }
 
-  var allOpsEntries = [];
-  if (Array.isArray(changelog)) {
-    changelog.forEach(function(e) {
-      allOpsEntries.push({ date: e.date || e.timestamp || '', type: 'changelog', desc: e.description || e.message || e.change || '', principles: e.principles || '' });
+  function adrStatusPill(s) {
+    if (!s) return '';
+    var lc = s.toLowerCase();
+    var c = 'adr-proposed';
+    if (lc.indexOf('accept')!==-1 || lc==='approved') c='adr-accepted';
+    else if (lc==='superseded'||lc==='deprecated') c='adr-superseded';
+    return '<span class="adr-status-pill '+c+'">'+esc(s)+'</span>';
+  }
+
+  function renderChangelogEntries(arr) {
+    if (!arr.length) return '<div class="empty-state" style="padding:1.5rem"><div class="empty-msg">No changelog entries</div></div>';
+    var h = '<div class="ops-timeline">';
+    arr.forEach(function(e) {
+      var typeBadge = e.type ? '<span class="ops-badge ob-changelog">'+esc(e.type)+'</span>' : '';
+      var princ = (e.principles && e.principles.length) ? '<div class="ops-principles">Principles: '+esc(Array.isArray(e.principles)?e.principles.join(', '):e.principles)+'</div>' : '';
+      h += '<div class="ops-entry t-changelog"><div class="ops-row"><span class="ops-date">'+(e.date||e.timestamp||'--')+'</span>'+typeBadge+'</div><div class="ops-desc">'+esc(e.description||e.message||e.change||'')+'</div>'+princ+'</div>';
     });
-  }
-  if (Array.isArray(tasklog)) {
-    tasklog.forEach(function(e) {
-      allOpsEntries.push({ date: e.date || e.timestamp || '', type: 'tasklog', desc: e.description || e.task || e.message || '', principles: e.principles || '' });
-    });
-  }
-  if (Array.isArray(decisionLog)) {
-    decisionLog.forEach(function(e) {
-      var adrStatus = (e.status || e.adrStatus || 'proposed').toLowerCase();
-      var adrClass = adrStatus.indexOf('accept') !== -1 ? 'adr-accepted' : adrStatus.indexOf('reject') !== -1 ? 'adr-rejected' : 'adr-proposed';
-      allOpsEntries.push({ date: e.date || e.timestamp || '', type: 'decision', desc: e.description || e.title || e.decision || '', principles: e.principles || '', adrStatus: adrStatus, adrClass: adrClass });
-    });
-  }
-  // Sort by date descending
-  allOpsEntries.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
-
-  var opsTimelineHTML = '';
-  if (allOpsEntries.length > 0) {
-    opsTimelineHTML =
-      '<section class="ops-timeline-section">' +
-        '<h3 class="section-title">&#x1F4C5; Operational Logs Timeline</h3>' +
-        '<div class="ops-timeline">' +
-        allOpsEntries.map(function(e) {
-          var badgeClass = 'badge-' + e.type;
-          var adrBadge = e.adrStatus ? ' <span class="adr-badge ' + e.adrClass + '">' + e.adrStatus + '</span>' : '';
-          return '<div class="ops-tl-item type-' + e.type + '">' +
-            '<div class="ops-tl-row">' +
-              '<span class="ops-tl-date">' + e.date + '</span>' +
-              '<span class="ops-tl-badge ' + badgeClass + '">' + e.type + '</span>' +
-              adrBadge +
-            '</div>' +
-            '<div class="ops-tl-desc">' + e.desc + '</div>' +
-            (e.principles ? '<div class="ops-tl-principles">Principles: ' + e.principles + '</div>' : '') +
-          '</div>';
-        }).join('') +
-        '</div>' +
-      '</section>';
+    h += '</div>';
+    return h;
   }
 
-  /* ── Render ───────────────────────────────────────────────── */
+  function renderTasklogEntries(arr) {
+    if (!arr.length) return '<div class="empty-state" style="padding:1.5rem"><div class="empty-msg">No task log entries</div></div>';
+    var h = '<div class="ops-timeline">';
+    arr.forEach(function(e) {
+      var id = e.id ? '<span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--brand-gold);margin-right:0.3rem">'+esc(e.id)+'</span>' : '';
+      var owner = e.owner ? '<span style="font-size:0.72rem;color:var(--text-dim);margin-left:0.3rem">'+esc(e.owner)+'</span>' : '';
+      var age = e.age ? '<span style="font-size:0.68rem;color:var(--text-dim);font-family:var(--font-mono);margin-left:0.3rem">'+esc(e.age)+'</span>' : '';
+      h += '<div class="ops-entry t-tasklog"><div class="ops-row">'+id+'<span class="ops-desc">'+esc(e.task||e.description||'')+'</span>'+taskStatusPill(e.status)+owner+age+'</div></div>';
+    });
+    h += '</div>';
+    return h;
+  }
+
+  function renderDecisionEntries(arr) {
+    if (!arr.length) return '<div class="empty-state" style="padding:1.5rem"><div class="empty-msg">No decision log entries</div></div>';
+    var h = '<div class="ops-timeline">';
+    arr.forEach(function(e) {
+      var id = e.id ? '<span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--brand-purple);margin-right:0.3rem">'+esc(e.id)+'</span>' : '';
+      h += '<div class="ops-entry t-decision"><div class="ops-row"><span class="ops-date">'+(e.date||'--')+'</span>'+id+'<span class="ops-desc" style="font-weight:600;color:var(--text-primary)">'+esc(e.title||e.decision||'')+'</span>'+adrStatusPill(e.status)+'</div>';
+      if (e.context) h += '<div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.15rem">'+esc(e.context)+'</div>';
+      if (e.decision && e.title) h += '<div style="font-size:0.78rem;color:var(--text-primary);font-weight:600;margin-top:0.15rem">'+esc(e.decision)+'</div>';
+      h += '</div>';
+    });
+    h += '</div>';
+    return h;
+  }
+
+  function renderSessionEntries(arr) {
+    if (!arr.length) return '<div class="empty-state" style="padding:1.5rem"><div class="empty-msg">No session log entries</div></div>';
+    var h = '<div class="ops-timeline">';
+    arr.forEach(function(e) {
+      var typeBadge = e.type ? '<span class="ops-badge ob-session">'+esc(e.type)+'</span>' : '';
+      h += '<div class="ops-entry t-session"><div class="ops-row"><span class="ops-date">'+(e.timestamp||'--')+'</span>'+typeBadge+'</div><div class="ops-desc">'+esc(e.description||e.event||'')+'</div></div>';
+    });
+    h += '</div>';
+    return h;
+  }
+
+  var opsHTML = '<div class="section-header">'+ICO.list+'<span class="section-title">'+(window.SDD && SDD.i18n ? SDD.i18n.t('governance.logs') : 'Operational Logs')+'</span></div>';
+  opsHTML += '<div class="ops-tabs">';
+  opsHTML += '<button class="ops-tab active" data-ops="changelog">Changelog <span style="font-family:var(--font-mono);font-size:0.65rem;opacity:0.7">'+changelog.length+'</span></button>';
+  opsHTML += '<button class="ops-tab" data-ops="tasklog">Tasklog <span style="font-family:var(--font-mono);font-size:0.65rem;opacity:0.7">'+tasklog.length+'</span></button>';
+  opsHTML += '<button class="ops-tab" data-ops="decision">Decision Log <span style="font-family:var(--font-mono);font-size:0.65rem;opacity:0.7">'+decisionLog.length+'</span></button>';
+  opsHTML += '<button class="ops-tab" data-ops="session">Session Log <span style="font-family:var(--font-mono);font-size:0.65rem;opacity:0.7">'+sessionLog.length+'</span></button>';
+  opsHTML += '</div>';
+  opsHTML += '<div class="ops-pane active" id="ops-changelog">'+renderChangelogEntries(changelog)+'</div>';
+  opsHTML += '<div class="ops-pane" id="ops-tasklog">'+renderTasklogEntries(tasklog)+'</div>';
+  opsHTML += '<div class="ops-pane" id="ops-decision">'+renderDecisionEntries(decisionLog)+'</div>';
+  opsHTML += '<div class="ops-pane" id="ops-session">'+renderSessionEntries(sessionLog)+'</div>';
+
+  /* ════════════════════════════════════════════════════
+     RENDER
+     ════════════════════════════════════════════════════ */
   root.innerHTML =
     '<header class="page-header">' +
-      '<h1 class="page-title"><span class="gold">&#x2696;</span> Governance</h1>' +
-      '<p class="page-subtitle">Constitution, quality gates, and operational governance for ' + projectName + '</p>' +
+      '<h1 class="page-title"><span class="gold">'+(window.SDD && SDD.i18n ? SDD.i18n.t('governance.title') : 'Governance')+'</span></h1>' +
+      '<p class="page-subtitle">Constitution, quality gates, and operational governance for '+esc(projectName)+'</p>' +
     '</header>' +
+    '<div class="gov-controls">' +
+      '<div class="search-wrap"><span class="search-icon">'+ICO.search+'</span><input class="search-input" id="gov-search" type="text" placeholder="Search principles, gates, logs..." /></div>' +
+      '<div class="filter-chips" id="gov-filters"><button class="filter-chip active" data-filter="all" data-i18n="common.all">All</button><button class="filter-chip" data-filter="MUST">MUST</button><button class="filter-chip" data-filter="SHOULD">SHOULD</button></div>' +
+    '</div>' +
     constitutionHTML +
-    radarHTML +
     gatesHTML +
     evidenceHTML +
     dodHTML +
-    opsHTML +
-    opsTimelineHTML;
+    opsHTML;
 
-  // Search + Filter
-  setTimeout(function() {
-    var ctrl = SDD.search.init('page-search', {
-      placeholder: 'Search principles...',
-      filters: [{label:'MUST',value:'MUST'}, {label:'SHOULD',value:'SHOULD'}],
-      onSearch: function(q, f) { filterItems(q, f); },
-      onFilter: function(f, q) { filterItems(q, f); }
+  /* ── Interactive: Principle cards expand ──────────── */
+  document.querySelectorAll('.principle-card').forEach(function(card) {
+    card.addEventListener('click', function() { card.classList.toggle('expanded'); });
+  });
+
+  /* ── Interactive: Ops tabs ───────────────────────── */
+  document.querySelectorAll('.ops-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.ops-tab').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      document.querySelectorAll('.ops-pane').forEach(function(p) { p.classList.remove('active'); });
+      var target = tab.getAttribute('data-ops');
+      var pane = document.getElementById('ops-'+target);
+      if (pane) pane.classList.add('active');
     });
-    function filterItems(query, filter) {
-      var items = document.querySelectorAll('.principle-item');
-      var shown = 0, total = items.length;
-      items.forEach(function(item) {
-        var text = item.textContent.toLowerCase();
-        var levelBadge = item.querySelector('.level-badge');
-        var level = levelBadge ? levelBadge.textContent.trim().toUpperCase() : '';
-        var matchQuery = !query || text.indexOf(query) !== -1;
-        var matchFilter = !filter || filter === 'all' || level === filter;
-        if (matchQuery && matchFilter) { item.style.display = ''; shown++; }
-        else { item.style.display = 'none'; }
-      });
-      // Also filter ops timeline entries
-      var tlItems = document.querySelectorAll('.ops-tl-item');
-      tlItems.forEach(function(item) {
-        var text = item.textContent.toLowerCase();
-        var matchQuery = !query || text.indexOf(query) !== -1;
-        if (matchQuery) { item.style.display = ''; }
-        else { item.style.display = 'none'; }
-      });
-      ctrl.setCount(shown, total);
-    }
-  }, 100);
+  });
+
+  /* ── Interactive: Filter chips ───────────────────── */
+  document.querySelectorAll('#gov-filters .filter-chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('#gov-filters .filter-chip').forEach(function(c) { c.classList.remove('active'); });
+      chip.classList.add('active');
+      applyFilters();
+    });
+  });
+
+  /* ── Interactive: Search ─────────────────────────── */
+  var searchInput = document.getElementById('gov-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() { applyFilters(); });
+  }
+
+  function applyFilters() {
+    var query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+    var activeChip = document.querySelector('#gov-filters .filter-chip.active');
+    var levelFilter = activeChip ? activeChip.getAttribute('data-filter') : 'all';
+
+    // Filter principle cards
+    document.querySelectorAll('.principle-card').forEach(function(card) {
+      var text = card.textContent.toLowerCase();
+      var level = card.getAttribute('data-level') || '';
+      var matchQ = !query || text.indexOf(query) !== -1;
+      var matchL = levelFilter === 'all' || level === levelFilter;
+      card.style.display = (matchQ && matchL) ? '' : 'none';
+    });
+
+    // Filter ops entries
+    document.querySelectorAll('.ops-entry').forEach(function(entry) {
+      var text = entry.textContent.toLowerCase();
+      entry.style.display = (!query || text.indexOf(query) !== -1) ? '' : 'none';
+    });
+
+    // Filter DoD rows
+    document.querySelectorAll('.dod-table tbody tr').forEach(function(row) {
+      var text = row.textContent.toLowerCase();
+      row.style.display = (!query || text.indexOf(query) !== -1) ? '' : 'none';
+    });
+  }
 })();
 </script>
 

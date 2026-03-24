@@ -4,7 +4,9 @@
 # stdout = context injection (empty if healthy). Exit 0 always.
 # Bash 3.2 compatible (macOS default). Zero external deps.
 
-set -euo pipefail
+set -uo pipefail
+# NOTE: Do NOT use set -e — grep returns exit 1 on no match which kills the script.
+# This script MUST always exit 0 (hooks treat non-zero as error).
 
 # ── Config ──
 STALE_DAYS=7

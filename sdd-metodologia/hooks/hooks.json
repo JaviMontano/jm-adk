@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash scripts/sdd-heartbeat-lite.sh",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/sdd-heartbeat-lite.sh .",
             "timeout": 5
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash scripts/sdd-session-log.sh post-write",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/sdd-session-log.sh post-write",
             "timeout": 5
           }
         ]
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash scripts/sdd-heartbeat-lite.sh --init",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/sdd-heartbeat-lite.sh --init",
             "timeout": 10
           }
         ]
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash scripts/sdd-session-log.sh pre-compact",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/sdd-session-log.sh pre-compact",
             "timeout": 5
           }
         ]

@@ -175,12 +175,84 @@ const operationalLogs = {
 // ── Knowledge graph ──
 const kgraph = readJSON(path.join(specifyDir, 'knowledge-graph.json'));
 
+// ── QA Plan (from sdd-qa-plan.js output) ──
+const qaplan = readJSON(path.join(specifyDir, 'qa-plan.json'));
+
+// ── Backlog (from backlog.md or backlog.json) ──
+const backlogJSON = readJSON(path.join(specifyDir, 'backlog.json')) || [];
+const backlogMd = readFile(path.join(projectPath, 'backlog.md'));
+const backlog = backlogJSON.length > 0 ? backlogJSON : [];
+if (backlog.length === 0 && backlogMd) {
+  const rows = backlogMd.matchAll(/\|\s*(BL-\d+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/g);
+  for (const r of rows) backlog.push({ id: r[1].trim(), name: r[2].trim(), priority: r[3].trim(), status: r[4].trim() });
+}
+
+// ── Structured operational log entries ──
+function parseChangelog(content) {
+  if (!content) return [];
+  const entries = [];
+  const re = /^##?\s*(\d{4}-\d{2}-\d{2})\s*[-–]\s*\*?\*?\[?(\w+)\]?\*?\*?:?\s*(.+)/gm;
+  let m; while ((m = re.exec(content))) entries.push({ date: m[1], type: m[2].toLowerCase(), description: m[3].trim() });
+  return entries.slice(-30);
+}
+function parseTasklog(content) {
+  if (!content) return [];
+  const entries = [];
+  const re = /\|\s*(TL-\d+)\s*\|\s*([^|]+)\s*\|\s*(\w[\w-]*)\s*\|\s*([^|]*)\s*\|\s*([^|]*)\s*\|/g;
+  let m; while ((m = re.exec(content))) entries.push({ id: m[1].trim(), task: m[2].trim(), status: m[3].trim(), owner: m[4].trim(), opened: m[5].trim() });
+  return entries;
+}
+function parseDecisionLog(content) {
+  if (!content) return [];
+  const entries = [];
+  const re = /## (DEC-\d+)[:\s]*(.+)\n([\s\S]*?)(?=\n## DEC-|\n## [A-Z]|$)/g;
+  let m; while ((m = re.exec(content))) {
+    const body = m[3];
+    const status = (body.match(/status:\s*(\w+)/i) || ['', 'proposed'])[1].toLowerCase();
+    const context = (body.match(/context:\s*(.+)/i) || ['', ''])[1].trim();
+    const decision = (body.match(/decision:\s*(.+)/i) || ['', ''])[1].trim();
+    entries.push({ id: m[1], title: m[2].trim(), status, context, decision });
+  }
+  return entries;
+}
+
+const changelogEntries = parseChangelog(changelogContent);
+const tasklogEntries = parseTasklog(tasklogContent);
+const decisionLogEntries = parseDecisionLog(decisionLogContent);
+
+// ── Per-feature taskItems with frRef (for FR drill-down) ──
+features.forEach(f => {
+  const tasksContent = readFile(path.join(specsDir, f.id, 'tasks.md'));
+  if (!tasksContent) { f.taskItems = []; return; }
+  const items = [];
+  const re = /- \[([ xX])\]\s*(T-\d+)?\s*(.+?)(?:\s*\[?(FR-\d+)\]?)?$/gm;
+  let m; while ((m = re.exec(tasksContent))) {
+    const status = m[1].trim() === 'x' || m[1].trim() === 'X' ? 'done' : 'todo';
+    const frRef = m[4] || null;
+    items.push({ id: m[2] || `T-${items.length+1}`, title: m[3].trim(), status, frRef });
+  }
+  f.taskItems = items;
+
+  // Also extract structured requirements with linked tests
+  const specContent = readFile(path.join(specsDir, f.id, 'spec.md'));
+  if (specContent) {
+    const reqs = [];
+    const frRe = /(?:^|\n)\*?\*?(FR-\d+)\*?\*?[:\s]*(.+)/g;
+    let rm; while ((rm = frRe.exec(specContent))) {
+      const linkedTests = items.filter(t => t.frRef === rm[1]).length > 0 ? 'covered' : 'orphan';
+      reqs.push({ id: rm[1], title: rm[2].trim(), status: linkedTests });
+    }
+    if (reqs.length > 0) f.requirements = reqs;
+  }
+});
+
 // ── Health score ──
 const avgProgress = features.length > 0
   ? Math.round(features.reduce((sum, f) => sum + f.progress, 0) / features.length) : 0;
 
 // ── Assemble ──
 const data = {
+  isDemo: false, // Real project data — demo badge hidden
   generatedAt: new Date().toISOString(),
   project: { name: path.basename(path.resolve(projectPath)) },
   premise: hasPremise ? { name: path.basename(path.resolve(projectPath)) } : null,
@@ -209,6 +281,11 @@ const data = {
     edges: (kgraph.edges || []).length,
     orphans: (kgraph.orphans || []).length,
   } : null,
+  backlog,
+  qaplan: qaplan || null,
+  changelog: changelogEntries,
+  tasklog: tasklogEntries,
+  decisionLog: decisionLogEntries,
   sentinel,
   sessionLog,
   smartNav: features.some(f => f.status !== 'complete') ? {

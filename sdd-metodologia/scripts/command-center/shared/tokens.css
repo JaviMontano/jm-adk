@@ -17,10 +17,9 @@
   --brand-gold-dark: #FFA000;
   --brand-blue: #137DC5;
   --brand-purple: #8B5CF6;
-  --brand-cyan: #00FFFF;
-  --brand-green: #22C55E;
+  --brand-lavender: #BBA0CC;
   --brand-red: #EF4444;
-  --brand-orange: #F97316;
+  --brand-amber: #F59E0B;
 
   /* Text */
   --text-primary: #E2E8F0;
@@ -50,9 +49,10 @@
   --space-xl: 2rem;
   --space-2xl: 3rem;
 
-  /* Fonts */
+  /* Fonts — Neo-Swiss Clean */
   --font-heading: 'Poppins', sans-serif;
-  --font-body: 'Montserrat', sans-serif;
+  --font-body: 'Trebuchet MS', 'Lucida Grande', sans-serif;
+  --font-footnote: 'Futura', 'Century Gothic', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   /* Transitions */
@@ -91,7 +91,14 @@ body.light .btn-outline:hover { background: rgba(180,130,0,0.06); }
 body.light .badge-gold { background: rgba(180,130,0,0.1); color: #8B6500; }
 body.light a { color: #8B6500; }
 body.light a:hover { color: #6B4F00; }
-body.light .nav-tabs a.active { color: #8B6500; border-bottom-color: #B48200; }
+body.light .nav-item.active { color: #8B6500; border-left-color: #B48200; }
+
+/* ── Footnote Typography ───────────────────────────────────── */
+.footnote, .callout-note, .badge, .tag,
+.rag-type-badge, .gate, .shortcut-hint, .lang-label,
+.tour-step-counter, .tree-file-size, .tree-count {
+  font-family: var(--font-footnote);
+}
 
 /* ── Base Resets ────────────────────────────────────────────── */
 
@@ -161,7 +168,7 @@ code, pre { font-family: var(--font-mono); }
 }
 .badge-gold   { background: rgba(255,215,0,0.12);   color: var(--brand-gold); }
 .badge-blue   { background: rgba(19,125,197,0.12);   color: var(--brand-blue); }
-.badge-green  { background: rgba(34,197,94,0.12);    color: var(--brand-green); }
+.badge-blue  { background: rgba(34,197,94,0.12);    color: var(--brand-blue); }
 .badge-red    { background: rgba(239,68,68,0.12);    color: var(--brand-red); }
 .badge-purple { background: rgba(139,92,246,0.12);   color: var(--brand-purple); }
 
@@ -175,3 +182,52 @@ code, pre { font-family: var(--font-mono); }
   padding: 0; margin: -1px; overflow: hidden;
   clip: rect(0,0,0,0); white-space: nowrap; border: 0;
 }
+
+/* ── Layout Variables ─────────────────────────────────────── */
+
+:root {
+  --sidebar-width: 240px;
+  --sidebar-collapsed: 56px;
+  --header-height: 48px;
+}
+
+/* ── Layout Structure ─────────────────────────────────────── */
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.sdd-layout {
+  display: flex;
+  flex: 1;
+  padding-top: var(--header-height);
+  min-height: calc(100vh - var(--header-height));
+}
+
+.sdd-main {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  padding: 2rem 2.5rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* ── Responsive Layout ────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .sdd-main {
+    margin-left: var(--sidebar-collapsed);
+    padding: 1.25rem 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .sdd-main {
+    padding: 1rem 0.75rem;
+  }
+}
+
+/* Brand MetodologIA always in Poppins */
+.brand-sub, .brand-name, .brand-sdd { font-family: var(--font-heading); }

@@ -96,13 +96,19 @@ if [[ -f "$DASHBOARD_GENERATOR" ]] && command -v node &>/dev/null; then
   node "$DASHBOARD_GENERATOR" "$PROJECT_PATH" 2>/dev/null && echo -e "  ${GOLD}✓${RESET} dashboard.html" || true
 fi
 
-# 5b. Copy Command Center (index.html + shared/)
+# 5b. Copy ALL Command Center pages + shared files
 CC_SRC="$SCRIPT_DIR/command-center"
 if [[ -d "$CC_SRC" ]]; then
-  cp "$CC_SRC/index.html" "$ALM_DIR/" 2>/dev/null
-  cp "$CC_SRC/shared/nav.js" "$ALM_SHARED/" 2>/dev/null
-  cp "$CC_SRC/shared/tokens.css" "$ALM_SHARED/" 2>/dev/null
-  echo -e "  ${GOLD}✓${RESET} Command Center (index.html + shared/)"
+  # Copy all HTML pages
+  PAGE_COUNT=0
+  for page in "$CC_SRC"/*.html; do
+    [[ -f "$page" ]] && cp "$page" "$ALM_DIR/" && PAGE_COUNT=$((PAGE_COUNT+1))
+  done
+  # Copy all shared files (nav.js, tokens.css, footer.js, filter.js, i18n.js, search.js)
+  for shared in "$CC_SRC"/shared/*.js "$CC_SRC"/shared/*.css; do
+    [[ -f "$shared" ]] && cp "$shared" "$ALM_SHARED/"
+  done
+  echo -e "  ${GOLD}✓${RESET} ALM Command Center ($PAGE_COUNT pages + shared/)"
 fi
 
 # 5c. Generate data.js for Command Center
@@ -133,17 +139,19 @@ if [[ -d "$DOCS_SRC" ]]; then
   echo -e "  ${GOLD}✓${RESET} docs/ ($DOC_COUNT pages)"
 fi
 
-# 5g. Create shared/footer.js if missing
-if [[ ! -f "$ALM_SHARED/footer.js" ]]; then
-  cat > "$ALM_SHARED/footer.js" << 'FOOTEREOF'
-(function(){
-  var f=document.createElement('footer');
-  f.style.cssText='margin-top:4rem;padding:1.5rem 2rem;background:#122562;border-top:4px solid #FFD700;text-align:center;font-size:0.75rem;color:#94A3B8';
-  f.innerHTML='SDD v3.0 &middot; Spec Driven Development by metodolog<span style="color:#FFD700;font-weight:700">IA</span><br>&copy; 2026 MetodologIA &middot; Javier Montano';
-  document.body.appendChild(f);
-})();
-FOOTEREOF
-  echo -e "  ${GOLD}✓${RESET} shared/footer.js"
+# 5g. Run secondary generators (QA plan + insights → enrich data.js)
+if command -v node &>/dev/null; then
+  # QA Plan
+  QA_GEN="$SCRIPT_DIR/sdd-qa-plan.js"
+  [[ -f "$QA_GEN" ]] && node "$QA_GEN" "$PROJECT_PATH" 2>/dev/null && echo -e "  ${GOLD}✓${RESET} QA-PLAN.md + qa-plan.json" || true
+  # Insights (snapshot health)
+  INSIGHTS_GEN="$SCRIPT_DIR/sdd-insights.js"
+  [[ -f "$INSIGHTS_GEN" ]] && node "$INSIGHTS_GEN" "$PROJECT_PATH" --snapshot 2>/dev/null && echo -e "  ${GOLD}✓${RESET} Health snapshot" || true
+  # Knowledge graph
+  KG_GEN="$SCRIPT_DIR/sdd-knowledge-graph.js"
+  [[ -f "$KG_GEN" ]] && node "$KG_GEN" "$PROJECT_PATH" 2>/dev/null && echo -e "  ${GOLD}✓${RESET} knowledge-graph.json" || true
+  # Re-generate data.js with enriched data (after QA + insights ran)
+  [[ -f "$CC_DATA_GEN" ]] && node "$CC_DATA_GEN" "$PROJECT_PATH" 2>/dev/null || true
 fi
 
 echo -e "  ${MUTED}Serve locally: npx serve .specify/ -p 3001${RESET}"

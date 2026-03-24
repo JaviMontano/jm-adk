@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230A122A'/%3E%3Cstop offset='100%25' stop-color='%2313315C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='36' height='36' rx='10' fill='url(%23g)'/%3E%3Crect x='10' y='12' width='4' height='12' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='12' width='4' height='8' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='22' width='4' height='2' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='12' width='4' height='6' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='20' width='4' height='4' rx='.5' fill='%23FFF'/%3E%3Ccircle cx='18' cy='8' r='2' fill='%23FFD700'/%3E%3C/svg%3E">
   <title>Workspace &mdash; SDD ALM</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/tokens.css">
   <script src="shared/search.js" defer></script>
   <script src="shared/data.js"></script>
+  <script src="shared/filter.js" defer></script>
+  <script src="shared/i18n.js" defer></script>
   <script src="shared/nav.js" defer></script>
   <script src="shared/footer.js" defer></script>
   <style>
@@ -52,7 +55,7 @@
     .tree-file-icon { flex-shrink:0; }
     .icon-md { color:var(--brand-blue); }
     .icon-json { color:var(--brand-gold); }
-    .icon-html { color:var(--brand-orange); }
+    .icon-html { color:var(--brand-amber); }
     .icon-feature { color:var(--brand-purple); }
     .icon-other { color:var(--text-dim); }
     .tree-file-name { color:var(--text-muted); flex:1; }
@@ -63,8 +66,18 @@
 
     /* RAG Memory */
     .rag-section { margin-bottom:2.5rem; }
-    .rag-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem; }
-    .rag-card .card { display:flex; flex-direction:column; gap:0.65rem; }
+    .rag-tree { background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:12px; padding:1rem; }
+    .tree-dir { display:flex; align-items:center; gap:.5rem; padding:.4rem .5rem; font-family:var(--font-heading); font-weight:700; font-size:.85rem; color:var(--brand-gold); }
+    .tree-dir-icon svg { display:block; }
+    .tree-count { font-size:.65rem; font-weight:600; padding:.1rem .4rem; border-radius:4px; background:rgba(255,215,0,.1); color:var(--brand-gold); margin-left:auto; }
+    .rag-file { display:flex; align-items:flex-start; flex-wrap:wrap; gap:.4rem; padding:.5rem .5rem .5rem 1.5rem; border-top:1px solid var(--border-faint); cursor:default; transition:background .15s; }
+    .rag-file:hover { background:rgba(255,255,255,.02); }
+    .tree-indent { width:12px; flex-shrink:0; }
+    .tree-file-icon { flex-shrink:0; }
+    .tree-file-icon svg { display:block; }
+    .tree-file-name { font-family:var(--font-mono); font-size:.8rem; color:var(--text-primary); }
+    .tree-file-size { font-size:.65rem; color:var(--text-dim); margin-left:auto; }
+    .tree-file-abstract { width:100%; font-size:.75rem; color:var(--text-muted); padding-left:1.75rem; margin-top:.15rem; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
     .rag-header { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
     .rag-name {
       font-family:var(--font-heading); font-size:0.95rem; font-weight:700;
@@ -75,7 +88,7 @@
       border-radius:12px; text-transform:uppercase;
     }
     .rag-type-text { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
-    .rag-type-html { background:rgba(249,115,22,0.12); color:var(--brand-orange); }
+    .rag-type-html { background:rgba(249,115,22,0.12); color:var(--brand-amber); }
     .rag-type-image { background:rgba(139,92,246,0.12); color:var(--brand-purple); }
     .rag-type-audio { background:rgba(255,215,0,0.12); color:var(--brand-gold); }
     .rag-type-default { background:rgba(148,163,184,0.12); color:var(--text-muted); }
@@ -102,7 +115,7 @@
     }
     .tl-badge-spec { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
     .tl-badge-test { background:rgba(255,215,0,0.12); color:var(--brand-gold); }
-    .tl-badge-fix { background:rgba(249,115,22,0.12); color:var(--brand-orange); }
+    .tl-badge-fix { background:rgba(249,115,22,0.12); color:var(--brand-amber); }
     .tl-badge-deploy { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
     .tl-badge-sentinel { background:rgba(139,92,246,0.12); color:var(--brand-purple); }
     .tl-badge-default { background:rgba(148,163,184,0.12); color:var(--text-muted); }
@@ -121,16 +134,93 @@
     .sdd-search-bar { margin-bottom: 1.5rem; }
     .sdd-search-input-wrap { position: relative; display: flex; align-items: center; }
     .sdd-search-icon { position: absolute; left: 12px; width: 18px; height: 18px; color: #94A3B8; pointer-events: none; }
-    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Montserrat, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Trebuchet MS, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
     .sdd-search-input:focus { border-color: #FFD700; box-shadow: 0 0 0 2px rgba(255,215,0,0.15); }
     .sdd-search-count { position: absolute; right: 12px; font-size: 11px; color: #64748B; font-family: var(--font-mono, 'JetBrains Mono', monospace); }
     .sdd-filter-chips { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-    .sdd-chip { padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94A3B8; font-size: 12px; cursor: pointer; font-family: var(--font-body, Montserrat, sans-serif); transition: all 0.2s; }
+    .sdd-chip { padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94A3B8; font-size: 12px; cursor: pointer; font-family: var(--font-body, Trebuchet MS, sans-serif); transition: all 0.2s; }
     .sdd-chip:hover { border-color: rgba(255,215,0,0.3); color: #E2E8F0; }
     .sdd-chip.active { background: rgba(255,215,0,0.12); border-color: #FFD700; color: #FFD700; }
 
+    /* RAG View Toggle */
+    .rag-view-toggle {
+      display:inline-flex; border-radius:9999px; overflow:hidden;
+      border:1px solid rgba(255,215,0,0.2); margin-left:auto;
+    }
+    .rag-toggle-btn {
+      padding:0.3rem 0.9rem; font-size:0.75rem; font-weight:600;
+      font-family:var(--font-heading); cursor:pointer; border:none;
+      background:transparent; color:var(--text-dim);
+      transition:all 0.2s ease;
+    }
+    .rag-toggle-btn:hover { color:var(--text-muted); }
+    .rag-toggle-btn.active {
+      background:rgba(255,215,0,0.15); color:#FFD700;
+    }
+
+    /* RAG Explorer View */
+    .rag-explorer { display:none; }
+    .rag-explorer.visible { display:block; }
+    .rag-cards-view.hidden { display:none; }
+
+    .rag-explorer-tree { font-family:var(--font-mono); font-size:0.82rem; }
+    .rag-explorer-file {
+      display:flex; align-items:center; gap:0.4rem;
+      padding:0.35rem 0.5rem 0.35rem 1.75rem;
+      border-radius:var(--radius-sm);
+      transition:background var(--transition-fast);
+      cursor:pointer; user-select:none;
+    }
+    .rag-explorer-file:hover { background:var(--bg-raised); }
+    .rag-explorer-file-name { color:var(--text-primary); font-weight:600; flex:1; }
+    .rag-explorer-badge {
+      font-size:0.65rem; font-weight:600; padding:1px 7px;
+      border-radius:12px; text-transform:uppercase;
+    }
+    .rag-explorer-size {
+      font-size:0.7rem; color:var(--text-dim);
+      margin-left:0.5rem; white-space:nowrap;
+    }
+    .rag-explorer-chevron {
+      display:inline-block; width:14px; text-align:center;
+      color:var(--text-dim); transition:transform 0.15s ease;
+      font-size:0.7rem;
+    }
+    .rag-explorer-chevron.open { transform:rotate(90deg); }
+
+    /* Explorer expanded detail card */
+    .rag-explorer-detail {
+      display:none; margin:0.25rem 0 0.5rem 1.75rem;
+      padding:0.75rem 1rem; border-radius:12px;
+      background:rgba(255,255,255,0.03);
+      backdrop-filter:blur(16px) saturate(180%);
+      -webkit-backdrop-filter:blur(16px) saturate(180%);
+      border:1px solid rgba(255,255,255,0.06);
+    }
+    .rag-explorer-detail.open { display:block; }
+    .rag-detail-abstract {
+      font-size:0.8rem; color:var(--text-muted); line-height:1.55;
+      margin-bottom:0.5rem; font-family:var(--font-body);
+    }
+    .rag-detail-section-label {
+      font-size:0.65rem; font-weight:700; text-transform:uppercase;
+      color:var(--text-dim); letter-spacing:0.05em; margin-bottom:0.3rem;
+    }
+    .rag-detail-takeaways {
+      font-size:0.78rem; color:var(--text-muted); line-height:1.5;
+      margin-bottom:0.5rem; padding-left:1rem; font-family:var(--font-body);
+    }
+    .rag-detail-takeaways li { margin-bottom:0.2rem; }
+    .rag-detail-tags { display:flex; flex-wrap:wrap; gap:0.35rem; }
+    .rag-tag-pill {
+      font-size:0.65rem; font-weight:600; padding:2px 10px;
+      border-radius:9999px; border:1px solid rgba(255,215,0,0.35);
+      color:#FFD700; background:transparent;
+    }
+
     @media(max-width:600px) {
       .rag-grid { grid-template-columns:1fr; }
+      .rag-view-toggle { margin-left:0; margin-top:0.5rem; }
     }
   </style>
 </head>
@@ -247,7 +337,7 @@
   if (treeKeys.length > 0) {
     treeHTML =
       '<section class="file-tree-section">' +
-        '<h3 class="section-title">&#x1F4C2; File Explorer</h3>' +
+        '<h3 class="section-title">&#x1F4C2; '+(window.SDD && SDD.i18n ? SDD.i18n.t('workspace.files') : 'Project Files')+'</h3>' +
         '<div class="card" style="padding:var(--space-md)">' +
           '<div class="file-tree">' + renderTree(tree, 0) + '</div>' +
         '</div>' +
@@ -255,7 +345,7 @@
   } else if (fileCount) {
     treeHTML =
       '<section class="file-tree-section">' +
-        '<h3 class="section-title">&#x1F4C2; File Explorer</h3>' +
+        '<h3 class="section-title">&#x1F4C2; '+(window.SDD && SDD.i18n ? SDD.i18n.t('workspace.files') : 'Project Files')+'</h3>' +
         '<div class="card" style="padding:var(--space-lg);text-align:center">' +
           '<p style="color:var(--text-muted);font-size:0.9rem">' + fileCount + ' files in workspace</p>' +
           '<p style="color:var(--text-dim);font-size:0.8rem;margin-top:0.5rem">Detailed tree not available &mdash; run <code class="rec-cmd" style="display:inline-block;font-family:var(--font-mono);font-size:0.75rem;padding:0.2rem 0.55rem;border-radius:9999px;background:rgba(255,215,0,0.1);color:var(--brand-gold);font-weight:600">/sdd:dashboard</code> with full data</p>' +
@@ -264,7 +354,7 @@
   } else {
     treeHTML =
       '<section class="file-tree-section">' +
-        '<h3 class="section-title">&#x1F4C2; File Explorer</h3>' +
+        '<h3 class="section-title">&#x1F4C2; '+(window.SDD && SDD.i18n ? SDD.i18n.t('workspace.files') : 'Project Files')+'</h3>' +
         '<div class="empty-state">No workspace files detected &mdash; run <code style="color:var(--brand-gold)">/sdd:init</code> to scaffold the project</div>' +
       '</section>';
   }
@@ -289,32 +379,126 @@
     return '<span class="rag-type-badge ' + cls + '">' + (type || 'doc') + '</span>';
   }
 
+  /* RAG file icon by type */
+  function ragFileIcon(type) {
+    var icons = {
+      html: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#FFD700" stroke-width="1.2"><path d="M2 2h3l1.5 2H12v8H2V2z"/></svg>',
+      image: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#8B5CF6" stroke-width="1.2"><rect x="1" y="1" width="12" height="12" rx="2"/><circle cx="5" cy="5" r="1.5"/><path d="M1 10l3-3 2 2 3-4 4 5"/></svg>',
+      audio: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#137DC5" stroke-width="1.2"><path d="M3 5v4h2l3 3V2L5 5H3z"/><path d="M10 4.5a3 3 0 0 1 0 5"/></svg>',
+      text: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#94A3B8" stroke-width="1.2"><path d="M4 1h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2z"/><line x1="5" y1="5" x2="9" y2="5"/><line x1="5" y1="7" x2="9" y2="7"/><line x1="5" y1="9" x2="7" y2="9"/></svg>',
+      md: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#94A3B8" stroke-width="1.2"><path d="M4 1h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2z"/><line x1="5" y1="5" x2="9" y2="5"/><line x1="5" y1="7" x2="9" y2="7"/><line x1="5" y1="9" x2="7" y2="9"/></svg>'
+    };
+    return icons[type] || icons.text;
+  }
+
+  /* ── RAG Explorer View builder ─────────────────────────── */
+  function buildRagExplorer(ragList) {
+    var html = '<div class="rag-explorer-tree">' +
+      '<div class="tree-folder" onclick="this.querySelector(\'.tree-chevron\').classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'collapsed\')">' +
+        '<span class="tree-chevron open">&#x25B6;</span>' +
+        '<span class="tree-folder-icon">&#x1F4C2;</span>' +
+        '<span class="tree-folder-name">memory/</span>' +
+        '<span class="tree-file-meta" style="color:var(--brand-gold)">' + ragList.length + ' files</span>' +
+      '</div>' +
+      '<div class="tree-children">';
+
+    ragList.forEach(function (rf, idx) {
+      var rawName = rf.name || rf.path || '';
+      var displayName = rawName.replace(/^.*rag-memory-of-/, '').replace(/\.md$/, '');
+      var type = rf.type || 'md';
+      var abstract = rf.abstract || rf.description || '';
+      var takeaways = rf.takeaways || rf.keyTakeaways || rf.key_takeaways || [];
+      var tags = rf.tags || [];
+      var size = rf.size || '';
+      var detailId = 'rag-detail-' + idx;
+
+      html += '<div class="rag-explorer-file" onclick="var d=document.getElementById(\'' + detailId + '\');d.classList.toggle(\'open\');this.querySelector(\'.rag-explorer-chevron\').classList.toggle(\'open\')">' +
+        '<span class="rag-explorer-chevron">&#x25B6;</span>' +
+        '<span class="tree-file-icon">' + ragFileIcon(type) + '</span>' +
+        '<span class="rag-explorer-file-name">' + displayName + '</span>' +
+        ragTypeBadge(type) +
+        (size ? '<span class="rag-explorer-size">' + size + '</span>' : '') +
+      '</div>' +
+      '<div class="rag-explorer-detail" id="' + detailId + '">';
+
+      if (abstract) {
+        html += '<div class="rag-detail-section-label">Abstract</div>' +
+          '<div class="rag-detail-abstract">' + abstract + '</div>';
+      }
+
+      if (Array.isArray(takeaways) && takeaways.length > 0) {
+        html += '<div class="rag-detail-section-label">Key Takeaways</div>' +
+          '<ul class="rag-detail-takeaways">' +
+          takeaways.map(function (t) { return '<li>' + t + '</li>'; }).join('') +
+          '</ul>';
+      }
+
+      if (Array.isArray(tags) && tags.length > 0) {
+        html += '<div class="rag-detail-section-label">Tags</div>' +
+          '<div class="rag-detail-tags">' +
+          tags.map(function (tag) { return '<span class="rag-tag-pill">' + tag + '</span>'; }).join('') +
+          '</div>';
+      }
+
+      if (!abstract && (!Array.isArray(takeaways) || takeaways.length === 0) && (!Array.isArray(tags) || tags.length === 0)) {
+        html += '<div style="font-size:0.78rem;color:var(--text-dim);font-style:italic">No metadata available for this memory file.</div>';
+      }
+
+      html += '</div>';
+    });
+
+    html += '</div></div>';
+    return html;
+  }
+
   var ragHTML = '';
   if (ragFiles.length > 0) {
-    ragHTML =
-      '<section class="rag-section">' +
-        '<h3 class="section-title">&#x1F9E0; RAG Memory</h3>' +
-        '<div class="rag-grid">' +
+    var ragCardsContent =
+      '<div class="rag-cards-view" id="rag-cards-view">' +
+        '<div class="rag-tree">' +
+        '<div class="tree-dir"><span class="tree-dir-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#FFD700" stroke-width="1.2"><path d="M2 2h3l1.5 2H12v8H2V2z"/></svg></span><span class="tree-dir-name">memory/</span><span class="tree-count">' + ragFiles.length + '</span></div>' +
         ragFiles.map(function (rf) {
           var rawName = rf.name || rf.path || '';
           var displayName = rawName.replace(/^.*rag-memory-of-/, '').replace(/\.md$/, '');
-          var type = rf.type || 'doc';
-          var abstract = rf.abstract || rf.description || 'Captured session knowledge';
-          return '<div class="rag-card"><div class="card">' +
-            '<div class="rag-header">' +
-              '<span class="rag-name">' + displayName + '</span>' +
-              ragTypeBadge(type) +
-            '</div>' +
-            '<div class="rag-abstract">' + abstract + '</div>' +
-          '</div></div>';
+          var type = rf.type || 'md';
+          var abstract = rf.abstract || rf.description || '';
+          var size = rf.size ? '<span class="tree-file-size">' + rf.size + '</span>' : '';
+          return '<div class="tree-file rag-file" tabindex="0">' +
+            '<span class="tree-indent"></span>' +
+            '<span class="tree-file-icon">' + ragFileIcon(type) + '</span>' +
+            '<span class="tree-file-name">' + displayName + '.md</span>' +
+            ragTypeBadge(type) +
+            size +
+            (abstract ? '<div class="tree-file-abstract">' + abstract + '</div>' : '') +
+          '</div>';
         }).join('') +
         '</div>' +
+      '</div>';
+
+    var ragExplorerContent =
+      '<div class="rag-explorer" id="rag-explorer-view">' +
+        '<div class="card" style="padding:var(--space-md)">' +
+          buildRagExplorer(ragFiles) +
+        '</div>' +
+      '</div>';
+
+    ragHTML =
+      '<section class="rag-section">' +
+        '<h3 class="section-title" style="justify-content:space-between">' +
+          '<span style="display:flex;align-items:center;gap:0.5rem">'+(window.SDD && SDD.i18n ? SDD.i18n.t('workspace.rag') : 'RAG Memory Files')+'</span>' +
+          '<div class="rag-view-toggle" id="rag-view-toggle">' +
+            '<button class="rag-toggle-btn active" data-view="cards" onclick="window._ragToggle(\'cards\')">&#x1F4CB; Cards</button>' +
+            '<button class="rag-toggle-btn" data-view="explorer" onclick="window._ragToggle(\'explorer\')">&#x1F333; Explorer</button>' +
+          '</div>' +
+        '</h3>' +
+        ragCardsContent +
+        ragExplorerContent +
       '</section>';
   } else {
     ragHTML =
       '<section class="rag-section">' +
-        '<h3 class="section-title">&#x1F9E0; RAG Memory</h3>' +
-        '<div class="empty-state">No RAG memory files yet &mdash; use <code style="color:var(--brand-gold)">/sdd:capture</code> to save session knowledge</div>' +
+        '<h3 class="section-title">'+(window.SDD && SDD.i18n ? SDD.i18n.t('workspace.rag') : 'RAG Memory Files')+'</h3>' +
+        '<div class="empty-state">No RAG memory files yet. Use <code style="color:var(--brand-gold)">/sdd:capture</code> to save session knowledge.</div>' +
       '</section>';
   }
 
@@ -363,12 +547,31 @@
   /* ── Render ───────────────────────────────────────────────── */
   root.innerHTML =
     '<header class="page-header">' +
-      '<h1 class="page-title"><span class="gold">&#x1F4C1;</span> Workspace</h1>' +
+      '<h1 class="page-title"><span class="gold">&#x1F4C1;</span> '+(window.SDD && SDD.i18n ? SDD.i18n.t('workspace.title') : 'Workspace')+'</h1>' +
       '<p class="page-subtitle">File explorer, RAG memory, and session activity for ' + projectName + '</p>' +
     '</header>' +
     treeHTML +
     ragHTML +
     activityHTML;
+
+  // RAG view toggle
+  window._ragToggle = function (view) {
+    var cards = document.getElementById('rag-cards-view');
+    var explorer = document.getElementById('rag-explorer-view');
+    var btns = document.querySelectorAll('.rag-toggle-btn');
+    if (!cards || !explorer) return;
+    btns.forEach(function (b) { b.classList.remove('active'); });
+    if (view === 'explorer') {
+      cards.classList.add('hidden');
+      explorer.classList.add('visible');
+    } else {
+      cards.classList.remove('hidden');
+      explorer.classList.remove('visible');
+    }
+    btns.forEach(function (b) {
+      if (b.getAttribute('data-view') === view) b.classList.add('active');
+    });
+  };
 
   // Search + Filter
   setTimeout(function() {

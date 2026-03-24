@@ -45,11 +45,21 @@ Load constitution per [constitution-loading.md](../iikit-core/references/constit
 
 ## Execution Steps
 
+### 0. Pre-Analysis: Generate QA Plan
+
+Before analysis, regenerate the QA Plan to ensure cross-feature quality data is current:
+```bash
+node "$CLAUDE_PLUGIN_ROOT/scripts/sdd-qa-plan.js" .
+```
+This updates `QA-PLAN.md` and `.specify/qa-plan.json` with latest DoD status, AC coverage, and gate state. The analysis then uses this data for cross-artifact validation.
+
 ### 1. Load Artifacts (Progressive)
 
 From spec.md: overview, requirements, user stories, edge cases.
 From plan.md: architecture, data model refs, phases, constraints.
 From tasks.md: task IDs, descriptions, phases, [P] markers, file paths.
+From qa/acceptance-criteria.md: SC-XXX checkable items (if exists).
+From qa/test-coverage.md: FR→TS traceability matrix (if exists).
 
 ### 2. Build Semantic Models
 

@@ -1,9 +1,13 @@
 # SDD Sentinel — Heartbeat Checklist
 
-> This file is read by the SDD Sentinel on each wake-up cycle.
-> It drives the perceive-decide-act loop for autonomous project health monitoring.
+> This file defines the FULL sentinel cycle (`/sdd:sentinel` → `sdd-sentinel.sh`).
+> The PER-PROMPT heartbeat (`sdd-heartbeat-lite.sh`) runs a SUBSET of these checks (P1 + P2 only) in < 100ms.
 > Cost-optimized: PERCEIVE and DECIDE are rule-based (zero LLM cost).
 > ACT invokes LLM only when genuine anomalies require judgment.
+>
+> **Two modes:**
+> - **Lite** (`UserPromptSubmit` hook): P1 + P2 checks only, < 100ms, silent when healthy
+> - **Full** (`/sdd:sentinel`): All P1-P5 + D1-D5 + A1-A6, ~2-5s, generates report
 
 ## PERCEIVE (Rule-Based — Zero LLM Cost)
 

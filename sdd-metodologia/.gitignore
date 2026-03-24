@@ -1,16 +1,5 @@
-# SDD Plugin — .gitignore
-# Transient state (regenerated per-run)
-.specify/sentinel-state.json
-.specify/dashboard.html
-.specify/dashboard/
-
-# Node.js
+# Project-level artifacts (not part of the plugin)
+.specify/
 node_modules/
-
-# OS
+*.log
 .DS_Store
-Thumbs.db
-*.swp
-
-# Workspace (user interaction layer)
-workspace/

@@ -3,327 +3,505 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230A122A'/%3E%3Cstop offset='100%25' stop-color='%2313315C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='36' height='36' rx='10' fill='url(%23g)'/%3E%3Crect x='10' y='12' width='4' height='12' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='12' width='4' height='8' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='22' width='4' height='2' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='12' width='4' height='6' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='20' width='4' height='4' rx='.5' fill='%23FFF'/%3E%3Ccircle cx='18' cy='8' r='2' fill='%23FFD700'/%3E%3C/svg%3E">
   <title>Feature Backlog &mdash; SDD ALM</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/tokens.css">
   <script src="shared/data.js"></script>
+  <script src="shared/filter.js" defer></script>
+  <script src="shared/i18n.js" defer></script>
   <script src="shared/nav.js" defer></script>
   <script src="shared/footer.js" defer></script>
   <script src="shared/search.js" defer></script>
   <style>
     .bl-main { max-width:1320px; margin:0 auto; padding:2rem 1.5rem 3rem; }
-    .page-title { font-size:1.5rem; font-weight:900; margin-bottom:0.35rem; }
-    .page-title .gold { color:var(--brand-gold, #FFD700); }
-    .page-subtitle { color:var(--text-muted, #94a3b8); font-size:0.9rem; margin-bottom:1.5rem; }
+    .page-header { margin-bottom:1.5rem; }
+    .page-title { font-family:var(--font-heading); font-size:1.75rem; font-weight:900; margin:0 0 0.25rem; }
+    .page-title .gold { color:var(--brand-gold); }
+    .page-subtitle { color:var(--text-muted); font-size:0.9rem; font-family:var(--font-body); margin:0; }
 
-    /* ── Stats Row ──────────────────────────────────────────── */
-    .stats-row { display:flex; gap:1rem; margin-bottom:1.75rem; flex-wrap:wrap; }
+    /* ── Stats Bar ───────────────────────────────────────── */
+    .stats-bar { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
     .stat-card {
-      background:rgba(255,255,255,0.03);
-      backdrop-filter:blur(16px) saturate(180%);
-      -webkit-backdrop-filter:blur(16px) saturate(180%);
-      border:1px solid rgba(255,255,255,0.06);
-      border-radius:10px; padding:0.9rem 1.2rem; min-width:140px; flex:1;
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle); border-radius:var(--radius-card);
+      padding:1rem 1.25rem; display:flex; align-items:center; gap:0.85rem;
+      transition:transform var(--transition-fast), box-shadow var(--transition-fast);
     }
-    .stat-card .stat-value { font-family:'Poppins',sans-serif; font-weight:700; font-size:1.5rem; color:#FFD700; }
-    .stat-card .stat-label { font-size:0.75rem; color:var(--text-muted, #94a3b8); margin-top:0.15rem; }
+    .stat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-glow-gold); }
+    .stat-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stat-icon svg { width:18px; height:18px; }
+    .stat-icon-total { background:rgba(255,215,0,0.12); color:#FFD700; }
+    .stat-icon-pipe { background:rgba(187,160,204,0.12); color:#BBA0CC; }
+    .stat-icon-backlog { background:rgba(148,163,184,0.12); color:#94A3B8; }
+    .stat-icon-done { background:rgba(19,125,197,0.12); color:#137DC5; }
+    .stat-value { font-family:var(--font-heading); font-weight:700; font-size:1.35rem; color:var(--text-primary); line-height:1; }
+    .stat-label { font-family:var(--font-body); font-size:0.72rem; color:var(--text-muted); margin-top:2px; }
 
-    /* ── Search & Sort ─────────────────────────────────────── */
-    #backlog-search { margin-bottom:1.5rem; }
-    .sort-bar { display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem; }
-    .sort-bar label { font-size:0.8rem; color:var(--text-muted, #94a3b8); }
-    .sort-bar select {
-      background:rgba(255,255,255,0.05); color:#e2e8f0; border:1px solid rgba(255,255,255,0.1);
-      border-radius:6px; padding:0.35rem 0.65rem; font-size:0.8rem; font-family:'Montserrat',sans-serif;
+    /* ── Controls Bar ────────────────────────────────────── */
+    .controls-bar { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; flex-wrap:wrap; }
+    .search-wrap { position:relative; flex:1; min-width:200px; }
+    .search-input {
+      width:100%; box-sizing:border-box; padding:0.55rem 0.75rem 0.55rem 2.25rem;
+      background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-sm);
+      color:var(--text-primary); font-family:var(--font-body); font-size:0.85rem; outline:none;
+      transition:border-color var(--transition-fast);
     }
+    .search-input:focus { border-color:var(--brand-gold); box-shadow:0 0 0 2px rgba(255,215,0,0.1); }
+    .search-input::placeholder { color:var(--text-dim); }
+    .search-icon { position:absolute; left:0.65rem; top:50%; transform:translateY(-50%); color:var(--text-dim); pointer-events:none; }
+    .search-icon svg { width:16px; height:16px; }
 
-    /* ── Board ──────────────────────────────────────────────── */
+    .filter-chips { display:flex; gap:0.35rem; }
+    .filter-chip {
+      font-family:var(--font-body); font-size:0.75rem; font-weight:500;
+      padding:0.35rem 0.75rem; border-radius:var(--radius-full); cursor:pointer;
+      border:1px solid var(--border-medium); background:transparent; color:var(--text-muted);
+      transition:all var(--transition-fast);
+    }
+    .filter-chip:hover { border-color:var(--brand-gold); color:var(--text-primary); }
+    .filter-chip.active { background:var(--brand-gold); color:var(--text-inverse); border-color:var(--brand-gold); font-weight:600; }
+
+    .sort-select {
+      background:rgba(255,255,255,0.05); color:var(--text-primary); border:1px solid var(--border-subtle);
+      border-radius:var(--radius-sm); padding:0.4rem 0.65rem; font-size:0.8rem;
+      font-family:var(--font-body); outline:none; cursor:pointer;
+    }
+    .sort-select:focus { border-color:var(--brand-gold); }
+
+    .view-toggle {
+      display:flex; gap:0; border:1px solid var(--border-subtle);
+      border-radius:var(--radius-sm); overflow:hidden; flex-shrink:0;
+    }
+    .view-btn {
+      font-family:var(--font-body); font-size:0.78rem; font-weight:600;
+      padding:0.4rem 1rem; border:none; cursor:pointer;
+      background:transparent; color:var(--text-muted);
+      transition:background var(--transition-fast), color var(--transition-fast);
+      display:flex; align-items:center; gap:0.35rem;
+    }
+    .view-btn svg { width:14px; height:14px; }
+    .view-btn.active { background:var(--brand-gold); color:var(--text-inverse); }
+    .view-btn:hover:not(.active) { background:rgba(255,255,255,0.05); }
+
+    /* ── Board View ──────────────────────────────────────── */
     .board { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.25rem; }
     @media(max-width:900px) { .board { grid-template-columns:1fr; } }
-
     .board-col { min-width:0; }
     .col-header {
-      font-family:'Poppins',sans-serif; font-weight:700; font-size:0.95rem;
+      font-family:var(--font-heading); font-weight:700; font-size:0.9rem;
       display:flex; align-items:center; gap:0.5rem;
       padding-bottom:0.65rem; margin-bottom:0.75rem;
       border-bottom:2px solid rgba(255,255,255,0.06);
     }
-    .col-header .col-icon { font-size:1.1rem; }
+    .col-header svg { width:16px; height:16px; }
+    .col-header-backlog { color:var(--text-muted); }
+    .col-header-progress { color:var(--brand-gold); }
+    .col-header-progress svg { color:var(--brand-gold); }
+    .col-header-done { color:var(--brand-blue); }
+    .col-header-done svg { color:var(--brand-blue); }
     .col-count {
       background:rgba(255,255,255,0.08); border-radius:10px;
-      font-size:0.7rem; padding:0.15rem 0.55rem; font-weight:600; color:#FFD700;
+      font-size:0.65rem; padding:0.1rem 0.5rem; font-weight:600; color:var(--brand-gold);
+      font-family:var(--font-mono); margin-left:auto;
     }
 
-    /* ── Cards ──────────────────────────────────────────────── */
+    /* ── Cards ──────────────────────────────────────────── */
     .bl-card {
-      background:rgba(255,255,255,0.03);
-      backdrop-filter:blur(16px) saturate(180%);
-      -webkit-backdrop-filter:blur(16px) saturate(180%);
-      border:1px solid rgba(255,255,255,0.06);
-      border-radius:10px; padding:0.85rem 1rem; margin-bottom:0.65rem;
-      cursor:pointer; transition:border-color 0.2s, box-shadow 0.2s;
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle); border-radius:var(--radius-card);
+      padding:0.85rem 1rem; margin-bottom:0.65rem; cursor:pointer;
+      transition:transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
     }
-    .bl-card:hover { border-color:rgba(255,215,0,0.25); box-shadow:0 0 12px rgba(255,215,0,0.06); }
+    .bl-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-glow-gold); border-color:rgba(255,215,0,0.25); }
     .bl-card.expanded { border-color:rgba(255,215,0,0.35); }
 
-    .card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:0.5rem; margin-bottom:0.45rem; }
-    .card-name { font-family:'Poppins',sans-serif; font-weight:700; font-size:0.85rem; color:#e2e8f0; flex:1; }
-    .card-badges { display:flex; gap:0.35rem; flex-shrink:0; align-items:center; }
+    .card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:0.5rem; margin-bottom:0.4rem; }
+    .card-name { font-family:var(--font-heading); font-weight:700; font-size:0.85rem; color:var(--text-primary); flex:1; }
+    .card-badges { display:flex; gap:0.3rem; flex-shrink:0; align-items:center; flex-wrap:wrap; }
 
     .badge {
-      font-size:0.65rem; font-weight:600; padding:0.15rem 0.5rem; border-radius:6px;
-      font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.03em;
+      font-size:0.62rem; font-weight:600; padding:0.12rem 0.45rem; border-radius:6px;
+      font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.03em;
     }
     .badge-p0 { background:rgba(239,68,68,0.15); color:#EF4444; }
     .badge-p1 { background:rgba(255,215,0,0.15); color:#FFD700; }
     .badge-p2 { background:rgba(19,125,197,0.15); color:#137DC5; }
-    .badge-phase { background:rgba(255,215,0,0.1); color:#FFD700; font-family:'Montserrat',sans-serif; }
-    .badge-effort {
-      background:rgba(255,255,255,0.06); color:#94a3b8;
-      font-family:'JetBrains Mono',monospace; font-size:0.6rem;
-    }
+    .badge-phase { background:rgba(255,215,0,0.1); color:#FFD700; font-family:var(--font-body); }
+    .badge-effort { background:rgba(255,255,255,0.06); color:#94a3b8; font-family:var(--font-mono); font-size:0.58rem; }
     .stale-dot {
       width:7px; height:7px; border-radius:50%; background:#FFD700;
-      display:inline-block; flex-shrink:0; title: 'Stale — no activity > 7 days';
+      display:inline-block; flex-shrink:0;
     }
 
-    /* Progress bar */
-    .progress-track {
-      height:4px; background:rgba(255,255,255,0.06); border-radius:2px;
-      margin:0.45rem 0 0.4rem; overflow:hidden;
-    }
-    .progress-fill { height:100%; background:#FFD700; border-radius:2px; transition:width 0.3s; }
+    .progress-row { display:flex; align-items:center; gap:0.5rem; margin:0.4rem 0; }
+    .progress-track { flex:1; height:4px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
+    .progress-fill { height:100%; background:var(--brand-gold); border-radius:2px; transition:width 0.3s; }
+    .progress-pct { font-family:var(--font-mono); font-size:0.65rem; color:var(--brand-gold); font-weight:700; min-width:28px; text-align:right; }
 
-    /* Stats row inside card */
     .card-stats {
-      display:flex; gap:0.75rem; font-size:0.7rem; color:var(--text-muted, #94a3b8);
-      font-family:'JetBrains Mono',monospace;
+      display:flex; gap:0.65rem; font-size:0.68rem; color:var(--text-muted);
+      font-family:var(--font-mono);
     }
     .card-stats span { display:flex; align-items:center; gap:0.2rem; }
 
-    /* Expanded section */
+    /* Expand */
     .card-expand {
       max-height:0; overflow:hidden; transition:max-height 0.3s ease;
       border-top:1px solid rgba(255,255,255,0.04); margin-top:0;
     }
     .bl-card.expanded .card-expand { max-height:300px; margin-top:0.6rem; padding-top:0.6rem; }
-    .expand-row { font-size:0.75rem; color:#94a3b8; margin-bottom:0.3rem; }
-    .expand-row strong { color:#cbd5e1; }
-    .expand-specs { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.4rem; }
-    .expand-specs .spec-link {
-      font-size:0.65rem; background:rgba(255,215,0,0.08); color:#FFD700;
-      padding:0.15rem 0.45rem; border-radius:4px; font-family:'JetBrains Mono',monospace;
+    .expand-row { font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem; font-family:var(--font-body); }
+    .expand-row strong { color:var(--text-primary); }
+    .expand-specs { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.35rem; }
+    .spec-link {
+      font-size:0.62rem; background:rgba(255,215,0,0.08); color:var(--brand-gold);
+      padding:0.12rem 0.4rem; border-radius:4px; font-family:var(--font-mono);
     }
+
+    /* ── List View ───────────────────────────────────────── */
+    .list-wrap {
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle); border-radius:var(--radius-card); overflow:hidden;
+    }
+    .list-table { width:100%; border-collapse:collapse; }
+    .list-table thead th {
+      font-family:var(--font-body); font-size:0.65rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim);
+      padding:0.75rem 0.85rem; text-align:left; border-bottom:1px solid var(--border-subtle);
+      cursor:pointer; user-select:none; white-space:nowrap;
+    }
+    .list-table thead th:hover { color:var(--brand-gold); }
+    .list-table thead th .sort-arrow { color:var(--brand-gold); font-size:0.6rem; margin-left:0.25rem; }
+    .list-table tbody tr { border-bottom:1px solid rgba(255,255,255,0.03); transition:background var(--transition-fast); }
+    .list-table tbody tr:hover { background:rgba(255,215,0,0.03); }
+    .list-table tbody td {
+      padding:0.6rem 0.85rem; font-family:var(--font-body); font-size:0.82rem;
+      color:var(--text-muted); vertical-align:middle;
+    }
+    .list-table .td-name { font-family:var(--font-heading); font-weight:600; color:var(--text-primary); }
+    .list-status-pill {
+      font-size:0.6rem; font-weight:700; padding:2px 8px; border-radius:var(--radius-full);
+      text-transform:uppercase; font-family:var(--font-body);
+    }
+    .ls-backlog { background:rgba(148,163,184,0.12); color:#94A3B8; }
+    .ls-progress { background:rgba(255,215,0,0.15); color:#FFD700; }
+    .ls-done { background:rgba(19,125,197,0.15); color:#137DC5; }
+
+    .mini-progress { display:inline-flex; align-items:center; gap:0.35rem; }
+    .mini-track { width:48px; height:3px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; display:inline-block; }
+    .mini-fill { height:100%; background:var(--brand-gold); border-radius:2px; display:block; }
+    .mini-pct { font-family:var(--font-mono); font-size:0.68rem; color:var(--brand-gold); }
+
+    /* ── Empty State ─────────────────────────────────────── */
+    .empty-state {
+      text-align:center; padding:4rem 2rem; font-family:var(--font-body); color:var(--text-dim);
+    }
+    .empty-state svg { width:48px; height:48px; margin-bottom:0.75rem; opacity:0.4; }
+    .empty-state .empty-msg { font-size:0.9rem; }
+    .empty-state code {
+      font-family:var(--font-mono); font-size:0.82rem;
+      background:rgba(255,215,0,0.08); color:var(--brand-gold);
+      padding:2px 8px; border-radius:4px;
+    }
+
+    @media(max-width:768px) {
+      .stats-bar { grid-template-columns:repeat(2,1fr); }
+      .controls-bar { flex-direction:column; align-items:stretch; }
+    }
+    @media(max-width:480px) { .stats-bar { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
-  <div class="bl-main">
-    <!-- Page Header -->
-    <h1 class="page-title"><span class="gold">Feature</span> Backlog</h1>
-    <p class="page-subtitle">Read-only backlog board &mdash; tracks features from request to completion</p>
-
-    <!-- Stats Row -->
-    <div class="stats-row" id="stats-row"></div>
-
-    <!-- Search + Filter -->
-    <div id="backlog-search"></div>
-
-    <!-- Sort -->
-    <div class="sort-bar">
-      <label for="sort-select">Sort by:</label>
-      <select id="sort-select">
-        <option value="priority">Priority</option>
-        <option value="progress">Progress</option>
-        <option value="name">Name</option>
-        <option value="date">Date</option>
+  <main class="bl-main">
+    <div class="page-header">
+      <h1 class="page-title" data-i18n="backlog.title"><span class="gold">Feature</span> Backlog</h1>
+      <p class="page-subtitle">Track features from request to completion across the SDD pipeline</p>
+    </div>
+    <div class="stats-bar" id="stats-bar"></div>
+    <div class="controls-bar">
+      <div class="search-wrap">
+        <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+        <input class="search-input" id="bl-search" type="text" data-i18n="common.search" placeholder="Search features and backlog items..." />
+      </div>
+      <div class="filter-chips" id="filter-chips">
+        <button class="filter-chip active" data-filter="all" data-i18n="common.all">All</button>
+        <button class="filter-chip" data-filter="p0">P0</button>
+        <button class="filter-chip" data-filter="p1">P1</button>
+        <button class="filter-chip" data-filter="p2">P2</button>
+      </div>
+      <select class="sort-select" id="sort-select">
+        <option value="priority">Sort: Priority</option>
+        <option value="progress">Sort: Progress</option>
+        <option value="name">Sort: Name</option>
+        <option value="date">Sort: Date</option>
       </select>
-    </div>
-
-    <!-- Board -->
-    <div class="board">
-      <div class="board-col" id="col-backlog">
-        <div class="col-header">
-          <span class="col-icon">&#x1F4CB;</span> Backlog <span class="col-count" id="cnt-backlog">0</span>
-        </div>
-        <div class="col-body" id="body-backlog"></div>
-      </div>
-      <div class="board-col" id="col-progress">
-        <div class="col-header">
-          <span class="col-icon">&#x26A1;</span> In Progress <span class="col-count" id="cnt-progress">0</span>
-        </div>
-        <div class="col-body" id="body-progress"></div>
-      </div>
-      <div class="board-col" id="col-done">
-        <div class="col-header">
-          <span class="col-icon">&#x2714;</span> Done <span class="col-count" id="cnt-done">0</span>
-        </div>
-        <div class="col-body" id="body-done"></div>
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="board"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg> <span data-i18n="backlog.board">Board</span></button>
+        <button class="view-btn" data-view="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M3 12h18M3 18h18"/></svg> <span data-i18n="backlog.list">List</span></button>
       </div>
     </div>
-  </div>
+    <div id="view-board"></div>
+    <div id="view-list" style="display:none"></div>
+  </main>
 
   <script>
   (function() {
-    var D = (window.DASHBOARD_DATA || {});
-    var features = D.features || [];
-    var backlog  = D.backlog  || [];
+    'use strict';
+
+    function D() { return window.DASHBOARD_DATA || null; }
+    function get(obj, path, def) {
+      if (!obj) return def;
+      var keys = path.split('.'); var cur = obj;
+      for (var i = 0; i < keys.length; i++) { if (cur == null || typeof cur !== 'object') return def; cur = cur[keys[i]]; }
+      return cur == null ? def : cur;
+    }
+    function esc(s) { var t = document.createElement('span'); t.textContent = s || ''; return t.innerHTML; }
+
+    var data = D() || {};
+    var features = get(data, 'features', []);
+    var backlog = get(data, 'backlog', []);
 
     var activeFilter = 'all';
-    var activeSort   = 'priority';
-    var searchTerm   = '';
+    var activeSort = 'priority';
+    var searchTerm = '';
+    var currentView = 'board';
 
-    // ── Helpers ──────────────────────────────────────────────
     var priorityOrder = { P0:0, P1:1, P2:2, p0:0, p1:1, p2:2 };
     function priNum(p) { return priorityOrder[p] != null ? priorityOrder[p] : 9; }
-    function priClass(p) { var n = String(p).toLowerCase(); return n === 'p0' ? 'badge-p0' : n === 'p1' ? 'badge-p1' : 'badge-p2'; }
-    function effortLabel(e) { return e || '—'; }
-
-    function isStale(dateStr) {
-      if (!dateStr) return false;
-      var d = new Date(dateStr);
-      return (Date.now() - d.getTime()) > 7 * 86400000;
-    }
-
-    function matchFilter(pri) {
-      if (activeFilter === 'all') return true;
-      return String(pri).toLowerCase() === activeFilter;
-    }
-
+    function priClass(p) { var n = String(p).toLowerCase(); return n==='p0'?'badge-p0':n==='p1'?'badge-p1':'badge-p2'; }
+    function isStale(d) { if (!d) return false; return (Date.now() - new Date(d).getTime()) > 7*86400000; }
+    function matchFilter(pri) { return activeFilter==='all' || String(pri).toLowerCase()===activeFilter; }
     function matchSearch(item) {
       if (!searchTerm) return true;
       var t = searchTerm.toLowerCase();
-      return (item.name || '').toLowerCase().indexOf(t) !== -1 ||
-             (item.description || '').toLowerCase().indexOf(t) !== -1;
+      return (item.name||'').toLowerCase().indexOf(t)!==-1 || (item.description||'').toLowerCase().indexOf(t)!==-1;
     }
-
     function sortItems(arr) {
-      var s = activeSort;
-      return arr.slice().sort(function(a, b) {
-        if (s === 'priority') return priNum(a.priority) - priNum(b.priority);
-        if (s === 'progress') return (b.progress || 0) - (a.progress || 0);
-        if (s === 'name')     return (a.name || '').localeCompare(b.name || '');
-        if (s === 'date')     return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      return arr.slice().sort(function(a,b) {
+        if (activeSort==='priority') return priNum(a.priority)-priNum(b.priority);
+        if (activeSort==='progress') return (b.progress||0)-(a.progress||0);
+        if (activeSort==='name') return (a.name||'').localeCompare(b.name||'');
+        if (activeSort==='date') return new Date(b.createdAt||0)-new Date(a.createdAt||0);
         return 0;
       });
     }
 
-    // ── Stats ────────────────────────────────────────────────
+    /* ── Icons ─────────────────────────────────────────── */
+    var ICO = {
+      total: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 10h16M4 14h10M4 18h6"/></svg>',
+      pipe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+      backlog: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>',
+      done: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5"/></svg>',
+      colBacklog: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>',
+      colProgress: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+      colDone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>',
+      empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>'
+    };
+
+    /* ── Stats ─────────────────────────────────────────── */
     function renderStats() {
       var inProg = features.filter(function(f) { return f.status !== 'complete'; }).length;
-      var html = '';
-      html += '<div class="stat-card"><div class="stat-value">' + features.length + '</div><div class="stat-label">Total Features</div></div>';
-      html += '<div class="stat-card"><div class="stat-value">' + inProg + '</div><div class="stat-label">In Progress</div></div>';
-      html += '<div class="stat-card"><div class="stat-value">' + backlog.length + '</div><div class="stat-label">Backlog Items</div></div>';
-      document.getElementById('stats-row').innerHTML = html;
+      var done = features.filter(function(f) { return f.status === 'complete'; }).length;
+      var el = document.getElementById('stats-bar');
+      el.innerHTML =
+        sc(features.length + backlog.length, 'Total Features', 'stat-icon-total', ICO.total) +
+        sc(inProg, 'In Pipeline', 'stat-icon-pipe', ICO.pipe) +
+        sc(backlog.length, 'Backlog', 'stat-icon-backlog', ICO.backlog) +
+        sc(done, 'Done', 'stat-icon-done', ICO.done);
+    }
+    function sc(val, label, cls, icon) {
+      return '<div class="stat-card"><div class="stat-icon '+cls+'">'+icon+'</div><div><div class="stat-value">'+val+'</div><div class="stat-label">'+esc(label)+'</div></div></div>';
     }
 
-    // ── Card HTML ────────────────────────────────────────────
+    /* ── Card HTML ─────────────────────────────────────── */
     function cardHTML(item, type) {
-      var pri  = item.priority || 'P1';
+      var pri = item.priority || 'P1';
       var prog = item.progress || 0;
-      var frC  = type === 'backlog' ? (item.frCount  || 0) : (item.requirements || []).length;
-      var tsC  = type === 'backlog' ? (item.tsCount  || 0) : (item.tests || []).length;
-      var tkC  = type === 'backlog' ? (item.taskCount || 0) : (item.tasks || []).length;
+      var frC = type==='backlog' ? (item.frCount||0) : (item.requirements||[]).length;
+      var tsC = type==='backlog' ? (item.tsCount||0) : (item.tests||[]).length;
+      var tkC = type==='backlog' ? (item.taskCount||0) : (item.tasks||[]).length;
 
-      var h = '<div class="bl-card" data-id="' + item.id + '">';
+      var h = '<div class="bl-card" data-id="'+(item.id||'')+'" data-feature="'+(item.id||item.name||'')+'">';
       h += '<div class="card-top">';
-      h += '<span class="card-name">' + esc(item.name) + '</span>';
+      h += '<span class="card-name">'+esc(item.name)+'</span>';
       h += '<div class="card-badges">';
-      if (isStale(item.createdAt)) h += '<span class="stale-dot" title="Stale — no activity &gt; 7 days"></span>';
-      h += '<span class="badge ' + priClass(pri) + '">' + esc(pri) + '</span>';
-      if (type === 'feature' && item.phase) h += '<span class="badge badge-phase">' + esc(item.phase) + '</span>';
-      if (type === 'backlog' && item.effort) h += '<span class="badge badge-effort">' + esc(effortLabel(item.effort)) + '</span>';
+      if (isStale(item.createdAt)) h += '<span class="stale-dot" title="Stale -- no activity > 7 days"></span>';
+      h += '<span class="badge '+priClass(pri)+'">'+esc(pri)+'</span>';
+      if (type==='feature' && item.phase) h += '<span class="badge badge-phase">'+esc(item.phase)+'</span>';
+      if (type==='backlog' && item.effort) h += '<span class="badge badge-effort">'+esc(item.effort)+'</span>';
       h += '</div></div>';
 
-      h += '<div class="progress-track"><div class="progress-fill" style="width:' + prog + '%"></div></div>';
+      h += '<div class="progress-row"><div class="progress-track"><div class="progress-fill" style="width:'+prog+'%"></div></div><span class="progress-pct">'+prog+'%</span></div>';
 
       h += '<div class="card-stats">';
-      h += '<span>FR ' + frC + '</span>';
-      h += '<span>TS ' + tsC + '</span>';
-      h += '<span>TK ' + tkC + '</span>';
+      h += '<span>FR '+frC+'</span><span>TS '+tsC+'</span><span>TK '+tkC+'</span>';
       h += '</div>';
 
-      // Expand section
       h += '<div class="card-expand">';
-      if (item.description) h += '<div class="expand-row">' + esc(item.description) + '</div>';
-      if (item.requestedBy) h += '<div class="expand-row"><strong>Requested by:</strong> ' + esc(item.requestedBy) + '</div>';
-      if (item.createdAt) h += '<div class="expand-row"><strong>Created:</strong> ' + esc(item.createdAt) + '</div>';
-      var specs = (item.requirements || []);
+      if (item.description) h += '<div class="expand-row">'+esc(item.description)+'</div>';
+      if (item.requestedBy) h += '<div class="expand-row"><strong>Requested by:</strong> '+esc(item.requestedBy)+'</div>';
+      if (item.createdAt) h += '<div class="expand-row"><strong>Created:</strong> '+esc(item.createdAt)+'</div>';
+      var specs = item.requirements || [];
       if (specs.length) {
         h += '<div class="expand-specs">';
-        specs.forEach(function(s) { h += '<span class="spec-link">' + esc(typeof s === 'string' ? s : s.id || s.name || '') + '</span>'; });
+        specs.forEach(function(s) { h += '<span class="spec-link">'+esc(typeof s==='string'?s:s.id||s.name||'')+'</span>'; });
         h += '</div>';
       }
-      h += '</div>';
-      h += '</div>';
+      h += '</div></div>';
       return h;
     }
 
-    function esc(s) {
-      if (!s) return '';
-      var el = document.createElement('span');
-      el.textContent = String(s);
-      return el.innerHTML;
-    }
+    /* ── Board Render ──────────────────────────────────── */
+    function renderBoard() {
+      var backlogItems = sortItems(backlog.filter(function(b) { return matchFilter(b.priority) && matchSearch(b); }));
+      var inProgress = sortItems(features.filter(function(f) { return f.status!=='complete' && matchFilter(f.priority) && matchSearch(f); }));
+      var done = sortItems(features.filter(function(f) { return f.status==='complete' && matchFilter(f.priority) && matchSearch(f); }));
 
-    // ── Render Board ─────────────────────────────────────────
-    function render() {
-      var backlogItems = sortItems(backlog.filter(function(b) {
-        return matchFilter(b.priority) && matchSearch(b);
-      }));
-      var inProgress = sortItems(features.filter(function(f) {
-        return f.status !== 'complete' && matchFilter(f.priority) && matchSearch(f);
-      }));
-      var done = sortItems(features.filter(function(f) {
-        return f.status === 'complete' && matchFilter(f.priority) && matchSearch(f);
-      }));
-
-      document.getElementById('cnt-backlog').textContent  = backlogItems.length;
-      document.getElementById('cnt-progress').textContent  = inProgress.length;
-      document.getElementById('cnt-done').textContent      = done.length;
-
+      var emptyCol = '<div class="empty-state" style="padding:2rem 1rem">'+ICO.empty+'<div class="empty-msg" style="font-size:0.8rem;margin-top:0.5rem">No items</div></div>';
       var hB = ''; backlogItems.forEach(function(b) { hB += cardHTML(b, 'backlog'); });
-      var hP = ''; inProgress.forEach(function(f)   { hP += cardHTML(f, 'feature'); });
-      var hD = ''; done.forEach(function(f)          { hD += cardHTML(f, 'feature'); });
+      var hP = ''; inProgress.forEach(function(f) { hP += cardHTML(f, 'feature'); });
+      var hD = ''; done.forEach(function(f) { hD += cardHTML(f, 'feature'); });
 
-      document.getElementById('body-backlog').innerHTML  = hB || '<p style="color:#64748b;font-size:0.8rem;">No items</p>';
-      document.getElementById('body-progress').innerHTML = hP || '<p style="color:#64748b;font-size:0.8rem;">No items</p>';
-      document.getElementById('body-done').innerHTML     = hD || '<p style="color:#64748b;font-size:0.8rem;">No items</p>';
-
-      bindCards();
+      var el = document.getElementById('view-board');
+      el.innerHTML = '<div class="board">' +
+        '<div class="board-col"><div class="col-header col-header-backlog">'+ICO.colBacklog+' '+(window.SDD && SDD.i18n ? SDD.i18n.t('backlog.title') : 'Backlog')+' <span class="col-count">'+backlogItems.length+'</span></div><div class="col-body">'+(hB||emptyCol)+'</div></div>' +
+        '<div class="board-col"><div class="col-header col-header-progress">'+ICO.colProgress+' '+(window.SDD && SDD.i18n ? SDD.i18n.t('pipeline.wip') : 'In Progress')+' <span class="col-count">'+inProgress.length+'</span></div><div class="col-body">'+(hP||emptyCol)+'</div></div>' +
+        '<div class="board-col"><div class="col-header col-header-done">'+ICO.colDone+' '+(window.SDD && SDD.i18n ? SDD.i18n.t('pipeline.done') : 'Done')+' <span class="col-count">'+done.length+'</span></div><div class="col-body">'+(hD||emptyCol)+'</div></div>' +
+      '</div>';
+      bindCards(el);
     }
 
-    // ── Card Expand/Collapse ─────────────────────────────────
-    function bindCards() {
-      var cards = document.querySelectorAll('.bl-card');
-      cards.forEach(function(c) {
+    /* ── List Render ───────────────────────────────────── */
+    var listSortCol = 'priority';
+    var listSortAsc = true;
+
+    function renderList() {
+      var all = [];
+      backlog.forEach(function(b) { if (matchFilter(b.priority) && matchSearch(b)) all.push({ item:b, type:'backlog', statusLabel:'Backlog', statusCls:'ls-backlog' }); });
+      features.forEach(function(f) {
+        if (!matchFilter(f.priority) || !matchSearch(f)) return;
+        if (f.status==='complete') all.push({ item:f, type:'feature', statusLabel:'Done', statusCls:'ls-done' });
+        else all.push({ item:f, type:'feature', statusLabel:'In Progress', statusCls:'ls-progress' });
+      });
+
+      all.sort(function(a,b) {
+        var va, vb;
+        if (listSortCol==='priority') { va=priNum(a.item.priority); vb=priNum(b.item.priority); }
+        else if (listSortCol==='name') { va=a.item.name||''; vb=b.item.name||''; }
+        else if (listSortCol==='status') { va=a.statusLabel; vb=b.statusLabel; }
+        else if (listSortCol==='progress') { va=a.item.progress||0; vb=b.item.progress||0; }
+        else if (listSortCol==='phase') { va=a.item.phase||''; vb=b.item.phase||''; }
+        else { va=a.item.createdAt||''; vb=b.item.createdAt||''; }
+        if (typeof va==='number') return listSortAsc ? va-vb : vb-va;
+        return listSortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+      });
+
+      if (!all.length) {
+        document.getElementById('view-list').innerHTML = emptyHTML();
+        return;
+      }
+
+      var arrow = function(c) { return listSortCol===c ? '<span class="sort-arrow">'+(listSortAsc?'&#9650;':'&#9660;')+'</span>' : ''; };
+      var h = '<div class="list-wrap"><table class="list-table"><thead><tr>';
+      h += '<th data-col="priority">PRIORITY'+arrow('priority')+'</th>';
+      h += '<th data-col="name">NAME'+arrow('name')+'</th>';
+      h += '<th data-col="status">STATUS'+arrow('status')+'</th>';
+      h += '<th data-col="phase">PHASE'+arrow('phase')+'</th>';
+      h += '<th data-col="progress">PROGRESS'+arrow('progress')+'</th>';
+      h += '<th>FR</th><th>TS</th><th>TASKS</th>';
+      h += '</tr></thead><tbody>';
+
+      all.forEach(function(entry) {
+        var it = entry.item;
+        var pri = it.priority || 'P1';
+        var prog = it.progress || 0;
+        var frC = entry.type==='backlog' ? (it.frCount||0) : (it.requirements||[]).length;
+        var tsC = entry.type==='backlog' ? (it.tsCount||0) : (it.tests||[]).length;
+        var tkC = entry.type==='backlog' ? (it.taskCount||0) : (it.tasks||[]).length;
+        h += '<tr>';
+        h += '<td><span class="badge '+priClass(pri)+'">'+esc(pri)+'</span></td>';
+        h += '<td class="td-name">'+esc(it.name)+'</td>';
+        h += '<td><span class="list-status-pill '+entry.statusCls+'">'+entry.statusLabel+'</span></td>';
+        h += '<td style="font-size:0.78rem">'+(it.phase ? esc(it.phase) : '--')+'</td>';
+        h += '<td><div class="mini-progress"><span class="mini-track"><span class="mini-fill" style="width:'+prog+'%"></span></span><span class="mini-pct">'+prog+'%</span></div></td>';
+        h += '<td style="font-family:var(--font-mono);font-size:0.72rem">'+frC+'</td>';
+        h += '<td style="font-family:var(--font-mono);font-size:0.72rem">'+tsC+'</td>';
+        h += '<td style="font-family:var(--font-mono);font-size:0.72rem">'+tkC+'</td>';
+        h += '</tr>';
+      });
+      h += '</tbody></table></div>';
+      document.getElementById('view-list').innerHTML = h;
+
+      document.getElementById('view-list').querySelectorAll('th[data-col]').forEach(function(th) {
+        th.addEventListener('click', function() {
+          var col = th.getAttribute('data-col');
+          if (listSortCol===col) listSortAsc = !listSortAsc;
+          else { listSortCol = col; listSortAsc = true; }
+          renderList();
+        });
+      });
+    }
+
+    function emptyHTML() {
+      return '<div class="empty-state">'+ICO.empty+'<div class="empty-msg" style="margin-top:0.75rem">No features yet -- run <code>/sdd:spec</code> to create your first feature</div></div>';
+    }
+
+    function bindCards(root) {
+      root.querySelectorAll('.bl-card').forEach(function(c) {
         c.onclick = function() { c.classList.toggle('expanded'); };
       });
     }
 
-    // ── Sort Dropdown ────────────────────────────────────────
-    document.getElementById('sort-select').addEventListener('change', function() {
-      activeSort = this.value;
-      render();
+    function render() {
+      document.getElementById('view-board').style.display = currentView==='board' ? '' : 'none';
+      document.getElementById('view-list').style.display = currentView==='list' ? '' : 'none';
+      if (currentView==='board') renderBoard();
+      else renderList();
+    }
+
+    /* ── Events ───────────────────────────────────────── */
+    document.querySelectorAll('.view-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.view-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        currentView = btn.getAttribute('data-view');
+        render();
+      });
+    });
+    document.querySelectorAll('.filter-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        activeFilter = chip.getAttribute('data-filter');
+        render();
+      });
+    });
+    document.getElementById('sort-select').addEventListener('change', function() { activeSort = this.value; render(); });
+    document.getElementById('bl-search').addEventListener('input', function() { searchTerm = this.value.trim(); render(); });
+
+    // Feature filter integration
+    window.addEventListener('sdd:filter-applied', function() {
+      var active = window.SDD && SDD.filter && SDD.filter.active();
+      document.querySelectorAll('.bl-card[data-feature]').forEach(function(card) {
+        card.style.display = (!active || SDD.filter.matchesFeature(card.getAttribute('data-feature'))) ? '' : 'none';
+      });
+      // Update column counts
+      document.querySelectorAll('.board-col').forEach(function(col) {
+        var visible = col.querySelectorAll('.bl-card[data-feature]:not([style*="display: none"])').length;
+        var countEl = col.querySelector('.col-count');
+        if (countEl) countEl.textContent = visible;
+      });
+      // Update list table rows
+      document.querySelectorAll('.list-table tbody tr').forEach(function(row) {
+        var name = (row.querySelector('.td-name') || {}).textContent || '';
+        row.style.display = (!active || SDD.filter.matchesFeature(name)) ? '' : 'none';
+      });
     });
 
-    // ── Init Search ──────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof SDD !== 'undefined' && SDD.search) {
-        SDD.search.init('backlog-search', {
-          placeholder: 'Search backlog...',
-          filters: [
-            { label: 'P0 Critical',     value: 'p0' },
-            { label: 'P1 Standard',     value: 'p1' },
-            { label: 'P2 Nice-to-Have', value: 'p2' }
-          ],
-          onSearch: function(term) { searchTerm = term; render(); },
-          onFilter: function(f)    { activeFilter = f;  render(); }
-        });
-      }
-      renderStats();
-      render();
-    });
+    /* ── Init ─────────────────────────────────────────── */
+    renderStats();
+    render();
   })();
   </script>
 </body>

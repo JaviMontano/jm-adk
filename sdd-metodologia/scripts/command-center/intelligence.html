@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230A122A'/%3E%3Cstop offset='100%25' stop-color='%2313315C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='36' height='36' rx='10' fill='url(%23g)'/%3E%3Crect x='10' y='12' width='4' height='12' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='12' width='4' height='8' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='22' width='4' height='2' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='12' width='4' height='6' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='20' width='4' height='4' rx='.5' fill='%23FFF'/%3E%3Ccircle cx='18' cy='8' r='2' fill='%23FFD700'/%3E%3C/svg%3E">
   <title>Intelligence &mdash; SDD ALM</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/tokens.css">
   <script src="shared/search.js" defer></script>
   <script src="shared/data.js"></script>
+  <script src="shared/filter.js" defer></script>
+  <script src="shared/i18n.js" defer></script>
   <script src="shared/nav.js" defer></script>
   <script src="shared/footer.js" defer></script>
   <style>
@@ -132,11 +135,11 @@
     .sdd-search-bar { margin-bottom: 1.5rem; }
     .sdd-search-input-wrap { position: relative; display: flex; align-items: center; }
     .sdd-search-icon { position: absolute; left: 12px; width: 18px; height: 18px; color: #94A3B8; pointer-events: none; }
-    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Montserrat, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Trebuchet MS, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
     .sdd-search-input:focus { border-color: #FFD700; box-shadow: 0 0 0 2px rgba(255,215,0,0.15); }
     .sdd-search-count { position: absolute; right: 12px; font-size: 11px; color: #64748B; font-family: var(--font-mono, 'JetBrains Mono', monospace); }
     .sdd-filter-chips { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-    .sdd-chip { padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94A3B8; font-size: 12px; cursor: pointer; font-family: var(--font-body, Montserrat, sans-serif); transition: all 0.2s; }
+    .sdd-chip { padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94A3B8; font-size: 12px; cursor: pointer; font-family: var(--font-body, Trebuchet MS, sans-serif); transition: all 0.2s; }
     .sdd-chip:hover { border-color: rgba(255,215,0,0.3); color: #E2E8F0; }
     .sdd-chip.active { background: rgba(255,215,0,0.12); border-color: #FFD700; color: #FFD700; }
 
@@ -157,6 +160,9 @@
 <script>
 (function () {
   'use strict';
+
+  /* ── i18n helper ── */
+  function t(key, fallback) { return (window.SDD && SDD.i18n ? SDD.i18n.t(key) : fallback); }
 
   function D() { return window.DASHBOARD_DATA || null; }
   function get(path, fallback) {
@@ -179,7 +185,7 @@
 
   /* ── Health Score ─────────────────────────────────────────── */
   var score = Math.max(0, Math.min(100, Math.round(get('insights.healthScore', 0))));
-  var scoreColor = score >= 75 ? 'var(--brand-blue)' : score >= 50 ? 'var(--brand-orange)' : 'var(--brand-red)';
+  var scoreColor = score >= 75 ? 'var(--brand-blue)' : score >= 50 ? 'var(--brand-amber)' : 'var(--brand-red)';
 
   /* ── Score History & Trend ────────────────────────────────── */
   var history = get('scoreHistory', []);
@@ -258,7 +264,7 @@
     '<div class="card">' +
       '<div class="sentinel-status">' +
         '<div class="sentinel-dot ' + (sentEnabled ? 'enabled' : 'disabled') + '"></div>' +
-        '<span class="sentinel-label">Sentinel ' + (sentEnabled ? 'Active' : 'Disabled') + '</span>' +
+        '<span class="sentinel-label">' + t('intel.sentinel','Sentinel Status') + ': ' + (sentEnabled ? 'Active' : 'Disabled') + '</span>' +
       '</div>' +
       '<div class="sentinel-meta">' +
         'Last run: <span>' + sentLastRun + '</span><br>' +
@@ -321,7 +327,7 @@
 
   var recsHTML =
     '<section>' +
-      '<h3 class="section-title">&#x1F4A1; Recommendations</h3>' +
+      '<h3 class="section-title">&#x1F4A1; ' + t('intel.recommendations','Recommendations') + '</h3>' +
       '<div class="recommendations-list">' +
       recs.map(function (r) {
         return '<div class="rec-item">' +
@@ -374,14 +380,14 @@
 
   root.innerHTML =
     '<header class="page-header">' +
-      '<h1 class="page-title"><span class="gold">&#x25C9;</span> Intelligence</h1>' +
+      '<h1 class="page-title"><span class="gold">&#x25C9;</span> ' + t('intel.title','Intelligence') + '</h1>' +
       '<p class="page-subtitle">Health insights, risk analysis, and smart recommendations for ' + projectName + '</p>' +
     '</header>' +
 
     '<section class="health-hero">' +
       '<div class="health-score-display">' +
         '<div class="score-number" style="color:' + scoreColor + '">' + score + '</div>' +
-        '<div class="score-label">Health Score</div>' +
+        '<div class="score-label" data-i18n="intel.health">' + t('intel.health','Health Score') + '</div>' +
         '<div class="score-trend ' + trendClass + '">' + trendArrow + ' ' + trendText + '</div>' +
       '</div>' +
       '<div class="health-detail">' +
@@ -401,7 +407,7 @@
     sparkSVG +
 
     '<section>' +
-      '<h3 class="section-title">&#x26A0; Risk Indicators</h3>' +
+      '<h3 class="section-title">&#x26A0; ' + t('intel.risks','Risk Indicators') + '</h3>' +
       risksHTML +
     '</section>' +
 
@@ -412,7 +418,7 @@
   // Search + Filter
   setTimeout(function() {
     var ctrl = SDD.search.init('page-search', {
-      placeholder: 'Search findings...',
+      placeholder: t('common.search','Search') + '...',
       filters: [{label:'High',value:'HIGH'}, {label:'Medium',value:'MEDIUM'}, {label:'Low',value:'LOW'}, {label:'Info',value:'INFO'}],
       onSearch: function(q, f) { filterItems(q, f); },
       onFilter: function(f, q) { filterItems(q, f); }
@@ -446,6 +452,36 @@
       ctrl.setCount(shown + barShown, total + bars.length);
     }
   }, 100);
+
+  // Feature filter integration
+  window.addEventListener('sdd:filter-applied', function() {
+    var active = window.SDD && SDD.filter && SDD.filter.active();
+    // Re-calculate risk indicators for filtered feature set
+    if (active && window.SDD && SDD.filter) {
+      var filtered = SDD.filter.getFilteredFeatures();
+      var fStale = 0, fOrphan = 0, fMissing = 0;
+      filtered.forEach(function(f) {
+        if (f.status === 'stale' || f.phase === 'stale') fStale++;
+        var reqs = f.requirements || f.stories || [];
+        reqs.forEach(function(r) { if (r && r.orphan) fOrphan++; });
+        if (!f.tests || (Array.isArray(f.tests) && f.tests.length === 0)) fMissing++;
+      });
+      var riskValues = document.querySelectorAll('.risk-value');
+      if (riskValues.length >= 3) {
+        riskValues[0].textContent = fStale;
+        riskValues[1].textContent = fMissing;
+        riskValues[2].textContent = fOrphan;
+      }
+    } else {
+      // Reset to original values on clear
+      var riskValues = document.querySelectorAll('.risk-value');
+      if (riskValues.length >= 3) {
+        riskValues[0].textContent = staleCount;
+        riskValues[1].textContent = missingCount;
+        riskValues[2].textContent = orphanCount;
+      }
+    }
+  });
 })();
 </script>
 

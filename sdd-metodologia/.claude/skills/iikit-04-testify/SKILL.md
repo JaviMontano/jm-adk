@@ -127,6 +127,29 @@ pwsh .tessl/tiles/tessl-labs/intent-integrity-kit/skills/iikit-core/scripts/powe
 
 The implement skill verifies this hash before proceeding, blocking if `.feature` file assertions were tampered with.
 
+### 5b. Generate QA Test Coverage Matrix
+
+Generate `FEATURE_DIR/qa/test-coverage.md` with FR→TS traceability:
+
+```markdown
+# Test Coverage Matrix — {Feature Name}
+Generated from .feature files | {date}
+
+## FR → TS Traceability
+| Requirement | Tests | Coverage |
+|-------------|-------|----------|
+| FR-001 | TS-001, TS-002, TS-003 | 3 scenarios |
+| FR-002 | TS-004 | 1 scenario |
+| FR-003 | — | UNTESTED |
+
+## Summary
+- Total FR: {N} | Covered: {M} | Untested: {K}
+- Coverage: {M/N * 100}%
+- Assertion Hash: {sha256}
+```
+
+Each FR-XXX from spec.md is matched against @FR-XXX tags in .feature files. Untested FRs are flagged.
+
 ### 6. Report
 
 Output: TDD determination, scenario counts by source (acceptance/contract/validation), output directory path, number of `.feature` files generated, hash status (LOCKED).

@@ -70,9 +70,9 @@ artifact. Phases MUST NOT be skipped without explicit justification.
 | 8 | **Ship** | issues | Export to GitHub Issues, deploy, close loop |
 
 **Quality Gates** interrupt the flow at critical points:
-- **G1** after Technical Specs (Phase 2) — architecture approved?
-- **G2** after Organize Plan (Phase 6) — cross-artifact consistent?
-- **G3** after Deliver (Phase 7) — tests pass, ready to ship?
+- **G1**: After Technical Specs (Phase 2) — architecture approved, data model documented, API contracts defined
+- **G2**: After Organize Plan (Phase 6) — cross-artifact consistent, analysis score ≥95%, zero HIGH findings
+- **G3**: After Deliver (Phase 7) — all tests green, zero regressions, code reviewed, assertion hash verified
 
 **Phase rules:**
 - Constitution (WHY) > User Specs (WHAT) > Technical Specs (HOW) > BDD (PROOF) > Tasks (WORK) > Code (SOLUTION)
@@ -135,6 +135,18 @@ Every claim in any artifact MUST be tagged:
 
 If > 30% of claims in a deliverable are `[ASSUMPTION]`, the deliverable
 MUST display a prominent warning and trigger clarification before proceeding.
+
+### Quality Governance
+
+**QA-PLAN.md** is the authoritative quality artifact for any SDD project. It aggregates:
+- Global Definition of Done and acceptance criteria (derived from this constitution)
+- Per-feature `qa/` subdirectories created emergently by `/sdd:spec` (`qa/acceptance-criteria.md`) and `/sdd:test` (`qa/test-coverage.md`)
+- Quality gate status updated by `/sdd:analyze`
+- Feature quality registry: AC coverage, test coverage, checklist completion, health score
+
+Run `/sdd:qa` to generate or refresh. Auto-invoked by `/sdd:analyze` (Phase 6).
+
+**PREMISE.md** is REQUIRED at project initialization. It defines what, who, why, domain, scope, and stack. `/sdd:init` creates it; `/sdd:spec` and `/sdd:plan` read it. A project without PREMISE.md MUST NOT proceed past Phase 0.
 
 ---
 
@@ -267,4 +279,4 @@ This constitution supersedes all other development practices.
 
 **Compliance**: All skill changes MUST be validated against these principles.
 
-**Version**: 2.0.0 | **Ratified**: 2026-02-17 | **Last Amended**: 2026-03-23
+**Version**: 2.1.0 | **Ratified**: 2026-02-17 | **Last Amended**: 2026-03-24

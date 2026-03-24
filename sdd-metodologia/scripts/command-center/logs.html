@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230A122A'/%3E%3Cstop offset='100%25' stop-color='%2313315C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='36' height='36' rx='10' fill='url(%23g)'/%3E%3Crect x='10' y='12' width='4' height='12' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='12' width='4' height='8' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='22' width='4' height='2' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='12' width='4' height='6' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='20' width='4' height='4' rx='.5' fill='%23FFF'/%3E%3Ccircle cx='18' cy='8' r='2' fill='%23FFD700'/%3E%3C/svg%3E">
   <title>Logs &amp; Decisions &mdash; SDD ALM</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/tokens.css">
   <script src="shared/data.js"></script>
+  <script src="shared/filter.js" defer></script>
+  <script src="shared/i18n.js" defer></script>
   <script src="shared/nav.js" defer></script>
   <script src="shared/footer.js" defer></script>
   <script src="shared/search.js" defer></script>
@@ -19,161 +22,239 @@
     .page-title .gold { color:var(--brand-gold); }
     .page-subtitle { color:var(--text-muted); font-size:0.9rem; font-family:var(--font-body); margin:0; }
 
+    /* ── Stats Bar ───────────────────────────────────────── */
+    .stats-bar { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+    .stat-card {
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle); border-radius:var(--radius-card);
+      padding:1rem 1.25rem; display:flex; align-items:center; gap:0.85rem;
+      transition:transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .stat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-glow-gold); }
+    .stat-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stat-icon svg { width:18px; height:18px; }
+    .stat-icon-total { background:rgba(255,215,0,0.12); color:#FFD700; }
+    .stat-icon-session { background:rgba(148,163,184,0.12); color:#94A3B8; }
+    .stat-icon-change { background:rgba(19,125,197,0.12); color:#137DC5; }
+    .stat-icon-decision { background:rgba(139,92,246,0.12); color:#8B5CF6; }
+    .stat-value { font-family:var(--font-heading); font-weight:700; font-size:1.35rem; color:var(--text-primary); line-height:1; }
+    .stat-label { font-family:var(--font-body); font-size:0.72rem; color:var(--text-muted); margin-top:2px; }
+
+    /* ── Controls Bar ────────────────────────────────────── */
+    .controls-bar { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .search-wrap { position:relative; flex:1; min-width:200px; }
+    .search-input {
+      width:100%; box-sizing:border-box; padding:0.55rem 0.75rem 0.55rem 2.25rem;
+      background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-sm);
+      color:var(--text-primary); font-family:var(--font-body); font-size:0.85rem; outline:none;
+      transition:border-color var(--transition-fast);
+    }
+    .search-input:focus { border-color:var(--brand-gold); box-shadow:0 0 0 2px rgba(255,215,0,0.1); }
+    .search-input::placeholder { color:var(--text-dim); }
+    .search-icon { position:absolute; left:0.65rem; top:50%; transform:translateY(-50%); color:var(--text-dim); pointer-events:none; }
+    .search-icon svg { width:16px; height:16px; }
+
+    /* Filter chips */
+    .filter-chips { display:flex; gap:0.35rem; flex-wrap:wrap; }
+    .filter-chip {
+      font-family:var(--font-body); font-size:0.75rem; font-weight:500;
+      padding:0.35rem 0.75rem; border-radius:var(--radius-full); cursor:pointer;
+      border:1px solid var(--border-medium); background:transparent; color:var(--text-muted);
+      transition:all var(--transition-fast);
+    }
+    .filter-chip:hover { border-color:var(--brand-gold); color:var(--text-primary); }
+    .filter-chip.active { background:var(--brand-gold); color:var(--text-inverse); border-color:var(--brand-gold); font-weight:600; }
+
     /* View toggle */
     .view-toggle {
-      display:flex; gap:0; margin-bottom:1.25rem;
-      border:1px solid var(--border-subtle); border-radius:var(--radius-sm);
-      overflow:hidden; width:fit-content;
+      display:flex; gap:0; border:1px solid var(--border-subtle);
+      border-radius:var(--radius-sm); overflow:hidden; flex-shrink:0;
     }
     .view-btn {
-      font-family:var(--font-body); font-size:0.8rem; font-weight:600;
-      padding:0.5rem 1.25rem; border:none; cursor:pointer;
+      font-family:var(--font-body); font-size:0.78rem; font-weight:600;
+      padding:0.4rem 1rem; border:none; cursor:pointer;
       background:transparent; color:var(--text-muted);
       transition:background var(--transition-fast), color var(--transition-fast);
+      display:flex; align-items:center; gap:0.35rem;
     }
+    .view-btn svg { width:14px; height:14px; }
     .view-btn.active { background:var(--brand-gold); color:var(--text-inverse); }
     .view-btn:hover:not(.active) { background:rgba(255,255,255,0.05); }
 
     /* Results counter */
-    .results-counter {
-      font-family:var(--font-mono); font-size:0.75rem; color:var(--text-dim);
-      margin-bottom:1rem;
-    }
+    .results-counter { font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim); margin-bottom:1rem; }
 
-    /* Timeline entries */
-    .timeline-list { display:flex; flex-direction:column; gap:0.75rem; }
+    /* ── Timeline View ───────────────────────────────────── */
+    .timeline-container { position:relative; padding-left:2rem; }
+    .timeline-line {
+      position:absolute; left:8px; top:0; bottom:0; width:2px;
+      background:linear-gradient(180deg, #FFD700 0%, rgba(255,215,0,0.15) 100%);
+      border-radius:1px;
+    }
     .timeline-entry {
-      display:grid; grid-template-columns:110px auto 1fr; gap:1rem;
-      align-items:start; padding:1rem 1.25rem;
-      background:var(--bg-card); backdrop-filter:var(--glass);
+      position:relative; padding:0.85rem 1.25rem; margin-bottom:0.65rem;
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
       border:1px solid var(--border-subtle); border-radius:var(--radius-card);
       transition:transform var(--transition-fast), box-shadow var(--transition-fast);
     }
-    .timeline-entry:hover {
-      transform:translateY(-2px);
-      box-shadow:var(--shadow-glow-gold);
+    .timeline-entry:hover { transform:translateY(-2px); box-shadow:var(--shadow-glow-gold); }
+    .timeline-dot {
+      position:absolute; left:-2rem; top:1.1rem; width:10px; height:10px;
+      border-radius:50%; transform:translateX(calc(-50% + 9px));
+      border:2px solid var(--bg-body);
     }
+    .dot-session { background:#94A3B8; }
+    .dot-change { background:#FFD700; }
+    .dot-task { background:#137DC5; }
+    .dot-decision { background:#8B5CF6; }
 
-    .entry-time {
-      font-family:var(--font-mono); font-size:0.75rem; color:var(--text-dim);
-      white-space:nowrap; padding-top:2px;
-    }
+    .entry-header { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.3rem; flex-wrap:wrap; }
+    .entry-time { font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim); white-space:nowrap; }
 
     /* Source badges */
     .source-badge {
-      font-family:var(--font-body); font-size:0.65rem; font-weight:700;
-      padding:3px 10px; border-radius:var(--radius-full);
-      text-transform:uppercase; white-space:nowrap; width:fit-content;
-      letter-spacing:0.03em;
+      font-family:var(--font-body); font-size:0.62rem; font-weight:700;
+      padding:2px 8px; border-radius:var(--radius-full);
+      text-transform:uppercase; white-space:nowrap; letter-spacing:0.03em;
     }
     .badge-session  { background:rgba(148,163,184,0.15); color:#94A3B8; }
     .badge-change   { background:rgba(255,215,0,0.15);   color:#FFD700; }
     .badge-task     { background:rgba(19,125,197,0.15);   color:#137DC5; }
     .badge-decision { background:rgba(139,92,246,0.15);   color:#8B5CF6; }
 
-    /* Entry content */
-    .entry-content { min-width:0; }
     .entry-title {
-      font-family:var(--font-heading); font-size:0.9rem; font-weight:700;
-      color:var(--text-primary); margin:0 0 0.3rem;
+      font-family:var(--font-heading); font-size:0.88rem; font-weight:700;
+      color:var(--text-primary); margin:0 0 0.25rem;
     }
     .entry-desc {
       font-family:var(--font-body); font-size:0.82rem; color:var(--text-muted);
       line-height:1.55; margin:0;
     }
     .entry-artifact {
-      display:inline-block; margin-top:0.35rem;
+      display:inline-block; margin-top:0.3rem;
       font-family:var(--font-mono); font-size:0.72rem;
       color:var(--brand-gold); text-decoration:none;
       border-bottom:1px dashed rgba(255,215,0,0.3);
     }
-    .entry-principles {
-      display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.4rem;
-    }
+    .entry-principles { display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.35rem; }
     .principle-tag {
-      font-family:var(--font-mono); font-size:0.65rem; font-weight:600;
-      padding:1px 8px; border-radius:var(--radius-full);
+      font-family:var(--font-mono); font-size:0.62rem; font-weight:600;
+      padding:1px 7px; border-radius:var(--radius-full);
       background:rgba(255,215,0,0.1); color:var(--brand-gold);
     }
 
-    /* ADR expandable detail */
+    /* Status pills */
+    .status-pill {
+      font-family:var(--font-body); font-size:0.6rem; font-weight:700;
+      padding:2px 8px; border-radius:var(--radius-full); text-transform:uppercase;
+    }
+    .pill-done    { background:rgba(19,125,197,0.15); color:#137DC5; }
+    .pill-wip     { background:rgba(255,215,0,0.15);  color:#FFD700; }
+    .pill-blocked { background:rgba(239,68,68,0.15);  color:#EF4444; }
+    .pill-open    { background:rgba(148,163,184,0.12); color:#94A3B8; }
+    .pill-accepted   { background:rgba(19,125,197,0.15); color:#137DC5; }
+    .pill-proposed   { background:rgba(255,215,0,0.15);  color:#FFD700; }
+    .pill-superseded { background:rgba(148,163,184,0.12); color:#94A3B8; }
+
+    /* ADR expandable */
     .adr-toggle {
       font-family:var(--font-body); font-size:0.72rem; font-weight:600;
       color:var(--brand-purple); cursor:pointer; user-select:none;
-      margin-top:0.5rem; display:inline-flex; align-items:center; gap:0.3rem;
+      margin-top:0.5rem; display:inline-flex; align-items:center; gap:0.35rem;
     }
-    .adr-toggle .chevron {
-      display:inline-block; transition:transform var(--transition-fast); font-size:0.6rem;
-    }
-    .adr-toggle .chevron.open { transform:rotate(90deg); }
-    .adr-detail { display:none; margin-top:0.75rem; padding-left:0.5rem; border-left:2px solid rgba(139,92,246,0.25); }
+    .adr-toggle svg { width:12px; height:12px; transition:transform var(--transition-fast); }
+    .adr-toggle.open svg { transform:rotate(90deg); }
+    .adr-detail { display:none; margin-top:0.65rem; padding-left:0.75rem; border-left:2px solid rgba(139,92,246,0.25); }
     .adr-detail.expanded { display:block; }
     .adr-section-label {
       font-family:var(--font-heading); font-size:0.72rem; font-weight:700;
       color:var(--text-dim); text-transform:uppercase; letter-spacing:0.05em;
-      margin:0.6rem 0 0.25rem;
+      margin:0.5rem 0 0.2rem;
     }
     .adr-section-label:first-child { margin-top:0; }
-    .adr-text {
-      font-family:var(--font-body); font-size:0.8rem; color:var(--text-muted); line-height:1.5; margin:0;
-    }
+    .adr-text { font-family:var(--font-body); font-size:0.8rem; color:var(--text-muted); line-height:1.5; margin:0; }
     .adr-options { list-style:none; padding:0; margin:0.2rem 0 0; }
     .adr-options li {
       font-family:var(--font-body); font-size:0.8rem; color:var(--text-muted);
-      padding:0.2rem 0; padding-left:1rem; position:relative;
+      padding:0.15rem 0; padding-left:1.2rem; position:relative;
     }
-    .adr-options li::before {
-      content:'\25B8'; position:absolute; left:0; color:var(--brand-purple);
-    }
+    .adr-options li::before { content:''; position:absolute; left:0; top:0.55em; width:6px; height:6px; border-radius:50%; background:var(--brand-purple); opacity:0.5; }
     .adr-anchor {
       font-family:var(--font-mono); font-size:0.7rem; color:var(--brand-gold);
-      margin-top:0.3rem; display:inline-block;
+      margin-top:0.25rem; display:inline-block;
     }
 
-    /* ADR status pills */
-    .adr-status {
-      font-family:var(--font-body); font-size:0.6rem; font-weight:700;
-      padding:2px 8px; border-radius:var(--radius-full); text-transform:uppercase;
-      margin-left:0.5rem; vertical-align:middle;
+    /* ── Table View ──────────────────────────────────────── */
+    .table-wrap {
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle); border-radius:var(--radius-card); overflow:hidden;
     }
-    .adr-accepted   { background:rgba(19,125,197,0.15); color:#137DC5; }
-    .adr-proposed    { background:rgba(255,215,0,0.15);  color:#FFD700; }
-    .adr-superseded  { background:rgba(148,163,184,0.12); color:#94A3B8; }
+    .log-table { width:100%; border-collapse:collapse; }
+    .log-table thead th {
+      font-family:var(--font-body); font-size:0.65rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim);
+      padding:0.75rem 1rem; text-align:left; border-bottom:1px solid var(--border-subtle);
+      cursor:pointer; user-select:none; white-space:nowrap;
+      transition:color var(--transition-fast);
+    }
+    .log-table thead th:hover { color:var(--brand-gold); }
+    .log-table thead th .sort-arrow { display:inline-block; margin-left:0.3rem; color:var(--brand-gold); font-size:0.6rem; }
+    .log-table tbody tr {
+      border-bottom:1px solid rgba(255,255,255,0.03);
+      transition:background var(--transition-fast);
+    }
+    .log-table tbody tr:hover { background:rgba(255,215,0,0.03); }
+    .log-table tbody td {
+      padding:0.65rem 1rem; font-family:var(--font-body); font-size:0.82rem;
+      color:var(--text-muted); vertical-align:top;
+    }
+    .log-table tbody td:first-child { font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim); white-space:nowrap; }
+    .td-title { color:var(--text-primary); font-weight:600; }
 
-    /* Task status pills */
-    .task-status {
-      font-family:var(--font-body); font-size:0.6rem; font-weight:700;
-      padding:2px 8px; border-radius:var(--radius-full); text-transform:uppercase;
-      margin-left:0.5rem; vertical-align:middle;
+    /* ── ADR Gallery View ────────────────────────────────── */
+    .adr-gallery { display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:1rem; }
+    .adr-card {
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle); border-radius:var(--radius-card);
+      padding:1.25rem 1.5rem;
+      transition:transform var(--transition-fast), box-shadow var(--transition-fast);
     }
-    .status-done    { background:rgba(19,125,197,0.15); color:#137DC5; }
-    .status-wip     { background:rgba(255,215,0,0.15);  color:#FFD700; }
-    .status-blocked { background:rgba(239,68,68,0.15);  color:#EF4444; }
-    .status-open    { background:rgba(148,163,184,0.12); color:#94A3B8; }
+    .adr-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-glow-gold); }
+    .adr-card-header { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.65rem; }
+    .adr-card-id { font-family:var(--font-mono); font-size:0.72rem; color:var(--brand-gold); font-weight:700; }
+    .adr-card-title { font-family:var(--font-heading); font-size:0.95rem; font-weight:700; color:var(--text-primary); flex:1; }
+    .adr-card-section { margin-bottom:0.6rem; }
+    .adr-card-label {
+      font-family:var(--font-heading); font-size:0.68rem; font-weight:700;
+      color:var(--text-dim); text-transform:uppercase; letter-spacing:0.05em;
+      margin-bottom:0.2rem;
+    }
+    .adr-card-text { font-family:var(--font-body); font-size:0.82rem; color:var(--text-muted); line-height:1.5; }
+    .adr-card-decision { font-weight:700; color:var(--text-primary); }
+    .adr-card-options { list-style:none; padding:0; margin:0; counter-reset:opt; }
+    .adr-card-options li {
+      font-family:var(--font-body); font-size:0.8rem; color:var(--text-muted);
+      padding:0.15rem 0 0.15rem 1.5rem; position:relative; counter-increment:opt;
+    }
+    .adr-card-options li::before {
+      content:counter(opt); position:absolute; left:0; top:0.15rem;
+      font-family:var(--font-mono); font-size:0.65rem; font-weight:700;
+      width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+      background:rgba(139,92,246,0.12); color:var(--brand-purple);
+    }
+    .adr-anchor-pills { display:flex; gap:0.3rem; flex-wrap:wrap; margin-top:0.5rem; }
+    .adr-anchor-pill {
+      font-family:var(--font-mono); font-size:0.62rem; font-weight:600;
+      padding:2px 8px; border-radius:var(--radius-full);
+      background:rgba(255,215,0,0.08); color:var(--brand-gold);
+    }
 
-    /* Tab view */
-    .tab-bar {
-      display:flex; gap:0; border-bottom:1px solid var(--border-subtle);
-      margin-bottom:1.25rem;
-    }
-    .tab-btn {
-      font-family:var(--font-body); font-size:0.82rem; font-weight:600;
-      padding:0.6rem 1.25rem; border:none; cursor:pointer;
-      background:transparent; color:var(--text-dim);
-      border-bottom:2px solid transparent;
-      transition:color var(--transition-fast), border-color var(--transition-fast);
-    }
-    .tab-btn.active { color:var(--brand-gold); border-bottom-color:var(--brand-gold); }
-    .tab-btn:hover:not(.active) { color:var(--text-muted); }
-    .tab-pane { display:none; }
-    .tab-pane.active { display:block; }
-
-    /* Empty state */
+    /* ── Empty State ─────────────────────────────────────── */
     .empty-state {
-      text-align:center; padding:4rem 2rem;
-      font-family:var(--font-body); color:var(--text-dim);
+      text-align:center; padding:4rem 2rem; font-family:var(--font-body); color:var(--text-dim);
     }
-    .empty-state .empty-icon { font-size:2.5rem; margin-bottom:0.75rem; opacity:0.4; }
+    .empty-state .empty-icon { margin-bottom:0.75rem; opacity:0.4; }
+    .empty-state .empty-icon svg { width:48px; height:48px; color:var(--text-dim); }
     .empty-state .empty-msg { font-size:0.9rem; }
     .empty-state code {
       font-family:var(--font-mono); font-size:0.82rem;
@@ -181,394 +262,395 @@
       padding:2px 8px; border-radius:4px;
     }
 
-    /* Responsive */
-    @media (max-width:640px) {
-      .timeline-entry { grid-template-columns:1fr; gap:0.4rem; }
-      .entry-time { order:-1; }
+    @media (max-width:768px) {
+      .stats-bar { grid-template-columns:repeat(2,1fr); }
+      .controls-bar { flex-direction:column; align-items:stretch; }
+      .adr-gallery { grid-template-columns:1fr; }
+    }
+    @media (max-width:480px) {
+      .stats-bar { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
   <main class="logs-main">
-    <!-- Page header -->
     <div class="page-header">
-      <h1 class="page-title">Logs <span class="gold">&amp;</span> Decisions</h1>
-      <p class="page-subtitle">Unified timeline — session events, changes, tasks, and architectural decisions</p>
+      <h1 class="page-title" data-i18n="logs.title">Logs <span class="gold">&amp;</span> Decisions</h1>
+      <p class="page-subtitle">Unified timeline -- session events, changes, tasks, and architectural decisions</p>
     </div>
-
-    <!-- Search + filter bar -->
-    <div id="log-search"></div>
-
-    <!-- View toggle -->
-    <div class="view-toggle">
-      <button class="view-btn active" data-view="timeline">Timeline</button>
-      <button class="view-btn" data-view="tabs">Tabs</button>
-    </div>
-
-    <!-- Results counter -->
-    <div class="results-counter" id="results-counter"></div>
-
-    <!-- Timeline view (default) -->
-    <div id="view-timeline">
-      <div class="timeline-list" id="timeline-list"></div>
-    </div>
-
-    <!-- Tab view -->
-    <div id="view-tabs" style="display:none">
-      <div class="tab-bar">
-        <button class="tab-btn active" data-tab="session">Session</button>
-        <button class="tab-btn" data-tab="change">Changes</button>
-        <button class="tab-btn" data-tab="task">Tasks</button>
-        <button class="tab-btn" data-tab="decision">Decisions</button>
+    <div class="stats-bar" id="stats-bar"></div>
+    <div class="controls-bar">
+      <div class="search-wrap">
+        <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+        <input class="search-input" id="log-search" type="text" data-i18n="common.search" placeholder="Search logs, tasks, decisions..." />
       </div>
-      <div class="tab-pane active" id="tab-session"><div class="timeline-list"></div></div>
-      <div class="tab-pane" id="tab-change"><div class="timeline-list"></div></div>
-      <div class="tab-pane" id="tab-task"><div class="timeline-list"></div></div>
-      <div class="tab-pane" id="tab-decision"><div class="timeline-list"></div></div>
+      <div class="filter-chips" id="filter-chips">
+        <button class="filter-chip active" data-filter="all" data-i18n="common.all">All</button>
+        <button class="filter-chip" data-filter="session" data-i18n="logs.session">Session</button>
+        <button class="filter-chip" data-filter="change" data-i18n="logs.change">Change</button>
+        <button class="filter-chip" data-filter="task" data-i18n="logs.task">Task</button>
+        <button class="filter-chip" data-filter="decision" data-i18n="logs.decision">Decision</button>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="timeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg> <span data-i18n="logs.timeline">Timeline</span></button>
+        <button class="view-btn" data-view="table"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M3 12h18M3 18h18"/></svg> <span data-i18n="logs.table">Table</span></button>
+        <button class="view-btn" data-view="adr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> <span data-i18n="logs.adr">ADR Gallery</span></button>
+      </div>
     </div>
+    <div class="results-counter" id="results-counter"></div>
+    <div id="view-timeline"></div>
+    <div id="view-table" style="display:none"></div>
+    <div id="view-adr" style="display:none"></div>
   </main>
 
   <script>
-    /* ============================================================
-       Logs & Decisions — SDD ALM
-       ============================================================ */
-    (function() {
-      'use strict';
+  (function() {
+    'use strict';
 
-      /* --- Data helpers --- */
-      function D() { return window.DASHBOARD_DATA || null; }
+    /* ── i18n helper ── */
+    function t(key, fallback) { return (window.SDD && SDD.i18n ? SDD.i18n.t(key) : fallback); }
 
-      function get(obj, path, def) {
-        if (!obj) return def;
-        var keys = path.split('.');
-        var cur = obj;
-        for (var i = 0; i < keys.length; i++) {
-          if (cur == null || typeof cur !== 'object') return def;
-          cur = cur[keys[i]];
-        }
-        return cur == null ? def : cur;
+    function D() { return window.DASHBOARD_DATA || null; }
+    function get(obj, path, def) {
+      if (!obj) return def;
+      var keys = path.split('.');
+      var cur = obj;
+      for (var i = 0; i < keys.length; i++) {
+        if (cur == null || typeof cur !== 'object') return def;
+        cur = cur[keys[i]];
       }
+      return cur == null ? def : cur;
+    }
 
-      /* --- Date formatting --- */
-      var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      function fmtDate(raw) {
-        if (!raw) return '—';
-        var d = new Date(raw);
-        if (isNaN(d.getTime())) return String(raw).slice(0, 16);
-        var mon = MONTHS[d.getMonth()];
-        var day = d.getDate();
-        var h = String(d.getHours()).padStart(2, '0');
-        var m = String(d.getMinutes()).padStart(2, '0');
-        return mon + ' ' + day + ', ' + h + ':' + m;
+    var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function fmtDate(raw) {
+      if (!raw) return '--';
+      var d = new Date(raw);
+      if (isNaN(d.getTime())) return String(raw).slice(0, 16);
+      return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    }
+    function sortKey(raw) { if (!raw) return 0; var d = new Date(raw); return isNaN(d.getTime()) ? 0 : d.getTime(); }
+    function esc(s) { var t = document.createElement('span'); t.textContent = s || ''; return t.innerHTML; }
+
+    /* ── Icons (inline SVG) ────────────────────────────────── */
+    var ICONS = {
+      total: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h10"/></svg>',
+      session: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>',
+      change: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>',
+      decision: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l9 4.5v9L12 21l-9-4.5v-9L12 3z"/><path d="M12 12l9-4.5M12 12v9M12 12L3 7.5"/></svg>',
+      chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5l7 7-7 7"/></svg>',
+      empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5h6l3 4v10a2 2 0 01-2 2H8a2 2 0 01-2-2V9l3-4z"/><path d="M9 5v4H6M15 5v4h3"/></svg>'
+    };
+
+    /* ── Build entries ────────────────────────────────────── */
+    function buildEntries() {
+      var data = D(); if (!data) return [];
+      var entries = [];
+      get(data,'sessionLog',[]).forEach(function(e) {
+        entries.push({ source:'session', date:e.timestamp, sortKey:sortKey(e.timestamp), title:e.type||'Event', desc:e.description||'', raw:e });
+      });
+      get(data,'changelog',[]).forEach(function(e) {
+        entries.push({ source:'change', date:e.date, sortKey:sortKey(e.date), title:e.type||'Change', desc:e.description||'', artifact:e.artifact||null, principles:e.principles||[], raw:e });
+      });
+      get(data,'tasklog',[]).forEach(function(e) {
+        entries.push({ source:'task', date:e.opened, sortKey:sortKey(e.opened), title:e.id?(e.id+' -- '+(e.task||'')):(e.task||'Task'), desc:(e.owner?'Owner: '+e.owner:'')+(e.age?' | Age: '+e.age:'')+(e.notes?' | '+e.notes:''), status:e.status, raw:e });
+      });
+      get(data,'decisionLog',[]).forEach(function(e) {
+        entries.push({ source:'decision', date:e.date, sortKey:sortKey(e.date), title:e.id?(e.id+' -- '+(e.title||'')):(e.title||'ADR'), desc:'', adrStatus:e.status, raw:e });
+      });
+      entries.sort(function(a,b) { return b.sortKey - a.sortKey; });
+      return entries;
+    }
+
+    /* ── State ────────────────────────────────────────────── */
+    var allEntries = [];
+    var currentFilter = 'all';
+    var currentQuery = '';
+    var currentView = 'timeline';
+    var tableSortCol = 'date';
+    var tableSortAsc = false;
+
+    function matchesSearch(e, q) {
+      if (!q) return true;
+      var blob = [e.title, e.desc, e.source, e.status||'', e.adrStatus||''];
+      if (e.artifact) blob.push(e.artifact);
+      if (e.principles) blob = blob.concat(e.principles);
+      var r = e.raw;
+      if (r) { if(r.context) blob.push(r.context); if(r.decision) blob.push(r.decision); if(r.consequences) blob.push(r.consequences); if(r.anchor) blob.push(r.anchor); if(r.notes) blob.push(r.notes); if(r.owner) blob.push(r.owner); }
+      return blob.join(' ').toLowerCase().indexOf(q) !== -1;
+    }
+
+    function getFiltered() {
+      return allEntries.filter(function(e) {
+        if (currentFilter !== 'all' && e.source !== currentFilter) return false;
+        return matchesSearch(e, currentQuery);
+      });
+    }
+
+    /* ── Stats Bar ────────────────────────────────────────── */
+    function renderStats() {
+      var data = D();
+      var sessions = get(data,'sessionLog',[]).length;
+      var changes = get(data,'changelog',[]).length;
+      var decisions = get(data,'decisionLog',[]).length;
+      var total = allEntries.length;
+      document.getElementById('stats-bar').innerHTML =
+        statCard(total, 'Total Entries', 'stat-icon-total', ICONS.total) +
+        statCard(sessions, t('logs.session','Session') + ' Events', 'stat-icon-session', ICONS.session) +
+        statCard(changes, t('logs.change','Change') + 's', 'stat-icon-change', ICONS.change) +
+        statCard(decisions, t('logs.decision','Decision') + 's (ADRs)', 'stat-icon-decision', ICONS.decision);
+    }
+    function statCard(val, label, cls, icon) {
+      return '<div class="stat-card"><div class="stat-icon '+cls+'">'+icon+'</div><div><div class="stat-value">'+val+'</div><div class="stat-label">'+esc(label)+'</div></div></div>';
+    }
+
+    /* ── Status pill helper ───────────────────────────────── */
+    function taskPill(status) {
+      if (!status) return '';
+      var s = status.toLowerCase().replace(/[\s-]/g,'');
+      var c = 'pill-open';
+      if (s==='done'||s==='closed'||s==='completed') c='pill-done';
+      else if (s==='wip'||s==='inprogress') c='pill-wip';
+      else if (s==='blocked') c='pill-blocked';
+      return ' <span class="status-pill '+c+'">'+esc(status)+'</span>';
+    }
+    function adrPill(status) {
+      if (!status) return '';
+      var s = status.toLowerCase();
+      var c = 'pill-proposed';
+      if (s==='accepted'||s==='approved') c='pill-accepted';
+      else if (s==='superseded'||s==='deprecated') c='pill-superseded';
+      return ' <span class="status-pill '+c+'">'+esc(status)+'</span>';
+    }
+
+    /* ── ADR detail block ─────────────────────────────────── */
+    function adrDetailHTML(r, uid) {
+      var hasDetail = r.context || (r.options && r.options.length) || r.decision || r.consequences || r.anchor;
+      if (!hasDetail) return '';
+      var h = '<div class="adr-toggle" data-target="'+uid+'">'+ICONS.chevron+' Details</div>';
+      h += '<div class="adr-detail" id="'+uid+'">';
+      if (r.context) h += '<div class="adr-section-label">Context</div><p class="adr-text">'+esc(r.context)+'</p>';
+      if (r.options && r.options.length) {
+        h += '<div class="adr-section-label">Options</div><ul class="adr-options">';
+        r.options.forEach(function(o) { h += '<li>'+esc(typeof o==='string'?o:o.title||JSON.stringify(o))+'</li>'; });
+        h += '</ul>';
       }
+      if (r.decision) h += '<div class="adr-section-label">Decision</div><p class="adr-text" style="font-weight:700;color:var(--text-primary)">'+esc(r.decision)+'</p>';
+      if (r.consequences) h += '<div class="adr-section-label">Consequences</div><p class="adr-text">'+esc(r.consequences)+'</p>';
+      if (r.anchor) h += '<div class="adr-section-label">Constitutional Anchor</div><span class="adr-anchor">'+esc(r.anchor)+'</span>';
+      h += '</div>';
+      return h;
+    }
 
-      function sortKey(raw) {
-        if (!raw) return 0;
-        var d = new Date(raw);
-        return isNaN(d.getTime()) ? 0 : d.getTime();
-      }
-
-      /* --- Escape HTML --- */
-      function esc(s) { var t = document.createElement('span'); t.textContent = s || ''; return t.innerHTML; }
-
-      /* --- Merge all sources --- */
-      function buildEntries() {
-        var data = D();
-        if (!data) return [];
-        var entries = [];
-
-        get(data, 'sessionLog', []).forEach(function(e) {
-          entries.push({
-            source: 'session',
-            date: e.timestamp,
-            sortKey: sortKey(e.timestamp),
-            title: e.type || 'Event',
-            desc: e.description || '',
-            raw: e
-          });
-        });
-
-        get(data, 'changelog', []).forEach(function(e) {
-          entries.push({
-            source: 'change',
-            date: e.date,
-            sortKey: sortKey(e.date),
-            title: e.type || 'Change',
-            desc: e.description || '',
-            artifact: e.artifact || null,
-            principles: e.principles || [],
-            raw: e
-          });
-        });
-
-        get(data, 'tasklog', []).forEach(function(e) {
-          entries.push({
-            source: 'task',
-            date: e.opened,
-            sortKey: sortKey(e.opened),
-            title: e.id ? (e.id + ' — ' + (e.task || '')) : (e.task || 'Task'),
-            desc: (e.owner ? 'Owner: ' + e.owner : '') + (e.age ? ' | Age: ' + e.age : '') + (e.notes ? ' | ' + e.notes : ''),
-            status: e.status,
-            raw: e
-          });
-        });
-
-        get(data, 'decisionLog', []).forEach(function(e) {
-          entries.push({
-            source: 'decision',
-            date: e.date,
-            sortKey: sortKey(e.date),
-            title: e.id ? (e.id + ' — ' + (e.title || '')) : (e.title || 'ADR'),
-            desc: '',
-            adrStatus: e.status,
-            raw: e
-          });
-        });
-
-        entries.sort(function(a, b) { return b.sortKey - a.sortKey; });
-        return entries;
-      }
-
-      /* --- Render a single entry --- */
-      function renderEntry(e) {
-        var badgeClass = 'badge-' + e.source;
-        var badgeLabel = {session:'Session',change:'Change',task:'Task',decision:'Decision'}[e.source] || e.source;
-
-        var html = '<div class="timeline-entry" data-source="' + e.source + '">';
-        html += '<div class="entry-time">' + fmtDate(e.date) + '</div>';
-        html += '<div><span class="source-badge ' + badgeClass + '">' + badgeLabel + '</span></div>';
-        html += '<div class="entry-content">';
-        html += '<p class="entry-title">' + esc(e.title);
-
-        // Task status pill
-        if (e.source === 'task' && e.status) {
-          var sc = e.status.toLowerCase().replace(/\s/g, '');
-          var scClass = 'status-open';
-          if (sc === 'done' || sc === 'closed' || sc === 'completed') scClass = 'status-done';
-          else if (sc === 'wip' || sc === 'inprogress' || sc === 'in-progress') scClass = 'status-wip';
-          else if (sc === 'blocked') scClass = 'status-blocked';
-          html += ' <span class="task-status ' + scClass + '">' + esc(e.status) + '</span>';
-        }
-
-        // ADR status pill
-        if (e.source === 'decision' && e.adrStatus) {
-          var as = e.adrStatus.toLowerCase();
-          var asClass = 'adr-proposed';
-          if (as === 'accepted' || as === 'approved') asClass = 'adr-accepted';
-          else if (as === 'superseded' || as === 'deprecated') asClass = 'adr-superseded';
-          html += ' <span class="adr-status ' + asClass + '">' + esc(e.adrStatus) + '</span>';
-        }
-
-        html += '</p>';
-
-        if (e.desc) html += '<p class="entry-desc">' + esc(e.desc) + '</p>';
-
-        // Artifact link
-        if (e.artifact) {
-          html += '<span class="entry-artifact">' + esc(e.artifact) + '</span>';
-        }
-
-        // Principles tags
+    /* ── Timeline Render ──────────────────────────────────── */
+    function renderTimeline() {
+      var el = document.getElementById('view-timeline');
+      var filtered = getFiltered();
+      updateCounter(filtered.length);
+      if (!filtered.length) { el.innerHTML = emptyHTML(); return; }
+      var h = '<div class="timeline-container"><div class="timeline-line"></div>';
+      filtered.forEach(function(e) {
+        var uid = 'adr-'+Math.random().toString(36).slice(2,9);
+        h += '<div class="timeline-entry" data-source="'+e.source+'">';
+        h += '<span class="timeline-dot dot-'+e.source+'"></span>';
+        h += '<div class="entry-header">';
+        h += '<span class="entry-time">'+fmtDate(e.date)+'</span>';
+        h += '<span class="source-badge badge-'+e.source+'">'+({session:'Session',change:'Change',task:'Task',decision:'Decision'}[e.source]||e.source)+'</span>';
+        if (e.source==='task') h += taskPill(e.status);
+        if (e.source==='decision') h += adrPill(e.adrStatus);
+        h += '</div>';
+        h += '<p class="entry-title">'+esc(e.title)+'</p>';
+        if (e.desc) h += '<p class="entry-desc">'+esc(e.desc)+'</p>';
+        if (e.artifact) h += '<span class="entry-artifact">'+esc(e.artifact)+'</span>';
         if (e.principles && e.principles.length) {
-          html += '<div class="entry-principles">';
-          e.principles.forEach(function(p) { html += '<span class="principle-tag">' + esc(p) + '</span>'; });
-          html += '</div>';
+          h += '<div class="entry-principles">';
+          e.principles.forEach(function(p) { h += '<span class="principle-tag">'+esc(p)+'</span>'; });
+          h += '</div>';
         }
+        if (e.source==='decision') h += adrDetailHTML(e.raw, uid);
+        h += '</div>';
+      });
+      h += '</div>';
+      el.innerHTML = h;
+      bindADRToggles(el);
+    }
 
-        // ADR expandable detail
-        if (e.source === 'decision') {
-          var r = e.raw;
-          var hasDetail = r.context || (r.options && r.options.length) || r.decision || r.consequences || r.anchor;
-          if (hasDetail) {
-            var uid = 'adr-' + Math.random().toString(36).slice(2, 9);
-            html += '<div class="adr-toggle" data-target="' + uid + '">';
-            html += '<span class="chevron">&#9656;</span> Details';
-            html += '</div>';
-            html += '<div class="adr-detail" id="' + uid + '">';
+    /* ── Table Render ─────────────────────────────────────── */
+    function renderTable() {
+      var el = document.getElementById('view-table');
+      var filtered = getFiltered();
+      updateCounter(filtered.length);
+      if (!filtered.length) { el.innerHTML = emptyHTML(); return; }
 
-            if (r.context) {
-              html += '<div class="adr-section-label">Context</div>';
-              html += '<p class="adr-text">' + esc(r.context) + '</p>';
-            }
-            if (r.options && r.options.length) {
-              html += '<div class="adr-section-label">Options</div>';
-              html += '<ul class="adr-options">';
-              r.options.forEach(function(o) { html += '<li>' + esc(typeof o === 'string' ? o : o.title || JSON.stringify(o)) + '</li>'; });
-              html += '</ul>';
-            }
-            if (r.decision) {
-              html += '<div class="adr-section-label">Decision</div>';
-              html += '<p class="adr-text">' + esc(r.decision) + '</p>';
-            }
-            if (r.consequences) {
-              html += '<div class="adr-section-label">Consequences</div>';
-              html += '<p class="adr-text">' + esc(r.consequences) + '</p>';
-            }
-            if (r.anchor) {
-              html += '<div class="adr-section-label">Constitutional Anchor</div>';
-              html += '<span class="adr-anchor">' + esc(r.anchor) + '</span>';
-            }
+      // Sort
+      filtered.sort(function(a,b) {
+        var va, vb;
+        if (tableSortCol==='date') { va=a.sortKey; vb=b.sortKey; }
+        else if (tableSortCol==='source') { va=a.source; vb=b.source; }
+        else if (tableSortCol==='type') { va=(a.source==='task'?a.status:a.adrStatus)||''; vb=(b.source==='task'?b.status:b.adrStatus)||''; }
+        else if (tableSortCol==='desc') { va=a.title; vb=b.title; }
+        else if (tableSortCol==='artifact') { va=a.artifact||''; vb=b.artifact||''; }
+        else { va=a.sortKey; vb=b.sortKey; }
+        if (typeof va==='number') return tableSortAsc ? va-vb : vb-va;
+        return tableSortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+      });
 
-            html += '</div>';
-          }
-        }
+      var arrow = function(col) { return tableSortCol===col ? '<span class="sort-arrow">'+(tableSortAsc?'&#9650;':'&#9660;')+'</span>' : ''; };
+      var h = '<div class="table-wrap"><table class="log-table"><thead><tr>';
+      h += '<th data-col="date">DATE'+arrow('date')+'</th>';
+      h += '<th data-col="source">SOURCE'+arrow('source')+'</th>';
+      h += '<th data-col="type">TYPE'+arrow('type')+'</th>';
+      h += '<th data-col="desc">DESCRIPTION'+arrow('desc')+'</th>';
+      h += '<th data-col="artifact">ARTIFACT'+arrow('artifact')+'</th>';
+      h += '</tr></thead><tbody>';
+      filtered.forEach(function(e) {
+        h += '<tr>';
+        h += '<td>'+fmtDate(e.date)+'</td>';
+        h += '<td><span class="source-badge badge-'+e.source+'">'+({session:'Session',change:'Change',task:'Task',decision:'Decision'}[e.source])+'</span></td>';
+        h += '<td>';
+        if (e.source==='task') h += taskPill(e.status);
+        else if (e.source==='decision') h += adrPill(e.adrStatus);
+        else h += '<span style="font-size:0.75rem;color:var(--text-dim)">--</span>';
+        h += '</td>';
+        h += '<td class="td-title">'+esc(e.title)+'</td>';
+        h += '<td>'+(e.artifact ? '<span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--brand-gold)">'+esc(e.artifact)+'</span>' : '--')+'</td>';
+        h += '</tr>';
+      });
+      h += '</tbody></table></div>';
+      el.innerHTML = h;
 
-        html += '</div></div>';
-        return html;
-      }
+      el.querySelectorAll('th[data-col]').forEach(function(th) {
+        th.addEventListener('click', function() {
+          var col = th.getAttribute('data-col');
+          if (tableSortCol===col) tableSortAsc = !tableSortAsc;
+          else { tableSortCol = col; tableSortAsc = true; }
+          renderTable();
+        });
+      });
+    }
 
-      /* --- State --- */
-      var allEntries = [];
-      var currentFilter = 'all';
-      var currentQuery = '';
-      var currentView = 'timeline';
-      var currentTab = 'session';
+    /* ── ADR Gallery Render ───────────────────────────────── */
+    function renderADRGallery() {
+      var el = document.getElementById('view-adr');
+      var decisions = allEntries.filter(function(e) { return e.source==='decision' && matchesSearch(e, currentQuery); });
+      updateCounter(decisions.length);
+      if (!decisions.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">'+ICONS.decision+'</div><div class="empty-msg">No architectural decisions recorded yet</div></div>'; return; }
 
-      /* --- Filter + search logic --- */
-      function matchesSearch(e, q) {
-        if (!q) return true;
-        var blob = [e.title, e.desc, e.source, e.status || '', e.adrStatus || ''];
-        if (e.artifact) blob.push(e.artifact);
-        if (e.principles) blob = blob.concat(e.principles);
+      var h = '<div class="adr-gallery">';
+      decisions.forEach(function(e) {
         var r = e.raw;
-        if (r) {
-          if (r.context) blob.push(r.context);
-          if (r.decision) blob.push(r.decision);
-          if (r.consequences) blob.push(r.consequences);
-          if (r.anchor) blob.push(r.anchor);
-          if (r.notes) blob.push(r.notes);
-          if (r.owner) blob.push(r.owner);
+        h += '<div class="adr-card">';
+        h += '<div class="adr-card-header">';
+        if (r.id) h += '<span class="adr-card-id">'+esc(r.id)+'</span>';
+        h += '<span class="adr-card-title">'+esc(r.title||'Decision')+'</span>';
+        h += adrPill(e.adrStatus);
+        h += '</div>';
+        if (r.context) { h += '<div class="adr-card-section"><div class="adr-card-label">Context</div><div class="adr-card-text">'+esc(r.context)+'</div></div>'; }
+        if (r.options && r.options.length) {
+          h += '<div class="adr-card-section"><div class="adr-card-label">Options</div><ol class="adr-card-options">';
+          r.options.forEach(function(o) { h += '<li>'+esc(typeof o==='string'?o:o.title||JSON.stringify(o))+'</li>'; });
+          h += '</ol></div>';
         }
-        var text = blob.join(' ').toLowerCase();
-        return text.indexOf(q) !== -1;
-      }
+        if (r.decision) { h += '<div class="adr-card-section"><div class="adr-card-label">Decision</div><div class="adr-card-text adr-card-decision">'+esc(r.decision)+'</div></div>'; }
+        if (r.consequences) { h += '<div class="adr-card-section"><div class="adr-card-label">Consequences</div><div class="adr-card-text">'+esc(r.consequences)+'</div></div>'; }
+        if (r.anchor) {
+          var anchors = Array.isArray(r.anchor) ? r.anchor : [r.anchor];
+          h += '<div class="adr-anchor-pills">';
+          anchors.forEach(function(a) { h += '<span class="adr-anchor-pill">'+esc(a)+'</span>'; });
+          h += '</div>';
+        }
+        h += '</div>';
+      });
+      h += '</div>';
+      el.innerHTML = h;
+    }
 
-      function getFiltered() {
-        return allEntries.filter(function(e) {
-          if (currentFilter !== 'all' && e.source !== currentFilter) return false;
-          return matchesSearch(e, currentQuery);
-        });
-      }
+    /* ── Render dispatcher ────────────────────────────────── */
+    function render() {
+      document.getElementById('view-timeline').style.display = currentView==='timeline' ? '' : 'none';
+      document.getElementById('view-table').style.display = currentView==='table' ? '' : 'none';
+      document.getElementById('view-adr').style.display = currentView==='adr' ? '' : 'none';
+      if (currentView==='timeline') renderTimeline();
+      else if (currentView==='table') renderTable();
+      else renderADRGallery();
+    }
 
-      /* --- Render functions --- */
-      function renderTimeline() {
-        var list = document.getElementById('timeline-list');
-        var filtered = getFiltered();
-        updateCounter(filtered.length, allEntries.length);
-        if (!filtered.length) { list.innerHTML = emptyHTML(); return; }
-        list.innerHTML = filtered.map(renderEntry).join('');
-        bindADRToggles(list);
-      }
+    function updateCounter(shown) {
+      document.getElementById('results-counter').textContent = 'Showing ' + shown + ' of ' + allEntries.length + ' entries';
+    }
 
-      function renderTabs() {
-        ['session','change','task','decision'].forEach(function(src) {
-          var pane = document.querySelector('#tab-' + src + ' .timeline-list');
-          var filtered = allEntries.filter(function(e) {
-            if (e.source !== src) return false;
-            return matchesSearch(e, currentQuery);
-          });
-          if (!filtered.length) { pane.innerHTML = emptyHTML(); return; }
-          pane.innerHTML = filtered.map(renderEntry).join('');
-          bindADRToggles(pane);
-        });
-        var total = allEntries.length;
-        var shown = allEntries.filter(function(e) { return matchesSearch(e, currentQuery); }).length;
-        updateCounter(shown, total);
-      }
+    function emptyHTML() {
+      return '<div class="empty-state"><div class="empty-icon">'+ICONS.empty+'</div><div class="empty-msg">No logs yet -- activity is recorded as you use <code>/sdd:</code> commands</div></div>';
+    }
 
-      function render() {
-        if (currentView === 'timeline') renderTimeline();
-        else renderTabs();
-      }
-
-      function updateCounter(shown, total) {
-        document.getElementById('results-counter').textContent = 'Showing ' + shown + ' of ' + total + ' entries';
-      }
-
-      function emptyHTML() {
-        return '<div class="empty-state">' +
-          '<div class="empty-icon">&#x1F4CB;</div>' +
-          '<div class="empty-msg">No log data &mdash; run <code>/sdd:dashboard</code> to generate</div>' +
-          '</div>';
-      }
-
-      /* --- ADR toggle --- */
-      function bindADRToggles(root) {
-        root.querySelectorAll('.adr-toggle').forEach(function(btn) {
-          btn.addEventListener('click', function() {
-            var target = document.getElementById(btn.getAttribute('data-target'));
-            if (!target) return;
-            var isOpen = target.classList.toggle('expanded');
-            btn.querySelector('.chevron').classList.toggle('open', isOpen);
-          });
-        });
-      }
-
-      /* --- View toggle --- */
-      document.querySelectorAll('.view-btn').forEach(function(btn) {
+    function bindADRToggles(root) {
+      root.querySelectorAll('.adr-toggle').forEach(function(btn) {
         btn.addEventListener('click', function() {
-          document.querySelectorAll('.view-btn').forEach(function(b) { b.classList.remove('active'); });
-          btn.classList.add('active');
-          currentView = btn.getAttribute('data-view');
-          document.getElementById('view-timeline').style.display = currentView === 'timeline' ? '' : 'none';
-          document.getElementById('view-tabs').style.display = currentView === 'tabs' ? '' : 'none';
-          render();
+          var target = document.getElementById(btn.getAttribute('data-target'));
+          if (!target) return;
+          var isOpen = target.classList.toggle('expanded');
+          btn.classList.toggle('open', isOpen);
         });
       });
+    }
 
-      /* --- Tab switching --- */
-      document.querySelectorAll('.tab-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-          btn.classList.add('active');
-          currentTab = btn.getAttribute('data-tab');
-          document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
-          document.getElementById('tab-' + currentTab).classList.add('active');
-        });
-      });
-
-      /* --- Init --- */
-      function init() {
-        allEntries = buildEntries();
-
-        if (typeof SDD !== 'undefined' && SDD.search && SDD.search.init) {
-          SDD.search.init('log-search', {
-            placeholder: 'Search logs, tasks, decisions\u2026',
-            filters: [
-              { label: 'Session',  value: 'session' },
-              { label: 'Change',   value: 'change' },
-              { label: 'Task',     value: 'task' },
-              { label: 'Decision', value: 'decision' }
-            ],
-            onSearch: function(q, filter) {
-              currentQuery = q;
-              currentFilter = filter;
-              render();
-            },
-            onFilter: function(filter, q) {
-              currentFilter = filter;
-              currentQuery = q;
-              render();
-            }
-          });
-        }
-
-        if (!allEntries.length) {
-          document.getElementById('timeline-list').innerHTML = emptyHTML();
-          updateCounter(0, 0);
-          return;
-        }
-
+    /* ── Events ───────────────────────────────────────────── */
+    document.querySelectorAll('.view-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.view-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        currentView = btn.getAttribute('data-view');
         render();
-      }
+      });
+    });
 
-      // Wait for shared scripts
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
+    document.querySelectorAll('.filter-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        currentFilter = chip.getAttribute('data-filter');
+        render();
+      });
+    });
+
+    document.getElementById('log-search').addEventListener('input', function() {
+      currentQuery = this.value.trim().toLowerCase();
+      render();
+    });
+
+    /* ── Init ─────────────────────────────────────────────── */
+    function init() {
+      allEntries = buildEntries();
+      renderStats();
+      if (!allEntries.length) {
+        document.getElementById('view-timeline').innerHTML = emptyHTML();
+        updateCounter(0);
+        return;
       }
-    })();
+      render();
+    }
+
+    // Feature filter integration
+    window.addEventListener('sdd:filter-applied', function() {
+      var active = window.SDD && SDD.filter && SDD.filter.active();
+      if (!active) { render(); return; }
+      // Filter timeline entries by checking if content references the active feature
+      var containers = [
+        document.querySelectorAll('.timeline-entry'),
+        document.querySelectorAll('.log-table tbody tr')
+      ];
+      containers.forEach(function(nodes) {
+        nodes.forEach(function(el) {
+          var text = el.textContent.toLowerCase();
+          var featureId = active.toLowerCase();
+          el.style.display = (text.indexOf(featureId) !== -1) ? '' : 'none';
+        });
+      });
+    });
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
   </script>
 </body>
 </html>

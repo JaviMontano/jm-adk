@@ -3,12 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230A122A'/%3E%3Cstop offset='100%25' stop-color='%2313315C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='36' height='36' rx='10' fill='url(%23g)'/%3E%3Crect x='10' y='12' width='4' height='12' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='12' width='4' height='8' rx='.5' fill='%23FFF'/%3E%3Crect x='16' y='22' width='4' height='2' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='12' width='4' height='6' rx='.5' fill='%23FFF'/%3E%3Crect x='22' y='20' width='4' height='4' rx='.5' fill='%23FFF'/%3E%3Ccircle cx='18' cy='8' r='2' fill='%23FFD700'/%3E%3C/svg%3E">
   <title>SDD Command Center &mdash; Spec Driven Development by metodologIA</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/tokens.css">
   <script src="shared/search.js" defer></script>
   <script src="shared/data.js"></script>
+  <script src="shared/filter.js" defer></script>
+  <script src="shared/i18n.js" defer></script>
   <script src="shared/nav.js" defer></script>
+  <script src="shared/footer.js" defer></script>
   <style>
     /* ── Layout ─────────────────────────────────────────────── */
     .cc-main { max-width:1280px; margin:0 auto; padding:2rem 1.5rem 3rem; }
@@ -91,7 +95,7 @@
     .sdd-search-bar { margin-bottom: 1.5rem; }
     .sdd-search-input-wrap { position: relative; display: flex; align-items: center; }
     .sdd-search-icon { position: absolute; left: 12px; width: 18px; height: 18px; color: #94A3B8; pointer-events: none; }
-    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Montserrat, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .sdd-search-input { width: 100%; padding: 10px 12px 10px 40px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #E2E8F0; font-family: var(--font-body, Trebuchet MS, sans-serif); font-size: 14px; outline: none; transition: border-color 0.2s; }
     .sdd-search-input:focus { border-color: #FFD700; box-shadow: 0 0 0 2px rgba(255,215,0,0.15); }
     .sdd-search-count { position: absolute; right: 12px; font-size: 11px; color: #64748B; font-family: var(--font-mono, 'JetBrains Mono', monospace); }
     .global-search-wrap { margin-top:1.25rem; }
@@ -122,6 +126,9 @@
 (function () {
   'use strict';
 
+  /* ── i18n helper ─────────────────────────────────────────── */
+  function t(key, fallback) { return (window.SDD && SDD.i18n ? SDD.i18n.t(key) : fallback); }
+
   /* ── Safe data accessors ─────────────────────────────────── */
   function D() { return window.DASHBOARD_DATA || null; }
   function get(path, fallback) {
@@ -148,7 +155,7 @@
   /* ── Health score gauge helpers ──────────────────────────── */
   var score = get('insights.healthScore', 0);
   score = Math.max(0, Math.min(100, Math.round(score)));
-  var gaugeColor = score >= 75 ? '#22C55E' : score >= 50 ? '#F97316' : '#EF4444';
+  var gaugeColor = score >= 75 ? '#137DC5' : score >= 50 ? '#FFD700' : '#EF4444';
 
   // SVG arc: semicircle from 180 to 0 degrees (left to right)
   var R = 44, CX = 80, CY = 82;
@@ -181,12 +188,12 @@
   var principleCount = get('governance.principles.length', get('constitution.principles.length', '--'));
 
   var cards = [
-    { id:'pipeline',     icon:'\u25B6',       title:'Pipeline',       desc:'Board & Pipeline views',        href:'pipeline.html',     badge: Object.keys(phaseCounts)[0] || 'pipeline', cls:'badge-blue' },
-    { id:'specs',        icon:'\uD83D\uDCCB', title:'Specifications', desc:'Story Map & Checklists',        href:'specs.html',        badge: frCount + ' FRs',                         cls:'badge-gold' },
-    { id:'quality',      icon:'\u2713',        title:'Quality',        desc:'Tests, Analysis & Bugs',        href:'quality.html',       badge: testRate,                                  cls:'badge-green' },
-    { id:'intelligence', icon:'\u25C9',        title:'Intelligence',   desc:'Insights, Graph & Timeline',    href:'intelligence.html',  badge: score + '/100',                            cls:'badge-purple' },
-    { id:'workspace',    icon:'\uD83D\uDCC1', title:'Workspace',      desc:'Files & RAG Memory',            href:'workspace.html',     badge: fileCount + ' files',                      cls:'badge-blue' },
-    { id:'governance',   icon:'\u2696',        title:'Governance',     desc:'Constitution & Principles',     href:'governance.html',    badge: principleCount + ' rules',                 cls:'badge-gold' }
+    { id:'pipeline',     icon:'\u25B6',       title:t('pipeline.title','Pipeline'),       desc:'Board & Pipeline views',        href:'pipeline.html',     badge: Object.keys(phaseCounts)[0] || 'pipeline', cls:'badge-blue' },
+    { id:'specs',        icon:'\uD83D\uDCCB', title:t('specs.title','Specifications'),    desc:'Story Map & Checklists',        href:'specs.html',        badge: frCount + ' FRs',                         cls:'badge-gold' },
+    { id:'quality',      icon:'\u2713',        title:t('quality.title','Quality'),         desc:'Tests, Analysis & Bugs',        href:'quality.html',       badge: testRate,                                  cls:'badge-green' },
+    { id:'intelligence', icon:'\u25C9',        title:t('intel.title','Intelligence'),      desc:'Insights, Graph & Timeline',    href:'intelligence.html',  badge: score + '/100',                            cls:'badge-purple' },
+    { id:'workspace',    icon:'\uD83D\uDCC1', title:t('workspace.title','Workspace'),     desc:'Files & RAG Memory',            href:'workspace.html',     badge: fileCount + ' files',                      cls:'badge-blue' },
+    { id:'governance',   icon:'\u2696',        title:t('governance.title','Governance'),   desc:'Constitution & Principles',     href:'governance.html',    badge: principleCount + ' rules',                 cls:'badge-gold' }
   ];
 
   var cardsHTML = cards.map(function (c) {
@@ -246,7 +253,7 @@
             ' stroke-dashoffset="' + offset.toFixed(2) + '" />' +
         '</svg>' +
         '<div class="gauge-score" style="color:' + gaugeColor + '">' + score + '</div>' +
-        '<div class="gauge-label">Health Score</div>' +
+        '<div class="gauge-label" data-i18n="hub.health">Health Score</div>' +
       '</div>' +
       '<div class="hero-info">' +
         '<h1 class="hero-title"><span class="gold">\u2318</span> ' + projectName + '</h1>' +
@@ -254,7 +261,7 @@
         '<div class="global-search-wrap">' +
           '<div class="sdd-search-input-wrap">' +
             '<svg class="sdd-search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6"/><line x1="12.5" y1="12.5" x2="18" y2="18"/></svg>' +
-            '<input class="sdd-search-input" id="global-search" type="text" placeholder="Search across all pages..." />' +
+            '<input class="sdd-search-input" id="global-search" type="text" data-i18n="search.placeholder" placeholder="Search across all pages..." />' +
           '</div>' +
           '<div class="global-search-hint">Press Enter to search</div>' +
         '</div>' +
