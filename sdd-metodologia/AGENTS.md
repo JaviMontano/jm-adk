@@ -37,19 +37,21 @@ SDD runs a **per-prompt heartbeat** via `UserPromptSubmit` hook. On every user p
 | Phase | Command | Alias | Description |
 |-------|---------|-------|-------------|
 | Init | `/sdd:core` | `/sdd:init` | Project init, status, feature selection, help |
-| 0 | `/sdd:00-constitution` | — | Define governance principles and coding standards |
-| 1 | `/sdd:01-specify` | `/sdd:spec` | Feature specification from natural language |
+| 0 | `/sdd:00-constitution` | — | Governance principles — base of the system + user Phase 0 requests + derived from user specs analysis |
+| 1 | `/sdd:01-specify` | `/sdd:spec` | **User Specs** — user stories, FR, SC from natural language |
 | — | `/sdd:clarify` | — | Resolve ambiguities in any artifact |
-| 2 | `/sdd:02-plan` | `/sdd:plan` | Technical design document **[GATE]** |
-| 3 | `/sdd:03-checklist` | `/sdd:check` | Quality checklists (unit tests for English) |
-| 4 | `/sdd:04-testify` | `/sdd:test` | BDD Gherkin specs with assertion hashing |
-| 5 | `/sdd:05-tasks` | `/sdd:tasks` | Dependency-ordered task breakdown |
-| 6 | `/sdd:06-analyze` | `/sdd:analyze` | Cross-artifact consistency **[GATE]** |
-| 7 | `/sdd:07-implement` | `/sdd:impl` | Execute implementation **[GATE]** |
-| 8 | `/sdd:08-issues` | `/sdd:issues` | Export tasks to GitHub Issues |
+| 2 | `/sdd:02-plan` | `/sdd:plan` | **Technical Specs** — architecture, data model, API contracts **[GATE G1]** |
+| 3 | `/sdd:03-checklist` | `/sdd:check` | **BDD Analysis** — requirements quality checklists |
+| 4 | `/sdd:04-testify` | `/sdd:test` | **Test** — Gherkin BDD scenarios with assertion hashing |
+| 5 | `/sdd:05-tasks` | `/sdd:tasks` | **Task** — dependency-ordered task breakdown |
+| 6 | `/sdd:06-analyze` | `/sdd:analyze` | **Organize Plan** — cross-artifact consistency **[GATE G2]** |
+| 7 | `/sdd:07-implement` | `/sdd:impl` | **Deliver** — iterative TDD implementation **[GATE G3]** |
+| 8 | `/sdd:08-issues` | `/sdd:issues` | **Ship** — export to GitHub Issues, deploy, close loop |
 | Bug | `/sdd:bugfix` | `/sdd:fix` | Bug report + fix tasks |
 
+**Pipeline flow**: Constitution (WHY) → User Specs (WHAT) → Technical Specs (HOW) → BDD Analysis (QUALITY) → Test (PROOF) → Task (WORK) → Organize Plan (VALIDATE) → Deliver (BUILD) → Ship (RELEASE)
 **[GATE]** = Critical gate — halts on violations. Never skip phases.
+**Constitution** = Base system principles + Phase 0 user requests + principles derived from user specs analysis.
 
 ## Intelligence Commands
 

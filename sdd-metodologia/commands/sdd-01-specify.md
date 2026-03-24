@@ -1,5 +1,5 @@
 ---
-description: "SDD Phase 1 — Feature specification from natural language"
+description: "SDD Phase 1 — User Specs — user stories, functional requirements (FR), success criteria (SC) from natural language"
 user-invocable: true
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: "SDD Phase 2 — Technical design document [CRITICAL GATE]"
+description: "SDD Phase 2 — Technical Specs — architecture, data model, API contracts, technology decisions [CRITICAL GATE]"
 user-invocable: true
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: "SDD Phase 5 — Dependency-ordered task breakdown"
+description: "SDD Phase 5 — Task — dependency-ordered, parallelism-marked task breakdown"
 user-invocable: true
 ---
 

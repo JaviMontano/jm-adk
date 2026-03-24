@@ -1,5 +1,5 @@
 ---
-description: "SDD Phase 6 — Cross-artifact consistency validation [CRITICAL GATE]"
+description: "SDD Phase 6 — Organize Plan — cross-artifact consistency validation, traceability FR→TS→T
 user-invocable: true
 ---
 
