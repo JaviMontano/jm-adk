@@ -93,9 +93,13 @@ SDD maintains a **knowledge graph** (`.specify/knowledge-graph.json`) tracing:
 Orphans are detected automatically: untested requirements, untraced principles, unlinked tasks.
 Run `/sdd:graph` to rebuild. Dashboard Intelligence view renders it as force-directed SVG.
 
-## Command Center (Micro-Frontend)
+## ALM — Application Lifecycle Manager
 
-The dashboard is a multi-HTML system in `.specify/dashboard/`:
+SDD includes a visual ALM (Application Lifecycle Manager) as a micro-frontend dashboard.
+It visualizes the full SDD pipeline for **any project** — not tied to any specific domain.
+The ALM tracks specs, plans, tests, tasks, health, traceability, and governance.
+
+Multi-HTML system in `.specify/dashboard/`:
 
 | Page | Views |
 |------|-------|

@@ -31,8 +31,8 @@ Per-prompt intelligence via `UserPromptSubmit` hook. Runs < 100ms on every promp
 ### Knowledge Graph
 Full traceability: Constitution principles → Requirements (FR) → Test specs (TS) → Tasks (T). Detects orphans automatically. Renders as force-directed SVG in dashboard.
 
-### Command Center
-Multi-HTML micro-frontend dashboard: 6 interconnected pages with shared navigation, design tokens, and data layer. Health gauge, activity feed, smart recommendations.
+### ALM — Application Lifecycle Manager
+Visual ALM as a micro-frontend: 6 interconnected pages tracking the full SDD pipeline for any project. Health gauge, pipeline board, spec story map, test traceability, insights sparklines, workspace explorer. Not domain-specific — works on any codebase where SDD is initialized.
 
 ### RAG Memory
 Session inputs captured as `rag-memory-of-{slug}.md` with auto-detected MIME type, HTML structure extraction, abstract + key takeaways + full content. Indexed in JSON.
