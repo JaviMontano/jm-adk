@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intelligence &mdash; SDD ALM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/data.js"></script>
+  <script src="shared/nav.js" defer></script>
+  <script src="shared/footer.js" defer></script>
+  <style>
+    .intel-main { max-width:1280px; margin:0 auto; padding:2rem 1.5rem 3rem; }
+    .page-header { margin-bottom:2rem; }
+    .page-title { font-size:1.75rem; font-weight:900; margin-bottom:0.25rem; }
+    .page-title .gold { color:var(--brand-gold); }
+    .page-subtitle { color:var(--text-muted); font-size:0.9rem; }
+
+    /* Health Score Hero */
+    .health-hero {
+      display:flex; align-items:center; gap:2.5rem; margin-bottom:2rem; flex-wrap:wrap;
+    }
+    .health-score-display {
+      position:relative; display:flex; flex-direction:column; align-items:center;
+      min-width:200px;
+    }
+    .score-number {
+      font-family:var(--font-heading); font-size:5rem; font-weight:900;
+      line-height:1; letter-spacing:-2px;
+    }
+    .score-label { font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem; }
+    .score-trend {
+      display:inline-flex; align-items:center; gap:0.3rem;
+      font-size:0.85rem; font-weight:600; margin-top:0.5rem;
+      padding:0.25rem 0.65rem; border-radius:var(--radius-full);
+    }
+    .trend-up { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
+    .trend-down { background:rgba(239,68,68,0.12); color:var(--brand-red); }
+    .trend-flat { background:rgba(148,163,184,0.12); color:var(--text-muted); }
+
+    .health-detail { flex:1; min-width:280px; }
+
+    /* Sparkline */
+    .sparkline-card { margin-bottom:2rem; }
+    .sparkline-card .card { padding:var(--space-lg) var(--space-xl); }
+    .sparkline-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+    .sparkline-title { font-family:var(--font-heading); font-size:1rem; font-weight:700; }
+    .sparkline-range { font-size:0.75rem; color:var(--text-dim); font-family:var(--font-mono); }
+    .sparkline-svg { width:100%; height:120px; display:block; }
+
+    /* Grid layouts */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:1.25rem; margin-bottom:2rem; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; margin-bottom:2rem; }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; margin-bottom:2rem; }
+
+    /* Sentinel card */
+    .sentinel-status { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem; }
+    .sentinel-dot {
+      width:12px; height:12px; border-radius:50%;
+      box-shadow:0 0 8px currentColor;
+    }
+    .sentinel-dot.enabled { background:var(--brand-blue); color:var(--brand-blue); }
+    .sentinel-dot.disabled { background:var(--brand-red); color:var(--brand-red); }
+    .sentinel-label { font-weight:600; font-size:0.95rem; }
+    .sentinel-meta { font-size:0.8rem; color:var(--text-muted); line-height:1.6; }
+    .sentinel-meta span { font-family:var(--font-mono); color:var(--brand-gold); }
+
+    /* Risk indicators */
+    .risk-card .card { border-left:3px solid var(--brand-gold); }
+    .risk-value {
+      font-family:var(--font-heading); font-size:2rem; font-weight:900;
+      color:var(--brand-gold); line-height:1;
+    }
+    .risk-label { font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem; }
+    .risk-sublabel { font-size:0.7rem; color:var(--text-dim); margin-top:0.15rem; }
+
+    /* Recommendations */
+    .section-title {
+      font-size:1.1rem; font-weight:700; margin-bottom:1rem;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .recommendations-list { display:flex; flex-direction:column; gap:0.65rem; margin-bottom:2rem; }
+    .rec-item {
+      display:flex; align-items:center; gap:0.75rem;
+      padding:0.75rem 1rem; border-radius:var(--radius-sm);
+      background:var(--bg-card); backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle);
+    }
+    .rec-icon { font-size:1.1rem; flex-shrink:0; }
+    .rec-text { flex:1; font-size:0.85rem; color:var(--text-muted); }
+    .rec-cmd {
+      display:inline-block; font-family:var(--font-mono); font-size:0.75rem;
+      padding:0.2rem 0.55rem; border-radius:var(--radius-full);
+      background:rgba(255,215,0,0.1); color:var(--brand-gold); font-weight:600;
+      white-space:nowrap;
+    }
+
+    /* Phase velocity */
+    .velocity-bar-row {
+      display:flex; align-items:center; gap:0.75rem; margin-bottom:0.6rem;
+    }
+    .velocity-phase {
+      width:100px; font-size:0.8rem; color:var(--text-muted);
+      text-align:right; flex-shrink:0;
+    }
+    .velocity-track {
+      flex:1; height:18px; background:var(--bg-raised);
+      border-radius:var(--radius-sm); overflow:hidden;
+    }
+    .velocity-fill {
+      height:100%; border-radius:var(--radius-sm);
+      background:linear-gradient(90deg, var(--brand-gold), var(--brand-blue));
+      transition:width 0.6s ease;
+    }
+    .velocity-value {
+      width:50px; font-size:0.75rem; font-family:var(--font-mono);
+      color:var(--text-dim);
+    }
+
+    /* No data */
+    .no-data { text-align:center; padding:3rem 1rem; }
+    .no-data-icon { font-size:3rem; margin-bottom:1rem; opacity:0.4; }
+    .no-data-text { color:var(--text-dim); font-size:0.95rem; margin-bottom:1rem; }
+
+    /* Responsive */
+    @media(max-width:960px) {
+      .grid-3 { grid-template-columns:repeat(2,1fr); }
+      .grid-4 { grid-template-columns:repeat(2,1fr); }
+    }
+    @media(max-width:600px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns:1fr; }
+      .health-hero { flex-direction:column; align-items:flex-start; }
+      .score-number { font-size:3.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="intel-main" id="intel-root">
+  <!-- Populated by script -->
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  function D() { return window.DASHBOARD_DATA || null; }
+  function get(path, fallback) {
+    try {
+      return path.split('.').reduce(function (o, k) { return o[k]; }, D()) ?? fallback;
+    } catch (_) { return fallback; }
+  }
+
+  var root = document.getElementById('intel-root');
+
+  if (!D()) {
+    root.innerHTML =
+      '<div class="no-data">' +
+        '<div class="no-data-icon">&#x25C9;</div>' +
+        '<h2 style="margin-bottom:0.5rem">No Data Loaded</h2>' +
+        '<p class="no-data-text">Run <code style="color:var(--brand-gold)">/sdd:dashboard</code> to generate the <code>data.js</code> file, then refresh this page.</p>' +
+      '</div>';
+    return;
+  }
+
+  /* ── Health Score ─────────────────────────────────────────── */
+  var score = Math.max(0, Math.min(100, Math.round(get('insights.healthScore', 0))));
+  var scoreColor = score >= 75 ? 'var(--brand-blue)' : score >= 50 ? 'var(--brand-orange)' : 'var(--brand-red)';
+
+  /* ── Score History & Trend ────────────────────────────────── */
+  var history = get('scoreHistory', []);
+  var trend = 'flat';
+  var trendDelta = 0;
+  if (history.length >= 2) {
+    var last = history[history.length - 1].score;
+    var prev = history[history.length - 2].score;
+    trendDelta = last - prev;
+    trend = trendDelta > 0 ? 'up' : trendDelta < 0 ? 'down' : 'flat';
+  }
+  var trendArrow = trend === 'up' ? '&#x25B2;' : trend === 'down' ? '&#x25BC;' : '&#x25AC;';
+  var trendClass = 'trend-' + trend;
+  var trendText = trend === 'flat' ? 'No change' : (trendDelta > 0 ? '+' : '') + trendDelta + ' pts';
+
+  /* ── Sparkline SVG ────────────────────────────────────────── */
+  var sparkSVG = '';
+  if (history.length >= 2) {
+    var scores = history.map(function (h) { return h.score; });
+    var minS = Math.min.apply(null, scores);
+    var maxS = Math.max.apply(null, scores);
+    var range = maxS - minS || 1;
+    var padW = 800;
+    var padH = 100;
+    var points = scores.map(function (s, i) {
+      var x = (i / (scores.length - 1)) * padW;
+      var y = padH - ((s - minS) / range) * (padH - 10) - 5;
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+
+    var gradientPoints = points + ' ' + padW + ',' + padH + ' 0,' + padH;
+    var dateFirst = history[0].date || '';
+    var dateLast = history[history.length - 1].date || '';
+
+    sparkSVG =
+      '<div class="sparkline-card">' +
+        '<div class="card">' +
+          '<div class="sparkline-header">' +
+            '<span class="sparkline-title">Health Score Trend</span>' +
+            '<span class="sparkline-range">' + dateFirst + ' &mdash; ' + dateLast + '</span>' +
+          '</div>' +
+          '<svg class="sparkline-svg" viewBox="0 0 ' + padW + ' ' + (padH + 10) + '" preserveAspectRatio="none">' +
+            '<defs>' +
+              '<linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">' +
+                '<stop offset="0%" stop-color="#FFD700" stop-opacity="0.3"/>' +
+                '<stop offset="100%" stop-color="#FFD700" stop-opacity="0"/>' +
+              '</linearGradient>' +
+            '</defs>' +
+            '<polygon points="' + gradientPoints + '" fill="url(#sparkGrad)"/>' +
+            '<polyline points="' + points + '" fill="none" stroke="#FFD700" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+            scores.map(function (s, i) {
+              var x = (i / (scores.length - 1)) * padW;
+              var y = padH - ((s - minS) / range) * (padH - 10) - 5;
+              return '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.5" fill="#FFD700" stroke="var(--bg-body)" stroke-width="2"/>';
+            }).join('') +
+          '</svg>' +
+        '</div>' +
+      '</div>';
+  } else {
+    sparkSVG =
+      '<div class="sparkline-card">' +
+        '<div class="card" style="text-align:center;padding:2rem">' +
+          '<p class="text-muted" style="font-size:0.85rem">No score history yet &mdash; run <code class="rec-cmd">/sdd:sentinel</code> multiple times to build trend data.</p>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ── Sentinel Status ──────────────────────────────────────── */
+  var sentinel = get('sentinel', {});
+  var sentEnabled = sentinel.enabled !== false;
+  var sentLastRun = sentinel.lastRun || 'Never';
+  var sentRunCount = sentinel.runCount || 0;
+  var sentFindings = (sentinel.findings || []).length;
+
+  var sentinelHTML =
+    '<div class="card">' +
+      '<div class="sentinel-status">' +
+        '<div class="sentinel-dot ' + (sentEnabled ? 'enabled' : 'disabled') + '"></div>' +
+        '<span class="sentinel-label">Sentinel ' + (sentEnabled ? 'Active' : 'Disabled') + '</span>' +
+      '</div>' +
+      '<div class="sentinel-meta">' +
+        'Last run: <span>' + sentLastRun + '</span><br>' +
+        'Run count: <span>' + sentRunCount + '</span><br>' +
+        'Findings: <span>' + sentFindings + '</span>' +
+      '</div>' +
+    '</div>';
+
+  /* ── Risk Indicators ──────────────────────────────────────── */
+  var features = get('features', []);
+  var staleCount = 0;
+  var orphanCount = 0;
+  var missingCount = 0;
+
+  features.forEach(function (f) {
+    if (f.status === 'stale' || f.phase === 'stale') staleCount++;
+    var reqs = f.requirements || f.stories || [];
+    reqs.forEach(function (r) {
+      if (r && r.orphan) orphanCount++;
+    });
+    if (!f.tests || (Array.isArray(f.tests) && f.tests.length === 0)) missingCount++;
+  });
+
+  if (sentFindings > 0) {
+    sentinel.findings.forEach(function (f) {
+      if (f && f.type === 'stale') staleCount++;
+      if (f && f.type === 'missing') missingCount++;
+      if (f && f.type === 'orphan') orphanCount++;
+    });
+  }
+
+  var risksHTML =
+    '<div class="grid-3">' +
+      '<div class="risk-card"><div class="card">' +
+        '<div class="risk-value">' + staleCount + '</div>' +
+        '<div class="risk-label">Stale Artifacts</div>' +
+        '<div class="risk-sublabel">Outdated since last change</div>' +
+      '</div></div>' +
+      '<div class="risk-card"><div class="card">' +
+        '<div class="risk-value">' + missingCount + '</div>' +
+        '<div class="risk-label">Missing Tests</div>' +
+        '<div class="risk-sublabel">Features without test coverage</div>' +
+      '</div></div>' +
+      '<div class="risk-card"><div class="card">' +
+        '<div class="risk-value">' + orphanCount + '</div>' +
+        '<div class="risk-label">Orphan Requirements</div>' +
+        '<div class="risk-sublabel">Unlinked to tests or tasks</div>' +
+      '</div></div>' +
+    '</div>';
+
+  /* ── Recommendations ──────────────────────────────────────── */
+  var recs = [];
+  if (score < 50) recs.push({ icon:'&#x26A0;', text:'Health score is critical. Run a full sentinel cycle to diagnose issues.', cmd:'/sdd:sentinel' });
+  if (staleCount > 0) recs.push({ icon:'&#x23F3;', text:staleCount + ' stale artifact(s) detected. Re-run affected phases to refresh.', cmd:'/sdd:analyze' });
+  if (missingCount > 0) recs.push({ icon:'&#x1F9EA;', text:missingCount + ' feature(s) lack test coverage. Generate BDD scenarios.', cmd:'/sdd:test' });
+  if (orphanCount > 0) recs.push({ icon:'&#x1F517;', text:orphanCount + ' orphan requirement(s). Rebuild the knowledge graph.', cmd:'/sdd:graph' });
+  if (!sentEnabled) recs.push({ icon:'&#x1F6E1;', text:'Sentinel is disabled. Enable ambient intelligence for continuous monitoring.', cmd:'/sdd:sentinel' });
+  if (history.length < 3) recs.push({ icon:'&#x1F4CA;', text:'Build more score history by running regular sentinel checks.', cmd:'/sdd:sentinel' });
+  if (recs.length === 0) recs.push({ icon:'&#x2728;', text:'All systems nominal. Continue with next pipeline phase.', cmd:'/sdd:status' });
+
+  var recsHTML =
+    '<section>' +
+      '<h3 class="section-title">&#x1F4A1; Recommendations</h3>' +
+      '<div class="recommendations-list">' +
+      recs.map(function (r) {
+        return '<div class="rec-item">' +
+          '<span class="rec-icon">' + r.icon + '</span>' +
+          '<span class="rec-text">' + r.text + '</span>' +
+          '<span class="rec-cmd">' + r.cmd + '</span>' +
+        '</div>';
+      }).join('') +
+      '</div>' +
+    '</section>';
+
+  /* ── Phase Velocity ───────────────────────────────────────── */
+  var phases = ['Constitution','Specify','Plan','Checklist','Testify','Tasks','Analyze','Implement','Ship'];
+  var phaseCounts = {};
+  features.forEach(function (f) {
+    var ph = (f.phase || '').toLowerCase();
+    phases.forEach(function (p) {
+      if (ph.indexOf(p.toLowerCase()) !== -1) {
+        phaseCounts[p] = (phaseCounts[p] || 0) + 1;
+      }
+    });
+  });
+
+  var maxPhaseCount = 1;
+  Object.keys(phaseCounts).forEach(function (k) {
+    if (phaseCounts[k] > maxPhaseCount) maxPhaseCount = phaseCounts[k];
+  });
+
+  var velocityHTML = '';
+  if (features.length > 0) {
+    velocityHTML =
+      '<section style="margin-bottom:2rem">' +
+        '<h3 class="section-title">&#x1F3CE; Phase Distribution</h3>' +
+        '<div class="card" style="padding:var(--space-lg)">' +
+        phases.map(function (p) {
+          var count = phaseCounts[p] || 0;
+          var pct = Math.round((count / maxPhaseCount) * 100);
+          return '<div class="velocity-bar-row">' +
+            '<span class="velocity-phase">' + p + '</span>' +
+            '<div class="velocity-track"><div class="velocity-fill" style="width:' + pct + '%"></div></div>' +
+            '<span class="velocity-value">' + count + '</span>' +
+          '</div>';
+        }).join('') +
+        '</div>' +
+      '</section>';
+  }
+
+  /* ── Render ───────────────────────────────────────────────── */
+  var projectName = get('project.name', 'SDD Project');
+
+  root.innerHTML =
+    '<header class="page-header">' +
+      '<h1 class="page-title"><span class="gold">&#x25C9;</span> Intelligence</h1>' +
+      '<p class="page-subtitle">Health insights, risk analysis, and smart recommendations for ' + projectName + '</p>' +
+    '</header>' +
+
+    '<section class="health-hero">' +
+      '<div class="health-score-display">' +
+        '<div class="score-number" style="color:' + scoreColor + '">' + score + '</div>' +
+        '<div class="score-label">Health Score</div>' +
+        '<div class="score-trend ' + trendClass + '">' + trendArrow + ' ' + trendText + '</div>' +
+      '</div>' +
+      '<div class="health-detail">' +
+        '<div class="grid-2" style="margin-bottom:0">' +
+          sentinelHTML +
+          '<div class="card">' +
+            '<div style="font-size:0.85rem;color:var(--text-muted);line-height:1.7">' +
+              'Features: <strong style="color:var(--text-primary)">' + features.length + '</strong><br>' +
+              'Quality pass rate: <strong style="color:var(--text-primary)">' + get('quality.passRate', '--') + '%</strong><br>' +
+              'Score snapshots: <strong style="color:var(--text-primary)">' + history.length + '</strong>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</section>' +
+
+    sparkSVG +
+
+    '<section>' +
+      '<h3 class="section-title">&#x26A0; Risk Indicators</h3>' +
+      risksHTML +
+    '</section>' +
+
+    recsHTML +
+
+    velocityHTML;
+})();
+</script>
+
+</body>
+</html>

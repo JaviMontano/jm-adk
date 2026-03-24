@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workspace &mdash; SDD ALM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/data.js"></script>
+  <script src="shared/nav.js" defer></script>
+  <script src="shared/footer.js" defer></script>
+  <style>
+    .ws-main { max-width:1280px; margin:0 auto; padding:2rem 1.5rem 3rem; }
+    .page-header { margin-bottom:2rem; }
+    .page-title { font-size:1.75rem; font-weight:900; margin-bottom:0.25rem; }
+    .page-title .gold { color:var(--brand-gold); }
+    .page-subtitle { color:var(--text-muted); font-size:0.9rem; }
+
+    .section-title {
+      font-size:1.1rem; font-weight:700; margin-bottom:1rem;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+
+    /* File Tree */
+    .file-tree-section { margin-bottom:2.5rem; }
+    .file-tree { font-family:var(--font-mono); font-size:0.82rem; }
+    .tree-folder {
+      cursor:pointer; user-select:none;
+      display:flex; align-items:center; gap:0.4rem;
+      padding:0.35rem 0.5rem; border-radius:var(--radius-sm);
+      transition:background var(--transition-fast);
+    }
+    .tree-folder:hover { background:var(--bg-raised); }
+    .tree-chevron {
+      display:inline-block; width:14px; text-align:center;
+      color:var(--text-dim); transition:transform var(--transition-fast);
+      font-size:0.7rem;
+    }
+    .tree-chevron.open { transform:rotate(90deg); }
+    .tree-folder-icon { color:var(--brand-gold); }
+    .tree-folder-name { color:var(--text-primary); font-weight:600; }
+    .tree-children { padding-left:1.25rem; overflow:hidden; }
+    .tree-children.collapsed { display:none; }
+    .tree-file {
+      display:flex; align-items:center; gap:0.4rem;
+      padding:0.3rem 0.5rem 0.3rem 1.75rem;
+      border-radius:var(--radius-sm);
+      transition:background var(--transition-fast);
+    }
+    .tree-file:hover { background:var(--bg-raised); }
+    .tree-file-icon { flex-shrink:0; }
+    .icon-md { color:var(--brand-blue); }
+    .icon-json { color:var(--brand-gold); }
+    .icon-html { color:var(--brand-orange); }
+    .icon-feature { color:var(--brand-purple); }
+    .icon-other { color:var(--text-dim); }
+    .tree-file-name { color:var(--text-muted); flex:1; }
+    .tree-file-meta {
+      font-size:0.7rem; color:var(--text-dim);
+      margin-left:auto; white-space:nowrap;
+    }
+
+    /* RAG Memory */
+    .rag-section { margin-bottom:2.5rem; }
+    .rag-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem; }
+    .rag-card .card { display:flex; flex-direction:column; gap:0.65rem; }
+    .rag-header { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
+    .rag-name {
+      font-family:var(--font-heading); font-size:0.95rem; font-weight:700;
+      color:var(--text-primary);
+    }
+    .rag-type-badge {
+      font-size:0.7rem; font-weight:600; padding:2px 8px;
+      border-radius:12px; text-transform:uppercase;
+    }
+    .rag-type-text { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
+    .rag-type-html { background:rgba(249,115,22,0.12); color:var(--brand-orange); }
+    .rag-type-image { background:rgba(139,92,246,0.12); color:var(--brand-purple); }
+    .rag-type-audio { background:rgba(255,215,0,0.12); color:var(--brand-gold); }
+    .rag-type-default { background:rgba(148,163,184,0.12); color:var(--text-muted); }
+    .rag-abstract {
+      font-size:0.82rem; color:var(--text-muted); line-height:1.55;
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    }
+
+    /* Session Activity */
+    .activity-section { margin-bottom:2rem; }
+    .timeline { display:flex; flex-direction:column; gap:0; padding-left:1.5rem; border-left:2px solid var(--border-medium); }
+    .timeline-item { position:relative; padding:0.55rem 0 0.55rem 1.25rem; }
+    .timeline-item::before {
+      content:''; position:absolute; left:-1.5rem; top:0.75rem; transform:translateX(-50%);
+      width:10px; height:10px; border-radius:50%; background:var(--brand-gold);
+      border:2px solid var(--bg-body);
+    }
+    .timeline-item:last-child { padding-bottom:0; }
+    .tl-row { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
+    .tl-time { font-size:0.7rem; color:var(--text-dim); font-family:var(--font-mono); }
+    .tl-type-badge {
+      font-size:0.65rem; font-weight:600; padding:1px 6px;
+      border-radius:10px; text-transform:uppercase;
+    }
+    .tl-badge-spec { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
+    .tl-badge-test { background:rgba(255,215,0,0.12); color:var(--brand-gold); }
+    .tl-badge-fix { background:rgba(249,115,22,0.12); color:var(--brand-orange); }
+    .tl-badge-deploy { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
+    .tl-badge-sentinel { background:rgba(139,92,246,0.12); color:var(--brand-purple); }
+    .tl-badge-default { background:rgba(148,163,184,0.12); color:var(--text-muted); }
+    .tl-desc { font-size:0.82rem; color:var(--text-muted); }
+
+    /* No data */
+    .no-data { text-align:center; padding:3rem 1rem; }
+    .no-data-icon { font-size:3rem; margin-bottom:1rem; opacity:0.4; }
+    .no-data-text { color:var(--text-dim); font-size:0.95rem; margin-bottom:1rem; }
+    .empty-state {
+      text-align:center; padding:2rem; color:var(--text-dim); font-size:0.85rem;
+      border:1px dashed var(--border-medium); border-radius:var(--radius-sm);
+    }
+
+    @media(max-width:600px) {
+      .rag-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="ws-main" id="ws-root">
+  <!-- Populated by script -->
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  function D() { return window.DASHBOARD_DATA || null; }
+  function get(path, fallback) {
+    try {
+      return path.split('.').reduce(function (o, k) { return o[k]; }, D()) ?? fallback;
+    } catch (_) { return fallback; }
+  }
+
+  var root = document.getElementById('ws-root');
+
+  if (!D()) {
+    root.innerHTML =
+      '<div class="no-data">' +
+        '<div class="no-data-icon">&#x1F4C1;</div>' +
+        '<h2 style="margin-bottom:0.5rem">No Data Loaded</h2>' +
+        '<p class="no-data-text">Run <code style="color:var(--brand-gold)">/sdd:dashboard</code> to generate the <code>data.js</code> file, then refresh this page.</p>' +
+      '</div>';
+    return;
+  }
+
+  var projectName = get('project.name', 'SDD Project');
+
+  /* ── File Icons ───────────────────────────────────────────── */
+  function fileIcon(name) {
+    var ext = (name.split('.').pop() || '').toLowerCase();
+    switch (ext) {
+      case 'md': return '<span class="tree-file-icon icon-md">&#x1F4DD;</span>';
+      case 'json': return '<span class="tree-file-icon icon-json">&#x2699;</span>';
+      case 'html': return '<span class="tree-file-icon icon-html">&#x1F310;</span>';
+      case 'feature': return '<span class="tree-file-icon icon-feature">&#x1F9EA;</span>';
+      default: return '<span class="tree-file-icon icon-other">&#x1F4C4;</span>';
+    }
+  }
+
+  /* ── File Tree ────────────────────────────────────────────── */
+  var workspace = get('workspace', {});
+  var files = workspace.files || [];
+  var fileCount = typeof files === 'object' && files.length !== undefined ? files.length : files;
+
+  var tree = {};
+  if (Array.isArray(files)) {
+    files.forEach(function (f) {
+      var fPath = typeof f === 'string' ? f : (f.path || f.name || '');
+      var parts = fPath.replace(/^\.?\/?/, '').split('/');
+      var current = tree;
+      for (var i = 0; i < parts.length - 1; i++) {
+        if (!current[parts[i]]) current[parts[i]] = {};
+        current = current[parts[i]];
+      }
+      var fileName = parts[parts.length - 1];
+      if (fileName) {
+        current[fileName] = {
+          _file: true,
+          _size: typeof f === 'object' ? (f.size || '') : '',
+          _modified: typeof f === 'object' ? (f.modified || f.lastModified || '') : ''
+        };
+      }
+    });
+  }
+
+  function renderTree(node, depth) {
+    var html = '';
+    var keys = Object.keys(node).sort(function (a, b) {
+      var aIsDir = node[a] && !node[a]._file;
+      var bIsDir = node[b] && !node[b]._file;
+      if (aIsDir && !bIsDir) return -1;
+      if (!aIsDir && bIsDir) return 1;
+      return a.localeCompare(b);
+    });
+
+    keys.forEach(function (k) {
+      if (k.charAt(0) === '_') return;
+      var item = node[k];
+      if (item && item._file) {
+        var meta = '';
+        if (item._size) meta += item._size;
+        if (item._modified) meta += (meta ? ' &middot; ' : '') + item._modified;
+        html += '<div class="tree-file">' +
+          fileIcon(k) +
+          '<span class="tree-file-name">' + k + '</span>' +
+          (meta ? '<span class="tree-file-meta">' + meta + '</span>' : '') +
+        '</div>';
+      } else if (item && typeof item === 'object') {
+        var id = 'folder-' + depth + '-' + k.replace(/[^a-zA-Z0-9]/g, '_');
+        var isOpen = depth < 2;
+        html += '<div class="tree-folder" onclick="this.querySelector(\'.tree-chevron\').classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'collapsed\')">' +
+          '<span class="tree-chevron' + (isOpen ? ' open' : '') + '">&#x25B6;</span>' +
+          '<span class="tree-folder-icon">&#x1F4C2;</span>' +
+          '<span class="tree-folder-name">' + k + '/</span>' +
+        '</div>' +
+        '<div class="tree-children' + (isOpen ? '' : ' collapsed') + '">' +
+          renderTree(item, depth + 1) +
+        '</div>';
+      }
+    });
+    return html;
+  }
+
+  var treeHTML = '';
+  var treeKeys = Object.keys(tree);
+  if (treeKeys.length > 0) {
+    treeHTML =
+      '<section class="file-tree-section">' +
+        '<h3 class="section-title">&#x1F4C2; File Explorer</h3>' +
+        '<div class="card" style="padding:var(--space-md)">' +
+          '<div class="file-tree">' + renderTree(tree, 0) + '</div>' +
+        '</div>' +
+      '</section>';
+  } else if (fileCount) {
+    treeHTML =
+      '<section class="file-tree-section">' +
+        '<h3 class="section-title">&#x1F4C2; File Explorer</h3>' +
+        '<div class="card" style="padding:var(--space-lg);text-align:center">' +
+          '<p style="color:var(--text-muted);font-size:0.9rem">' + fileCount + ' files in workspace</p>' +
+          '<p style="color:var(--text-dim);font-size:0.8rem;margin-top:0.5rem">Detailed tree not available &mdash; run <code class="rec-cmd" style="display:inline-block;font-family:var(--font-mono);font-size:0.75rem;padding:0.2rem 0.55rem;border-radius:9999px;background:rgba(255,215,0,0.1);color:var(--brand-gold);font-weight:600">/sdd:dashboard</code> with full data</p>' +
+        '</div>' +
+      '</section>';
+  } else {
+    treeHTML =
+      '<section class="file-tree-section">' +
+        '<h3 class="section-title">&#x1F4C2; File Explorer</h3>' +
+        '<div class="empty-state">No workspace files detected &mdash; run <code style="color:var(--brand-gold)">/sdd:init</code> to scaffold the project</div>' +
+      '</section>';
+  }
+
+  /* ── RAG Memory ───────────────────────────────────────────── */
+  var ragFiles = [];
+  if (Array.isArray(files)) {
+    files.forEach(function (f) {
+      var name = typeof f === 'string' ? f : (f.path || f.name || '');
+      if (name.indexOf('rag-memory-of-') !== -1) {
+        ragFiles.push(typeof f === 'object' ? f : { name: name });
+      }
+    });
+  }
+
+  function ragTypeBadge(type) {
+    var cls = 'rag-type-default';
+    if (type === 'text' || type === 'md') cls = 'rag-type-text';
+    else if (type === 'html') cls = 'rag-type-html';
+    else if (type === 'image') cls = 'rag-type-image';
+    else if (type === 'audio') cls = 'rag-type-audio';
+    return '<span class="rag-type-badge ' + cls + '">' + (type || 'doc') + '</span>';
+  }
+
+  var ragHTML = '';
+  if (ragFiles.length > 0) {
+    ragHTML =
+      '<section class="rag-section">' +
+        '<h3 class="section-title">&#x1F9E0; RAG Memory</h3>' +
+        '<div class="rag-grid">' +
+        ragFiles.map(function (rf) {
+          var rawName = rf.name || rf.path || '';
+          var displayName = rawName.replace(/^.*rag-memory-of-/, '').replace(/\.md$/, '');
+          var type = rf.type || 'doc';
+          var abstract = rf.abstract || rf.description || 'Captured session knowledge';
+          return '<div class="rag-card"><div class="card">' +
+            '<div class="rag-header">' +
+              '<span class="rag-name">' + displayName + '</span>' +
+              ragTypeBadge(type) +
+            '</div>' +
+            '<div class="rag-abstract">' + abstract + '</div>' +
+          '</div></div>';
+        }).join('') +
+        '</div>' +
+      '</section>';
+  } else {
+    ragHTML =
+      '<section class="rag-section">' +
+        '<h3 class="section-title">&#x1F9E0; RAG Memory</h3>' +
+        '<div class="empty-state">No RAG memory files yet &mdash; use <code style="color:var(--brand-gold)">/sdd:capture</code> to save session knowledge</div>' +
+      '</section>';
+  }
+
+  /* ── Session Activity ─────────────────────────────────────── */
+  var logs = get('sessionLog', []).slice(-20).reverse();
+
+  function typeBadgeClass(type) {
+    switch ((type || '').toLowerCase()) {
+      case 'spec': return 'tl-badge-spec';
+      case 'test': return 'tl-badge-test';
+      case 'fix': return 'tl-badge-fix';
+      case 'deploy': return 'tl-badge-deploy';
+      case 'sentinel': return 'tl-badge-sentinel';
+      default: return 'tl-badge-default';
+    }
+  }
+
+  var activityHTML = '';
+  if (logs.length > 0) {
+    activityHTML =
+      '<section class="activity-section">' +
+        '<h3 class="section-title">&#x1F553; Session Activity</h3>' +
+        '<div class="timeline">' +
+        logs.map(function (e) {
+          var ts = e.timestamp || e.time || '';
+          var type = e.type || 'event';
+          var desc = e.description || e.message || '';
+          return '<div class="timeline-item">' +
+            '<div class="tl-row">' +
+              '<span class="tl-time">' + ts + '</span>' +
+              '<span class="tl-type-badge ' + typeBadgeClass(type) + '">' + type + '</span>' +
+            '</div>' +
+            '<div class="tl-desc">' + desc + '</div>' +
+          '</div>';
+        }).join('') +
+        '</div>' +
+      '</section>';
+  } else {
+    activityHTML =
+      '<section class="activity-section">' +
+        '<h3 class="section-title">&#x1F553; Session Activity</h3>' +
+        '<div class="empty-state">No session events recorded yet</div>' +
+      '</section>';
+  }
+
+  /* ── Render ───────────────────────────────────────────────── */
+  root.innerHTML =
+    '<header class="page-header">' +
+      '<h1 class="page-title"><span class="gold">&#x1F4C1;</span> Workspace</h1>' +
+      '<p class="page-subtitle">File explorer, RAG memory, and session activity for ' + projectName + '</p>' +
+    '</header>' +
+    treeHTML +
+    ragHTML +
+    activityHTML;
+})();
+</script>
+
+</body>
+</html>

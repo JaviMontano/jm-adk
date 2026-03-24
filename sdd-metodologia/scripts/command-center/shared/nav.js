@@ -8,13 +8,15 @@
   'use strict';
 
   const PAGES = [
-    { id: 'index',        label: 'Command Center', icon: '\u2318' },
+    { id: 'index',        label: 'Hub',            icon: '\u2318' },
     { id: 'pipeline',     label: 'Pipeline',       icon: '\u25B6' },
-    { id: 'specs',        label: 'Specifications', icon: '\uD83D\uDCCB' },
+    { id: 'specs',        label: 'Specs',          icon: '\uD83D\uDCCB' },
     { id: 'quality',      label: 'Quality',        icon: '\u2713' },
-    { id: 'intelligence', label: 'Intelligence',   icon: '\u25C9' },
+    { id: 'intelligence', label: 'Intel',           icon: '\u25C9' },
     { id: 'workspace',    label: 'Workspace',      icon: '\uD83D\uDCC1' },
-    { id: 'governance',   label: 'Governance',     icon: '\u2696' }
+    { id: 'governance',   label: 'Governance',     icon: '\u2696' },
+    { id: 'tour',         label: 'Tour',           icon: '\uD83C\uDF93' },
+    { id: 'docs/index',   label: 'Docs',           icon: '\uD83D\uDCD6' }
   ];
 
   /* ── Detect current page ─────────────────────────────────── */

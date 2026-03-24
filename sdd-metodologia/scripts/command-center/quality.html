@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quality &mdash; SDD ALM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/data.js" defer></script>
+  <script src="shared/nav.js" defer></script>
+  <script src="shared/footer.js" defer></script>
+  <style>
+    .qa-main { max-width:1280px; margin:0 auto; padding:2rem 1.5rem 3rem; }
+    .page-title { font-size:1.5rem; font-weight:900; margin-bottom:0.35rem; }
+    .page-title .gold { color:var(--brand-gold); }
+    .page-subtitle { color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem; }
+    .section-title {
+      font-size:1.1rem; font-weight:700; margin-bottom:1rem;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+
+    /* ── Pass Rate Gauge ─────────────────────────────────────── */
+    .gauge-wrap {
+      display:flex; justify-content:center; margin-bottom:2.5rem;
+    }
+    .gauge-container { position:relative; width:220px; height:130px; }
+    .gauge-container svg { width:220px; height:130px; }
+    .gauge-bg { fill:none; stroke:var(--bg-raised); stroke-width:14; stroke-linecap:round; }
+    .gauge-fill { fill:none; stroke-width:14; stroke-linecap:round; transition:stroke-dashoffset 1.2s ease; }
+    .gauge-pct {
+      position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
+      font-family:var(--font-heading); font-size:2.2rem; font-weight:900;
+    }
+    .gauge-label {
+      position:absolute; bottom:-14px; left:50%; transform:translateX(-50%);
+      font-size:0.7rem; color:var(--text-muted); white-space:nowrap;
+    }
+
+    /* ── Checklist Progress ──────────────────────────────────── */
+    .checklist-section { margin-bottom:2.5rem; }
+    .checklist-row {
+      display:flex; align-items:center; gap:0.75rem; margin-bottom:0.6rem;
+    }
+    .cl-name {
+      width:160px; flex-shrink:0; font-size:0.82rem; font-weight:500;
+      color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .cl-bar {
+      flex:1; height:8px; border-radius:4px; background:var(--bg-raised); overflow:hidden;
+    }
+    .cl-bar-fill { height:100%; border-radius:4px; transition:width 0.8s ease; }
+    .cl-bar-fill.gold { background:var(--brand-gold); }
+    .cl-bar-fill.blue { background:var(--brand-blue); }
+    .cl-count {
+      font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim);
+      width:60px; text-align:right; flex-shrink:0;
+    }
+
+    /* ── Test Pyramid ────────────────────────────────────────── */
+    .pyramid-section { margin-bottom:2.5rem; }
+    .pyramid-wrap { display:flex; justify-content:center; }
+    .pyramid-container { position:relative; width:280px; height:200px; }
+    .pyramid-container svg { width:280px; height:200px; }
+    .pyramid-layer { transition:opacity var(--transition-normal); cursor:default; }
+    .pyramid-layer:hover { opacity:0.85; }
+    .pyramid-label {
+      font-family:var(--font-heading); font-weight:700; font-size:0.72rem; fill:var(--text-primary);
+      text-anchor:middle; pointer-events:none;
+    }
+    .pyramid-count {
+      font-family:var(--font-mono); font-size:0.65rem; fill:var(--text-muted);
+      text-anchor:middle; pointer-events:none;
+    }
+
+    /* ── Traceability Sankey ──────────────────────────────────── */
+    .sankey-section { margin-bottom:2.5rem; }
+    .sankey-wrap {
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle); border-radius:var(--radius-card);
+      padding:1.25rem; overflow-x:auto;
+    }
+    .sankey-container { min-width:500px; }
+    .sankey-container svg { width:100%; }
+    .sankey-node-label {
+      font-family:var(--font-heading); font-size:0.7rem; font-weight:600; fill:var(--text-primary);
+    }
+    .sankey-count {
+      font-family:var(--font-mono); font-size:0.6rem; fill:var(--text-muted);
+    }
+
+    /* ── Bug Cards ───────────────────────────────────────────── */
+    .bugs-section { margin-bottom:2rem; }
+    .bugs-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:0.75rem; }
+    .bug-card {
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid rgba(239,68,68,0.15); border-radius:var(--radius-sm);
+      padding:0.75rem; transition:transform var(--transition-fast);
+    }
+    .bug-card:hover { transform:translateY(-2px); }
+    .bug-id { font-family:var(--font-mono); font-size:0.72rem; color:var(--brand-red); font-weight:600; }
+    .bug-title { font-size:0.82rem; font-weight:500; color:var(--text-primary); margin:0.25rem 0; }
+    .bug-sev {
+      font-size:0.65rem; font-weight:600; padding:1px 6px; border-radius:6px;
+      display:inline-block;
+    }
+    .bug-sev.critical { background:rgba(239,68,68,0.15); color:var(--brand-red); }
+    .bug-sev.major { background:rgba(249,115,22,0.15); color:var(--brand-orange); }
+    .bug-sev.minor { background:rgba(148,163,184,0.15); color:var(--text-muted); }
+
+    /* ── No Data ─────────────────────────────────────────────── */
+    .no-data { text-align:center; padding:3rem 1rem; }
+    .no-data-icon { font-size:3rem; margin-bottom:1rem; opacity:0.4; }
+    .no-data-text { color:var(--text-dim); font-size:0.95rem; margin-bottom:1rem; }
+
+    .cc-footer {
+      text-align:center; padding:2rem 1rem; border-top:1px solid var(--border-subtle);
+      color:var(--text-dim); font-size:0.75rem; margin-top:2rem;
+    }
+    .cc-footer .gold { color:var(--brand-gold); font-weight:600; }
+
+    @media(max-width:600px) {
+      .cl-name { width:100px; font-size:0.75rem; }
+      .pyramid-container { width:220px; height:160px; }
+      .pyramid-container svg { width:220px; height:160px; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="qa-main" id="qa-root"></main>
+
+<script>
+(function () {
+  'use strict';
+
+  function D() { return window.DASHBOARD_DATA || null; }
+  function get(path, fallback) {
+    try { return path.split('.').reduce(function(o,k){ return o[k]; }, D()) || fallback; }
+    catch(_) { return fallback; }
+  }
+
+  var root = document.getElementById('qa-root');
+
+  if (!D()) {
+    root.innerHTML =
+      '<h1 class="page-title"><span class="gold">&#x2713;</span> Quality</h1>' +
+      '<div class="no-data">' +
+        '<div class="no-data-icon">&#x2713;</div>' +
+        '<h2 style="margin-bottom:0.5rem">No Data Yet</h2>' +
+        '<p class="no-data-text">Run <code style="color:var(--brand-gold)">/sdd:test</code> to generate tests,<br>then <code style="color:var(--brand-gold)">/sdd:dashboard</code> to refresh.</p>' +
+      '</div>' +
+      '<footer class="cc-footer">SDD v3.0 &middot; Spec Driven Development by metodolog<span class="gold">IA</span></footer>';
+    return;
+  }
+
+  var features = get('features', []);
+  var projectName = get('project.name', get('premise.name', 'SDD Project'));
+
+  /* ── 1. Pass Rate Gauge (semicircle SVG) ───────────────── */
+  var passRate = get('quality.passRate', get('insights.testPassRate', 0));
+  if (typeof passRate !== 'number') passRate = parseInt(passRate, 10) || 0;
+  passRate = Math.max(0, Math.min(100, Math.round(passRate)));
+
+  var gaugeColor = passRate >= 75 ? 'var(--brand-gold)' : passRate >= 50 ? 'var(--brand-orange)' : 'var(--brand-red)';
+  var R = 60, CX = 110, CY = 112;
+  var halfCirc = Math.PI * R;
+  var dashOffset = halfCirc - (halfCirc * passRate / 100);
+
+  var gaugeHTML = '<div class="gauge-wrap"><div class="gauge-container">' +
+    '<svg viewBox="0 0 220 130">' +
+      '<path class="gauge-bg" d="M 20 112 A 60 60 0 0 1 200 112" />' +
+      '<path class="gauge-fill" d="M 20 112 A 60 60 0 0 1 200 112"' +
+        ' stroke="' + gaugeColor + '"' +
+        ' stroke-dasharray="' + halfCirc.toFixed(2) + '"' +
+        ' stroke-dashoffset="' + dashOffset.toFixed(2) + '" />' +
+    '</svg>' +
+    '<div class="gauge-pct" style="color:' + gaugeColor + '">' + passRate + '%</div>' +
+    '<div class="gauge-label">Pass Rate</div>' +
+  '</div></div>';
+
+  /* ── 2. Checklist Progress ─────────────────────────────── */
+  var checklistHTML = '';
+  if (features.length) {
+    var bars = features.map(function(f) {
+      var checked = 0, total = 0;
+      if (f.progress) {
+        if (typeof f.progress === 'string' && f.progress.indexOf('/') !== -1) {
+          var parts = f.progress.split('/');
+          checked = parseInt(parts[0], 10) || 0;
+          total = parseInt(parts[1], 10) || 0;
+        } else if (typeof f.progress === 'number') {
+          checked = f.progress; total = 100;
+        }
+      }
+      if (!total) {
+        total = (Array.isArray(f.tests) ? f.tests.length : 0) + (Array.isArray(f.requirements) ? f.requirements.length : 0);
+        checked = Math.round(total * (passRate / 100));
+      }
+      var pct = total ? Math.round((checked / total) * 100) : 0;
+      var barClass = pct >= 100 ? 'gold' : 'blue';
+      return '<div class="checklist-row">' +
+        '<span class="cl-name" title="' + (f.name || f.id) + '">' + (f.name || f.id || 'Feature') + '</span>' +
+        '<div class="cl-bar"><div class="cl-bar-fill ' + barClass + '" style="width:' + Math.min(pct,100) + '%"></div></div>' +
+        '<span class="cl-count">' + checked + '/' + total + '</span>' +
+      '</div>';
+    }).join('');
+
+    checklistHTML = '<section class="checklist-section">' +
+      '<h3 class="section-title">&#x2611; Checklist Progress</h3>' +
+      bars +
+    '</section>';
+  }
+
+  /* ── 3. Test Pyramid ───────────────────────────────────── */
+  var unitCount = 0, intCount = 0, e2eCount = 0;
+  features.forEach(function(f) {
+    var tests = f.tests || [];
+    if (!Array.isArray(tests)) return;
+    tests.forEach(function(t) {
+      var type = (typeof t === 'object' && t.type) ? t.type.toLowerCase() : '';
+      if (type.indexOf('unit') !== -1) unitCount++;
+      else if (type.indexOf('int') !== -1) intCount++;
+      else if (type.indexOf('e2e') !== -1 || type.indexOf('end') !== -1) e2eCount++;
+      else unitCount++;
+    });
+  });
+  /* Fallback: derive from total test counts */
+  if (!unitCount && !intCount && !e2eCount) {
+    var totalTests = 0;
+    features.forEach(function(f) {
+      totalTests += (Array.isArray(f.tests) ? f.tests.length : 0);
+    });
+    if (totalTests > 0) {
+      unitCount = Math.round(totalTests * 0.6);
+      intCount = Math.round(totalTests * 0.25);
+      e2eCount = totalTests - unitCount - intCount;
+    }
+  }
+
+  var pyramidHTML = '<section class="pyramid-section">' +
+    '<h3 class="section-title">&#x25B3; Test Pyramid</h3>' +
+    '<div class="pyramid-wrap"><div class="pyramid-container">' +
+    '<svg viewBox="0 0 280 200">' +
+      '<!-- E2E (top, smallest) -->' +
+      '<polygon class="pyramid-layer" points="140,15 180,70 100,70" fill="rgba(255,215,0,0.2)" stroke="var(--brand-gold)" stroke-width="1" />' +
+      '<text class="pyramid-label" x="140" y="50">E2E</text>' +
+      '<text class="pyramid-count" x="140" y="63">' + e2eCount + '</text>' +
+      '<!-- Integration (middle) -->' +
+      '<polygon class="pyramid-layer" points="100,75 180,75 210,135 70,135" fill="rgba(19,125,197,0.15)" stroke="var(--brand-blue)" stroke-width="1" />' +
+      '<text class="pyramid-label" x="140" y="105">Integration</text>' +
+      '<text class="pyramid-count" x="140" y="118">' + intCount + '</text>' +
+      '<!-- Unit (bottom, largest) -->' +
+      '<polygon class="pyramid-layer" points="70,140 210,140 245,190 35,190" fill="rgba(255,215,0,0.1)" stroke="var(--brand-gold)" stroke-width="1" stroke-opacity="0.5" />' +
+      '<text class="pyramid-label" x="140" y="167">Unit</text>' +
+      '<text class="pyramid-count" x="140" y="180">' + unitCount + '</text>' +
+    '</svg>' +
+    '</div></div>' +
+  '</section>';
+
+  /* ── 4. Sankey-style Traceability ──────────────────────── */
+  var totalFR = 0, totalTS = 0, totalT = 0;
+  features.forEach(function(f) {
+    totalFR += (Array.isArray(f.requirements) ? f.requirements.length : 0);
+    totalTS += (Array.isArray(f.tests) ? f.tests.length : 0);
+    totalT  += (Array.isArray(f.tasks) ? f.tasks.length : 0);
+  });
+
+  var sankeyHTML = '';
+  if (totalFR || totalTS || totalT) {
+    /* Simple 3-column sankey visualization */
+    var maxVal = Math.max(totalFR, totalTS, totalT, 1);
+    var frH = Math.max(20, Math.round((totalFR / maxVal) * 100));
+    var tsH = Math.max(20, Math.round((totalTS / maxVal) * 100));
+    var tH  = Math.max(20, Math.round((totalT / maxVal) * 100));
+    var svgH = Math.max(frH, tsH, tH) + 40;
+
+    var frY = 20, tsY = 20, tY = 20;
+    /* Center vertically */
+    frY = Math.round((svgH - frH) / 2);
+    tsY = Math.round((svgH - tsH) / 2);
+    tY  = Math.round((svgH - tH) / 2);
+
+    sankeyHTML = '<section class="sankey-section">' +
+      '<h3 class="section-title">&#x21C9; Traceability: FR &#x2192; TS &#x2192; T</h3>' +
+      '<div class="sankey-wrap"><div class="sankey-container">' +
+      '<svg viewBox="0 0 500 ' + svgH + '" preserveAspectRatio="xMidYMid meet">' +
+        '<!-- FR node -->' +
+        '<rect x="10" y="' + frY + '" width="24" height="' + frH + '" rx="4" fill="var(--brand-gold)" opacity="0.8" />' +
+        '<text class="sankey-node-label" x="22" y="' + (frY - 6) + '" text-anchor="middle">FR</text>' +
+        '<text class="sankey-count" x="22" y="' + (frY + frH + 14) + '" text-anchor="middle">' + totalFR + '</text>' +
+        '<!-- Flow FR -> TS -->' +
+        '<path d="M 34 ' + (frY + frH/2) + ' C 120 ' + (frY + frH/2) + ', 130 ' + (tsY + tsH/2) + ', 228 ' + (tsY + tsH/2) + '"' +
+          ' fill="none" stroke="var(--brand-gold)" stroke-width="' + Math.max(2, Math.round(frH * 0.3)) + '" opacity="0.2" />' +
+        '<!-- TS node -->' +
+        '<rect x="228" y="' + tsY + '" width="24" height="' + tsH + '" rx="4" fill="var(--brand-blue)" opacity="0.8" />' +
+        '<text class="sankey-node-label" x="240" y="' + (tsY - 6) + '" text-anchor="middle">TS</text>' +
+        '<text class="sankey-count" x="240" y="' + (tsY + tsH + 14) + '" text-anchor="middle">' + totalTS + '</text>' +
+        '<!-- Flow TS -> T -->' +
+        '<path d="M 252 ' + (tsY + tsH/2) + ' C 340 ' + (tsY + tsH/2) + ', 350 ' + (tY + tH/2) + ', 446 ' + (tY + tH/2) + '"' +
+          ' fill="none" stroke="var(--brand-blue)" stroke-width="' + Math.max(2, Math.round(tsH * 0.3)) + '" opacity="0.2" />' +
+        '<!-- T node -->' +
+        '<rect x="446" y="' + tY + '" width="24" height="' + tH + '" rx="4" fill="var(--brand-gold)" opacity="0.6" />' +
+        '<text class="sankey-node-label" x="458" y="' + (tY - 6) + '" text-anchor="middle">T</text>' +
+        '<text class="sankey-count" x="458" y="' + (tY + tH + 14) + '" text-anchor="middle">' + totalT + '</text>' +
+      '</svg>' +
+      '</div></div>' +
+    '</section>';
+  }
+
+  /* ── 5. Bug Summary ────────────────────────────────────── */
+  var bugs = get('bugs', get('quality.bugs', null));
+  var bugsHTML = '';
+  if (bugs && Array.isArray(bugs) && bugs.length) {
+    var bugCards = bugs.map(function(b) {
+      var sev = (b.severity || b.priority || 'minor').toLowerCase();
+      var sevClass = sev.indexOf('crit') !== -1 ? 'critical' : sev.indexOf('major') !== -1 || sev.indexOf('high') !== -1 ? 'major' : 'minor';
+      return '<div class="bug-card">' +
+        '<div class="bug-id">' + (b.id || 'BUG') + '</div>' +
+        '<div class="bug-title">' + (b.title || b.name || b.description || 'Untitled') + '</div>' +
+        '<span class="bug-sev ' + sevClass + '">' + sev + '</span>' +
+      '</div>';
+    }).join('');
+    bugsHTML = '<section class="bugs-section">' +
+      '<h3 class="section-title">&#x1F41B; Bugs <span style="font-size:0.75rem;color:var(--brand-red);font-weight:400">' + bugs.length + ' open</span></h3>' +
+      '<div class="bugs-grid">' + bugCards + '</div>' +
+    '</section>';
+  }
+
+  /* ── Render ────────────────────────────────────────────── */
+  root.innerHTML =
+    '<h1 class="page-title"><span class="gold">&#x2713;</span> Quality</h1>' +
+    '<p class="page-subtitle">' + projectName + ' &mdash; ' + totalFR + ' requirements, ' + totalTS + ' tests, ' + passRate + '% pass rate</p>' +
+
+    gaugeHTML +
+    checklistHTML +
+    pyramidHTML +
+    sankeyHTML +
+    bugsHTML +
+
+    '<footer class="cc-footer">SDD v3.0 &middot; Spec Driven Development by metodolog<span class="gold">IA</span></footer>';
+})();
+</script>
+
+</body>
+</html>

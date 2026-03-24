@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pipeline &mdash; SDD ALM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/data.js" defer></script>
+  <script src="shared/nav.js" defer></script>
+  <script src="shared/footer.js" defer></script>
+  <style>
+    .pp-main { max-width:1280px; margin:0 auto; padding:2rem 1.5rem 3rem; }
+    .page-title { font-size:1.5rem; font-weight:900; margin-bottom:0.35rem; }
+    .page-title .gold { color:var(--brand-gold); }
+    .page-subtitle { color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem; }
+
+    /* ── Pipeline Hero ───────────────────────────────────────── */
+    .pipeline-hero { position:relative; padding:2rem 0 2.5rem; overflow-x:auto; }
+    .pipeline-track {
+      display:flex; align-items:center; justify-content:center;
+      gap:0; min-width:860px; padding:0 1rem; position:relative;
+    }
+    .phase-node {
+      display:flex; flex-direction:column; align-items:center; gap:0.5rem;
+      position:relative; z-index:2; flex-shrink:0; width:90px;
+    }
+    .phase-circle {
+      width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-heading); font-weight:700; font-size:0.85rem;
+      transition:all var(--transition-normal); position:relative;
+    }
+    .phase-circle.complete {
+      background:var(--brand-gold); color:#000;
+      box-shadow:0 0 16px rgba(255,215,0,0.35);
+    }
+    .phase-circle.current {
+      background:transparent; border:2.5px solid var(--brand-blue); color:var(--brand-blue);
+      box-shadow:0 0 16px rgba(19,125,197,0.3);
+      animation:pulse-blue 2s ease infinite;
+    }
+    .phase-circle.future {
+      background:transparent; border:2px solid var(--text-dim); color:var(--text-dim);
+    }
+    @keyframes pulse-blue {
+      0%, 100% { box-shadow:0 0 16px rgba(19,125,197,0.3); }
+      50% { box-shadow:0 0 24px rgba(19,125,197,0.5); }
+    }
+    .phase-name {
+      font-size:0.65rem; color:var(--text-muted); text-align:center;
+      line-height:1.25; max-width:80px; font-weight:500;
+    }
+    .phase-circle.complete + .phase-name { color:var(--brand-gold); }
+    .phase-circle.current + .phase-name { color:var(--brand-blue); }
+
+    /* Connector lines */
+    .phase-connector {
+      width:32px; height:2px; flex-shrink:0; z-index:1;
+      position:relative;
+    }
+    .phase-connector .line {
+      position:absolute; top:0; left:0; right:0; height:2px;
+      background:var(--text-dim); opacity:0.3;
+    }
+    .phase-connector.done .line { background:var(--brand-gold); opacity:0.7; }
+
+    /* Gate markers */
+    .gate-marker {
+      position:absolute; top:-22px; left:50%; transform:translateX(-50%);
+      font-size:0.6rem; font-weight:700; padding:2px 6px;
+      border-radius:4px; white-space:nowrap;
+      background:rgba(255,215,0,0.12); color:var(--brand-gold);
+      border:1px solid rgba(255,215,0,0.2);
+    }
+
+    /* ── Kanban Board ────────────────────────────────────────── */
+    .section-title {
+      font-size:1.1rem; font-weight:700; margin-bottom:1rem;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .kanban { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:2rem; }
+    .kanban-col {
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle); border-radius:var(--radius-card);
+      padding:var(--space-md); min-height:200px;
+    }
+    .kanban-header {
+      font-family:var(--font-heading); font-weight:700; font-size:0.85rem;
+      margin-bottom:0.75rem; padding-bottom:0.5rem;
+      border-bottom:1px solid var(--border-subtle);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .kanban-header .count {
+      font-size:0.7rem; font-weight:600; padding:2px 8px;
+      border-radius:10px; background:var(--bg-raised); color:var(--text-muted);
+    }
+    .kanban-header.todo { color:var(--text-muted); }
+    .kanban-header.wip { color:var(--brand-blue); }
+    .kanban-header.done { color:var(--brand-gold); }
+
+    .feature-card {
+      background:var(--bg-raised); border:1px solid var(--border-subtle);
+      border-radius:var(--radius-sm); padding:0.65rem 0.75rem;
+      margin-bottom:0.5rem; transition:transform var(--transition-fast);
+    }
+    .feature-card:hover { transform:translateX(2px); }
+    .fc-name { font-weight:600; font-size:0.82rem; margin-bottom:0.35rem; color:var(--text-primary); }
+    .fc-meta { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
+    .fc-progress {
+      font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted);
+    }
+    .fc-badge {
+      font-size:0.65rem; font-weight:600; padding:1px 6px;
+      border-radius:8px; text-transform:uppercase;
+    }
+    .fc-badge.phase-badge { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
+    .fc-priority {
+      width:8px; height:8px; border-radius:50%; flex-shrink:0;
+    }
+    .fc-priority.p0 { background:var(--brand-red); }
+    .fc-priority.p1 { background:var(--brand-gold); }
+    .fc-priority.p2 { background:var(--brand-blue); }
+
+    /* Progress bar */
+    .fc-bar { height:3px; border-radius:2px; background:var(--bg-body); margin-top:0.4rem; overflow:hidden; }
+    .fc-bar-fill { height:100%; border-radius:2px; transition:width 0.5s ease; }
+    .fc-bar-fill.gold { background:var(--brand-gold); }
+    .fc-bar-fill.blue { background:var(--brand-blue); }
+
+    /* ── No Data ─────────────────────────────────────────────── */
+    .no-data { text-align:center; padding:3rem 1rem; }
+    .no-data-icon { font-size:3rem; margin-bottom:1rem; opacity:0.4; }
+    .no-data-text { color:var(--text-dim); font-size:0.95rem; margin-bottom:1rem; }
+
+    .cc-footer {
+      text-align:center; padding:2rem 1rem; border-top:1px solid var(--border-subtle);
+      color:var(--text-dim); font-size:0.75rem; margin-top:2rem;
+    }
+    .cc-footer .gold { color:var(--brand-gold); font-weight:600; }
+
+    @media(max-width:768px) {
+      .kanban { grid-template-columns:1fr; }
+      .pipeline-track { min-width:700px; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="pp-main" id="pp-root"></main>
+
+<script>
+(function () {
+  'use strict';
+
+  var PHASES = [
+    { id:'P0', name:'Constitution', gate:null },
+    { id:'P1', name:'User Specs',   gate:null },
+    { id:'P2', name:'Technical Specs', gate:'G1' },
+    { id:'P3', name:'BDD Analysis', gate:null },
+    { id:'P4', name:'Test',         gate:null },
+    { id:'P5', name:'Task',         gate:null },
+    { id:'P6', name:'Organize Plan', gate:'G2' },
+    { id:'P7', name:'Deliver',      gate:'G3' },
+    { id:'P8', name:'Ship',         gate:null }
+  ];
+
+  var PHASE_MAP = {
+    'constitution':0, 'user specs':1, 'specify':1, 'spec':1,
+    'technical specs':2, 'plan':2, 'bdd analysis':3, 'checklist':3,
+    'test':4, 'testify':4, 'task':5, 'tasks':5,
+    'organize plan':6, 'analyze':6, 'deliver':7, 'implement':7,
+    'ship':8, 'issues':8, 'done':8, 'complete':8
+  };
+
+  function D() { return window.DASHBOARD_DATA || null; }
+  function get(path, fallback) {
+    try { return path.split('.').reduce(function(o,k){ return o[k]; }, D()) || fallback; }
+    catch(_) { return fallback; }
+  }
+
+  var root = document.getElementById('pp-root');
+
+  if (!D() || !get('features', null)) {
+    root.innerHTML =
+      '<h1 class="page-title"><span class="gold">&#x25B6;</span> Pipeline</h1>' +
+      '<div class="no-data">' +
+        '<div class="no-data-icon">&#x25B6;</div>' +
+        '<h2 style="margin-bottom:0.5rem">No Data Yet</h2>' +
+        '<p class="no-data-text">Run <code style="color:var(--brand-gold)">/sdd:spec</code> to create features,<br>then <code style="color:var(--brand-gold)">/sdd:dashboard</code> to refresh.</p>' +
+      '</div>' +
+      '<footer class="cc-footer">SDD v3.0 &middot; Spec Driven Development by metodolog<span class="gold">IA</span></footer>';
+    return;
+  }
+
+  var features = get('features', []);
+
+  /* ── Determine highest completed phase ─────────────────── */
+  function phaseIndex(f) {
+    var p = (f.phase || f.status || '').toLowerCase();
+    if (PHASE_MAP[p] !== undefined) return PHASE_MAP[p];
+    var m = p.match(/p(\d)/i);
+    if (m) return parseInt(m[1], 10);
+    return -1;
+  }
+
+  var maxPhase = -1;
+  features.forEach(function(f) {
+    var idx = phaseIndex(f);
+    if (idx > maxPhase) maxPhase = idx;
+  });
+
+  /* ── Build pipeline track ──────────────────────────────── */
+  var trackHTML = '';
+  PHASES.forEach(function(ph, i) {
+    var cls = 'future';
+    if (i < maxPhase) cls = 'complete';
+    else if (i === maxPhase) cls = 'current';
+
+    var gateHTML = ph.gate ? '<span class="gate-marker">' + ph.gate + '</span>' : '';
+
+    trackHTML += '<div class="phase-node">' +
+      '<div class="phase-circle ' + cls + '">' + gateHTML + ph.id + '</div>' +
+      '<span class="phase-name">' + ph.name + '</span>' +
+    '</div>';
+
+    if (i < PHASES.length - 1) {
+      var connCls = i < maxPhase ? 'done' : '';
+      trackHTML += '<div class="phase-connector ' + connCls + '"><div class="line"></div></div>';
+    }
+  });
+
+  /* ── Sort features into kanban columns ─────────────────── */
+  var todo = [], wip = [], done = [];
+  features.forEach(function(f) {
+    var idx = phaseIndex(f);
+    var st = (f.status || '').toLowerCase();
+    if (st === 'done' || st === 'complete' || st === 'shipped' || idx >= 8) {
+      done.push(f);
+    } else if (idx <= 0 || st === 'todo' || st === 'backlog') {
+      todo.push(f);
+    } else {
+      wip.push(f);
+    }
+  });
+
+  function featureCardHTML(f) {
+    var pct = 0;
+    if (f.progress) {
+      if (typeof f.progress === 'string' && f.progress.indexOf('/') !== -1) {
+        var parts = f.progress.split('/');
+        pct = Math.round((parseInt(parts[0],10) / parseInt(parts[1],10)) * 100) || 0;
+      } else if (typeof f.progress === 'number') {
+        pct = Math.round(f.progress);
+      }
+    }
+    var progressText = f.progress || '--';
+    var phase = f.phase || f.status || '--';
+    var pri = (f.priority || f.id || '').toString().toLowerCase();
+    var priClass = pri.indexOf('p0') !== -1 ? 'p0' : pri.indexOf('p1') !== -1 ? 'p1' : 'p2';
+    var barClass = pct >= 100 ? 'gold' : 'blue';
+
+    return '<div class="feature-card">' +
+      '<div class="fc-name">' + (f.name || f.id || 'Feature') + '</div>' +
+      '<div class="fc-meta">' +
+        '<span class="fc-priority ' + priClass + '"></span>' +
+        '<span class="fc-progress">' + progressText + '</span>' +
+        '<span class="fc-badge phase-badge">' + phase + '</span>' +
+      '</div>' +
+      '<div class="fc-bar"><div class="fc-bar-fill ' + barClass + '" style="width:' + Math.min(pct,100) + '%"></div></div>' +
+    '</div>';
+  }
+
+  function renderColumn(items) {
+    if (!items.length) return '<div style="color:var(--text-dim);font-size:0.8rem;text-align:center;padding:1rem">Empty</div>';
+    return items.map(featureCardHTML).join('');
+  }
+
+  /* ── Render ────────────────────────────────────────────── */
+  var projectName = get('project.name', get('premise.name', 'SDD Project'));
+
+  root.innerHTML =
+    '<h1 class="page-title"><span class="gold">&#x25B6;</span> Pipeline</h1>' +
+    '<p class="page-subtitle">' + projectName + ' &mdash; 9 phases, 3 gates, ' + features.length + ' feature' + (features.length !== 1 ? 's' : '') + '</p>' +
+
+    '<div class="pipeline-hero"><div class="pipeline-track">' + trackHTML + '</div></div>' +
+
+    '<h3 class="section-title">&#x1F4CB; Board</h3>' +
+    '<div class="kanban">' +
+      '<div class="kanban-col">' +
+        '<div class="kanban-header todo">Todo <span class="count">' + todo.length + '</span></div>' +
+        renderColumn(todo) +
+      '</div>' +
+      '<div class="kanban-col">' +
+        '<div class="kanban-header wip">In Progress <span class="count">' + wip.length + '</span></div>' +
+        renderColumn(wip) +
+      '</div>' +
+      '<div class="kanban-col">' +
+        '<div class="kanban-header done">Done <span class="count">' + done.length + '</span></div>' +
+        renderColumn(done) +
+      '</div>' +
+    '</div>' +
+
+    '<footer class="cc-footer">SDD v3.0 &middot; Spec Driven Development by metodolog<span class="gold">IA</span></footer>';
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Specifications &mdash; SDD ALM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/tokens.css">
+  <script src="shared/data.js" defer></script>
+  <script src="shared/nav.js" defer></script>
+  <script src="shared/footer.js" defer></script>
+  <style>
+    .sp-main { max-width:1280px; margin:0 auto; padding:2rem 1.5rem 3rem; }
+    .page-title { font-size:1.5rem; font-weight:900; margin-bottom:0.35rem; }
+    .page-title .gold { color:var(--brand-gold); }
+    .page-subtitle { color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem; }
+    .section-title {
+      font-size:1.1rem; font-weight:700; margin-bottom:1rem;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+
+    /* ── Story Map ───────────────────────────────────────────── */
+    .story-map { margin-bottom:2.5rem; }
+    .priority-lane {
+      margin-bottom:1.5rem;
+    }
+    .lane-header {
+      font-family:var(--font-heading); font-weight:700; font-size:0.85rem;
+      padding:0.4rem 0.75rem; margin-bottom:0.65rem;
+      border-left:3px solid var(--brand-gold); color:var(--brand-gold);
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .lane-header.p0 { border-left-color:var(--brand-red); color:var(--brand-red); }
+    .lane-header.p1 { border-left-color:var(--brand-gold); color:var(--brand-gold); }
+    .lane-header.p2 { border-left-color:var(--brand-blue); color:var(--brand-blue); }
+    .lane-cards {
+      display:flex; gap:0.75rem; overflow-x:auto; padding-bottom:0.5rem;
+      scrollbar-width:thin; scrollbar-color:var(--bg-raised) transparent;
+    }
+    .lane-cards::-webkit-scrollbar { height:4px; }
+    .lane-cards::-webkit-scrollbar-track { background:transparent; }
+    .lane-cards::-webkit-scrollbar-thumb { background:var(--bg-raised); border-radius:2px; }
+
+    .spec-card {
+      flex-shrink:0; width:200px;
+      background:var(--bg-card); backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+      border:1px solid var(--border-subtle); border-radius:var(--radius-sm);
+      padding:0.75rem; transition:transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .spec-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-glow-gold); }
+    .sc-name { font-weight:600; font-size:0.82rem; margin-bottom:0.5rem; color:var(--text-primary); line-height:1.3; }
+    .sc-stats { display:flex; gap:0.5rem; flex-wrap:wrap; }
+    .sc-stat {
+      font-family:var(--font-mono); font-size:0.65rem; padding:2px 6px;
+      border-radius:6px; background:var(--bg-raised); color:var(--text-muted);
+    }
+    .sc-stat .val { color:var(--brand-gold); font-weight:700; }
+    .sc-stat .val.blue { color:var(--brand-blue); }
+
+    /* ── Requirements List ───────────────────────────────────── */
+    .req-section { margin-bottom:2rem; }
+    .req-table {
+      width:100%; border-collapse:collapse; font-size:0.82rem;
+    }
+    .req-table th {
+      text-align:left; padding:0.6rem 0.75rem; font-family:var(--font-heading);
+      font-weight:600; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;
+      color:var(--text-dim); border-bottom:1px solid var(--border-medium);
+    }
+    .req-table td {
+      padding:0.55rem 0.75rem; border-bottom:1px solid var(--border-subtle);
+      color:var(--text-muted);
+    }
+    .req-table tr:hover td { background:rgba(255,255,255,0.02); }
+    .req-id { font-family:var(--font-mono); font-weight:600; color:var(--brand-gold); font-size:0.78rem; }
+    .req-linked { font-family:var(--font-mono); color:var(--brand-blue); font-size:0.75rem; }
+    .req-status {
+      font-size:0.7rem; font-weight:600; padding:2px 8px; border-radius:8px;
+      display:inline-block;
+    }
+    .req-status.covered { background:rgba(19,125,197,0.12); color:var(--brand-blue); }
+    .req-status.orphan { background:rgba(239,68,68,0.12); color:var(--brand-red); }
+    tr.orphan-row td { border-left:2px solid rgba(239,68,68,0.4); }
+
+    /* ── Empty lane ──────────────────────────────────────────── */
+    .lane-empty {
+      color:var(--text-dim); font-size:0.8rem; padding:0.75rem;
+      font-style:italic;
+    }
+
+    /* ── No Data ─────────────────────────────────────────────── */
+    .no-data { text-align:center; padding:3rem 1rem; }
+    .no-data-icon { font-size:3rem; margin-bottom:1rem; opacity:0.4; }
+    .no-data-text { color:var(--text-dim); font-size:0.95rem; margin-bottom:1rem; }
+
+    .cc-footer {
+      text-align:center; padding:2rem 1rem; border-top:1px solid var(--border-subtle);
+      color:var(--text-dim); font-size:0.75rem; margin-top:2rem;
+    }
+    .cc-footer .gold { color:var(--brand-gold); font-weight:600; }
+
+    @media(max-width:600px) {
+      .spec-card { width:170px; }
+      .req-table { font-size:0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="sp-main" id="sp-root"></main>
+
+<script>
+(function () {
+  'use strict';
+
+  function D() { return window.DASHBOARD_DATA || null; }
+  function get(path, fallback) {
+    try { return path.split('.').reduce(function(o,k){ return o[k]; }, D()) || fallback; }
+    catch(_) { return fallback; }
+  }
+
+  var root = document.getElementById('sp-root');
+
+  if (!D() || !get('features', null)) {
+    root.innerHTML =
+      '<h1 class="page-title"><span class="gold">&#x1F4CB;</span> Specifications</h1>' +
+      '<div class="no-data">' +
+        '<div class="no-data-icon">&#x1F4CB;</div>' +
+        '<h2 style="margin-bottom:0.5rem">No Data Yet</h2>' +
+        '<p class="no-data-text">Run <code style="color:var(--brand-gold)">/sdd:spec</code> to create specifications,<br>then <code style="color:var(--brand-gold)">/sdd:dashboard</code> to refresh.</p>' +
+      '</div>' +
+      '<footer class="cc-footer">SDD v3.0 &middot; Spec Driven Development by metodolog<span class="gold">IA</span></footer>';
+    return;
+  }
+
+  var features = get('features', []);
+  var projectName = get('project.name', get('premise.name', 'SDD Project'));
+
+  /* ── Categorize features by priority ───────────────────── */
+  var lanes = { p0:[], p1:[], p2:[] };
+  features.forEach(function(f) {
+    var pri = (f.priority || f.id || '').toString().toLowerCase();
+    if (pri.indexOf('p0') !== -1 || pri.indexOf('critical') !== -1 || pri.indexOf('high') !== -1) {
+      lanes.p0.push(f);
+    } else if (pri.indexOf('p1') !== -1 || pri.indexOf('medium') !== -1) {
+      lanes.p1.push(f);
+    } else {
+      lanes.p2.push(f);
+    }
+  });
+  /* If no priorities detected, put all in p1 */
+  if (!lanes.p0.length && !lanes.p1.length && lanes.p2.length === features.length && features.length > 0) {
+    lanes.p1 = features; lanes.p2 = [];
+  }
+
+  /* ── Spec card builder ─────────────────────────────────── */
+  function specCard(f) {
+    var fr = 0, us = 0, sc = 0;
+    if (f.requirements) { fr = Array.isArray(f.requirements) ? f.requirements.length : (parseInt(f.requirements,10) || 0); }
+    if (f.stories) { us = Array.isArray(f.stories) ? f.stories.length : (parseInt(f.stories,10) || 0); }
+    if (f.tests) { sc = Array.isArray(f.tests) ? f.tests.length : (parseInt(f.tests,10) || 0); }
+    /* Fallback: derive from tasks if no stories */
+    if (!us && f.tasks) { us = Array.isArray(f.tasks) ? f.tasks.length : (parseInt(f.tasks,10) || 0); }
+
+    return '<div class="spec-card">' +
+      '<div class="sc-name">' + (f.name || f.id || 'Feature') + '</div>' +
+      '<div class="sc-stats">' +
+        '<span class="sc-stat"><span class="val">' + fr + '</span> FR</span>' +
+        '<span class="sc-stat"><span class="val blue">' + us + '</span> US</span>' +
+        '<span class="sc-stat"><span class="val">' + sc + '</span> SC</span>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderLane(label, cls, items) {
+    var body = items.length
+      ? items.map(specCard).join('')
+      : '<div class="lane-empty">No features at this priority</div>';
+    return '<div class="priority-lane">' +
+      '<div class="lane-header ' + cls + '">' + label + ' <span style="font-weight:400;font-size:0.75rem;opacity:0.7">(' + items.length + ')</span></div>' +
+      '<div class="lane-cards">' + body + '</div>' +
+    '</div>';
+  }
+
+  var storyMapHTML =
+    renderLane('P0 — Critical', 'p0', lanes.p0) +
+    renderLane('P1 — Standard', 'p1', lanes.p1) +
+    renderLane('P2 — Nice to Have', 'p2', lanes.p2);
+
+  /* ── Requirements table ────────────────────────────────── */
+  var allReqs = [];
+  features.forEach(function(f) {
+    var reqs = f.requirements || [];
+    if (!Array.isArray(reqs)) return;
+    reqs.forEach(function(r, i) {
+      var id = (typeof r === 'string') ? r : (r.id || 'FR-' + String(i+1).padStart(3,'0'));
+      var name = (typeof r === 'object' && r.name) ? r.name : (typeof r === 'string' ? r : '');
+      var linked = (typeof r === 'object' && r.testId) ? r.testId : '';
+      var status = linked ? 'covered' : 'orphan';
+      if (typeof r === 'object' && r.status) {
+        status = r.status.toLowerCase().indexOf('orphan') !== -1 ? 'orphan' : 'covered';
+      }
+      /* Attempt to find linked tests from feature tests array */
+      if (!linked && f.tests && Array.isArray(f.tests) && f.tests[i]) {
+        var t = f.tests[i];
+        linked = (typeof t === 'string') ? t : (t.id || '');
+        if (linked) status = 'covered';
+      }
+      allReqs.push({ id:id, name:name, feature:f.name||f.id, linked:linked, status:status });
+    });
+  });
+
+  var reqHTML = '';
+  if (allReqs.length) {
+    var rows = allReqs.map(function(r) {
+      var rowCls = r.status === 'orphan' ? ' class="orphan-row"' : '';
+      return '<tr' + rowCls + '>' +
+        '<td><span class="req-id">' + r.id + '</span></td>' +
+        '<td>' + (r.name || r.feature) + '</td>' +
+        '<td><span class="req-linked">' + (r.linked || '&mdash;') + '</span></td>' +
+        '<td><span class="req-status ' + r.status + '">' + r.status + '</span></td>' +
+      '</tr>';
+    }).join('');
+
+    var orphanCount = allReqs.filter(function(r){ return r.status === 'orphan'; }).length;
+
+    reqHTML = '<section class="req-section">' +
+      '<h3 class="section-title">&#x1F4D1; Requirements ' +
+        '<span style="font-size:0.75rem;color:var(--text-dim);font-weight:400">' + allReqs.length + ' total' +
+        (orphanCount ? ', <span style="color:var(--brand-red)">' + orphanCount + ' orphan</span>' : '') +
+        '</span></h3>' +
+      '<table class="req-table">' +
+        '<thead><tr><th>ID</th><th>Requirement</th><th>Linked Test</th><th>Status</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table>' +
+    '</section>';
+  } else {
+    reqHTML = '<section class="req-section">' +
+      '<h3 class="section-title">&#x1F4D1; Requirements</h3>' +
+      '<p style="color:var(--text-dim);font-size:0.85rem;padding:1rem 0">No requirements extracted yet &mdash; run <code style="color:var(--brand-gold)">/sdd:spec</code></p>' +
+    '</section>';
+  }
+
+  /* ── Render ────────────────────────────────────────────── */
+  var totalFR = 0, totalUS = 0, totalSC = 0;
+  features.forEach(function(f) {
+    totalFR += (Array.isArray(f.requirements) ? f.requirements.length : 0);
+    totalUS += (Array.isArray(f.stories) ? f.stories.length : (Array.isArray(f.tasks) ? f.tasks.length : 0));
+    totalSC += (Array.isArray(f.tests) ? f.tests.length : 0);
+  });
+
+  root.innerHTML =
+    '<h1 class="page-title"><span class="gold">&#x1F4CB;</span> Specifications</h1>' +
+    '<p class="page-subtitle">' + projectName + ' &mdash; ' + totalFR + ' FR, ' + totalUS + ' US, ' + totalSC + ' SC across ' + features.length + ' feature' + (features.length !== 1 ? 's' : '') + '</p>' +
+
+    '<section class="story-map">' +
+      '<h3 class="section-title">&#x1F5FA; Story Map</h3>' +
+      storyMapHTML +
+    '</section>' +
+
+    reqHTML +
+
+    '<footer class="cc-footer">SDD v3.0 &middot; Spec Driven Development by metodolog<span class="gold">IA</span></footer>';
+})();
+</script>
+
+</body>
+</html>

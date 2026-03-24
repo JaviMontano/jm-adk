@@ -61,19 +61,37 @@
   --transition-slow: 0.35s ease;
 }
 
-/* Light theme overrides */
+/* Light theme overrides — high contrast gold on light backgrounds */
 body.light {
   --bg-body: #F8FAFC;
   --bg-surface: #FFFFFF;
   --bg-raised: #F1F5F9;
   --bg-card: rgba(0,0,0,0.02);
+  --bg-overlay: rgba(248,250,252,0.85);
   --text-primary: #0F172A;
   --text-muted: #475569;
-  --text-dim: #94A3B8;
-  --border-subtle: rgba(0,0,0,0.06);
-  --border-medium: rgba(0,0,0,0.12);
+  --text-dim: #64748B;
+  --text-inverse: #F8FAFC;
+  --border-subtle: rgba(0,0,0,0.08);
+  --border-medium: rgba(0,0,0,0.15);
+  --border-gold: rgba(180,130,0,0.3);
   --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+  --shadow-glow-gold: 0 0 20px rgba(180,130,0,0.12);
+
+  /* CRITICAL: Gold on white has <2:1 contrast ratio.
+     Use darkened gold (#B48200) for text on light backgrounds.
+     Regular gold (#FFD700) is ONLY for filled backgrounds (buttons). */
+  --brand-gold: #B48200;       /* 4.6:1 on white — WCAG AA */
+  --brand-gold-dark: #8B6500;  /* 7.0:1 on white — WCAG AAA */
 }
+/* Light: gold buttons keep bright gold bg with dark text (already #000) */
+body.light .btn-gold { background: linear-gradient(135deg, #FFD700, #FFA000); }
+body.light .btn-outline { color: #8B6500; border-color: rgba(139,101,0,0.3); }
+body.light .btn-outline:hover { background: rgba(180,130,0,0.06); }
+body.light .badge-gold { background: rgba(180,130,0,0.1); color: #8B6500; }
+body.light a { color: #8B6500; }
+body.light a:hover { color: #6B4F00; }
+body.light .nav-tabs a.active { color: #8B6500; border-bottom-color: #B48200; }
 
 /* ── Base Resets ────────────────────────────────────────────── */
 

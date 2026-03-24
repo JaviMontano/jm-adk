@@ -83,33 +83,70 @@ else
   echo -e "${MUTED}Step 4: No PREMISE.md — run /sdd:core init to create${RESET}"
 fi
 
-# ─── Step 5: Generate initial dashboard + Command Center data ───
+# ─── Step 5: Deploy ALM (Application Lifecycle Manager) ───
+echo -e "${BLUE}Step 5:${RESET} Deploying ALM visual components..."
+
+ALM_DIR="$SPECIFY_DIR"
+ALM_SHARED="$ALM_DIR/shared"
+mkdir -p "$ALM_SHARED" "$ALM_DIR/docs/shared"
+
+# 5a. Generate dashboard.html (single-file legacy)
 DASHBOARD_GENERATOR="$SCRIPT_DIR/generate-dashboard.js"
-CC_DATA_GENERATOR="$SCRIPT_DIR/generate-command-center-data.js"
 if [[ -f "$DASHBOARD_GENERATOR" ]] && command -v node &>/dev/null; then
-  echo -e "${BLUE}Step 5:${RESET} Generating dashboard..."
-  node "$DASHBOARD_GENERATOR" "$PROJECT_PATH" 2>/dev/null && echo -e "  ${GOLD}Dashboard:${RESET} .specify/dashboard.html" || echo -e "  ${MUTED}Dashboard generation skipped (template not ready)${RESET}"
-  # Command Center data
-  if [[ -f "$CC_DATA_GENERATOR" ]]; then
-    node "$CC_DATA_GENERATOR" "$PROJECT_PATH" 2>/dev/null && echo -e "  ${GOLD}Command Center:${RESET} .specify/shared/data.js" || true
-  fi
-  # Copy Command Center HTML if not already present
-  CC_SOURCE="$SCRIPT_DIR/command-center"
-  CC_TARGET="$PROJECT_PATH/.specify"
-  if [[ -d "$CC_SOURCE" ]] && [[ ! -f "$CC_TARGET/index.html" || "$CC_TARGET/index.html" -ot "$CC_SOURCE/index.html" ]]; then
-    cp "$CC_SOURCE/index.html" "$CC_TARGET/" 2>/dev/null
-    cp -r "$CC_SOURCE/shared" "$CC_TARGET/" 2>/dev/null
-    echo -e "  ${GOLD}Command Center UI:${RESET} .specify/index.html"
-  fi
-  # Copy tour if not present
-  TOUR_SOURCE="$SCRIPT_DIR/sdd-tour.html"
-  if [[ -f "$TOUR_SOURCE" ]] && [[ ! -f "$CC_TARGET/tour.html" ]]; then
-    cp "$TOUR_SOURCE" "$CC_TARGET/tour.html"
-    echo -e "  ${GOLD}Tour:${RESET} .specify/tour.html"
-  fi
-else
-  echo -e "${MUTED}Step 5: Dashboard generator not available${RESET}"
+  node "$DASHBOARD_GENERATOR" "$PROJECT_PATH" 2>/dev/null && echo -e "  ${GOLD}✓${RESET} dashboard.html" || true
 fi
+
+# 5b. Copy Command Center (index.html + shared/)
+CC_SRC="$SCRIPT_DIR/command-center"
+if [[ -d "$CC_SRC" ]]; then
+  cp "$CC_SRC/index.html" "$ALM_DIR/" 2>/dev/null
+  cp "$CC_SRC/shared/nav.js" "$ALM_SHARED/" 2>/dev/null
+  cp "$CC_SRC/shared/tokens.css" "$ALM_SHARED/" 2>/dev/null
+  echo -e "  ${GOLD}✓${RESET} Command Center (index.html + shared/)"
+fi
+
+# 5c. Generate data.js for Command Center
+CC_DATA_GEN="$SCRIPT_DIR/generate-command-center-data.js"
+if [[ -f "$CC_DATA_GEN" ]] && command -v node &>/dev/null; then
+  node "$CC_DATA_GEN" "$PROJECT_PATH" 2>/dev/null && echo -e "  ${GOLD}✓${RESET} shared/data.js" || true
+fi
+
+# 5d. Copy Tour
+if [[ -f "$SCRIPT_DIR/sdd-tour.html" ]]; then
+  cp "$SCRIPT_DIR/sdd-tour.html" "$ALM_DIR/tour.html"
+  echo -e "  ${GOLD}✓${RESET} tour.html (8-step onboarding)"
+fi
+
+# 5e. Copy Landing
+if [[ -f "$ROOT_DIR/landing.html" ]]; then
+  cp "$ROOT_DIR/landing.html" "$ALM_DIR/landing.html"
+  echo -e "  ${GOLD}✓${RESET} landing.html"
+fi
+
+# 5f. Copy Docs site
+DOCS_SRC="$ROOT_DIR/docs"
+if [[ -d "$DOCS_SRC" ]]; then
+  cp "$DOCS_SRC"/*.html "$ALM_DIR/docs/" 2>/dev/null
+  cp "$DOCS_SRC"/shared/*.js "$ALM_DIR/docs/shared/" 2>/dev/null
+  cp "$DOCS_SRC"/shared/*.css "$ALM_DIR/docs/shared/" 2>/dev/null
+  DOC_COUNT=$(ls "$ALM_DIR/docs/"*.html 2>/dev/null | wc -l | tr -d ' ')
+  echo -e "  ${GOLD}✓${RESET} docs/ ($DOC_COUNT pages)"
+fi
+
+# 5g. Create shared/footer.js if missing
+if [[ ! -f "$ALM_SHARED/footer.js" ]]; then
+  cat > "$ALM_SHARED/footer.js" << 'FOOTEREOF'
+(function(){
+  var f=document.createElement('footer');
+  f.style.cssText='margin-top:4rem;padding:1.5rem 2rem;background:#122562;border-top:4px solid #FFD700;text-align:center;font-size:0.75rem;color:#94A3B8';
+  f.innerHTML='SDD v3.0 &middot; Spec Driven Development by metodolog<span style="color:#FFD700;font-weight:700">IA</span><br>&copy; 2026 MetodologIA &middot; Javier Montano';
+  document.body.appendChild(f);
+})();
+FOOTEREOF
+  echo -e "  ${GOLD}✓${RESET} shared/footer.js"
+fi
+
+echo -e "  ${MUTED}Serve locally: npx serve .specify/ -p 3001${RESET}"
 
 # ─── Step 6: GitHub Sync ───
 GIT_DIR="$PROJECT_PATH/.git"
