@@ -1,130 +1,133 @@
-# JM Agentic Development Kit
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:122562,100:BBA0CC&height=220&section=header&text=JM%20Agentic%20Development%20Kit&fontSize=42&fontColor=FFD700&fontAlignY=35&desc=De%20requisitos%20a%20producci%C3%B3n%20%E2%80%94%203%20plugins%20para%20el%20ciclo%20de%20vida%20completo&descSize=16&descColor=ffffff&descAlignY=55" alt="JM ADK Banner" />
+</p>
 
-> **From requirements to production** — 3 Claude Code plugins for the full software lifecycle.
-
-[![Version](https://img.shields.io/badge/version-3.0.0-FFD700?style=flat-square&labelColor=122562)](https://github.com/JaviMontano/jm-agentic-development-kit)
-[![License: MIT](https://img.shields.io/badge/License-MIT-FFD700?style=flat-square&labelColor=122562)](https://opensource.org/licenses/MIT)
-[![Plugins](https://img.shields.io/badge/plugins-3-137DC5?style=flat-square&labelColor=122562)]()
-[![Commands](https://img.shields.io/badge/commands-188-FFD700?style=flat-square&labelColor=122562)]()
-
----
-
-## What's Inside
-
-| Plugin | Prefix | Agents | Skills | Commands | Focus |
-|--------|--------|--------|--------|----------|-------|
-| **Sovereign Architect** | `/sa:` | 66 | 128 | 120 | Architecture, code review, evolution, repair |
-| **Plugin QA** | `/pqa:` | 4 | 20 | 31 | Plugin development lifecycle |
-| **SDD MetodologIA** | `/sdd:` | — | 12 | 37 | Spec Driven Development, BDD, ambient intelligence |
-
-All governed by the **Intent Integrity Kit** — from intent to code with zero drift.
+<p align="center">
+  <img src="https://img.shields.io/badge/versión-3.0.0-137DC5?style=for-the-badge" alt="Versión" />
+  <img src="https://img.shields.io/badge/licencia-MIT-122562?style=for-the-badge" alt="Licencia" />
+  <img src="https://img.shields.io/badge/agentes-101-FFD700?style=for-the-badge" alt="Agentes" />
+  <img src="https://img.shields.io/badge/skills-142-BBA0CC?style=for-the-badge" alt="Skills" />
+  <img src="https://img.shields.io/badge/plugins%20core-3-808080?style=for-the-badge" alt="Plugins Core" />
+</p>
 
 ---
 
-## Install
+## Acerca de JM ADK
 
-Add this marketplace to Claude Code:
+**JM Agentic Development Kit** es un kit de desarrollo agéntico que integra 3 plugins de Claude Code (MAO, SA, PQA) para cubrir el ciclo completo de software: discovery, arquitectura y calidad. Cada tarea cuenta con trazabilidad y puertas de calidad.
+
+Un solo kit, tres disciplinas, cero brechas entre lo que se descubre y lo que se entrega.
+
+---
+
+## Características principales
+
+- **3 plugins integrados (MAO + SA + PQA)** — Discovery, arquitectura y calidad en un solo paquete
+- **142 skills especializados** — Capacidades atómicas para cada fase del desarrollo
+- **Discovery → Arquitectura → QA en un solo kit** — Pipeline end-to-end sin cambiar de herramienta
+- **Zero-Hallucination Protocol** — Cada afirmación respaldada por evidencia verificable
+- **Patrón MOAT** — Defensa estructural contra degradación de calidad
+- **Quality Gates** — Puertas de calidad automáticas en cada transición
+
+---
+
+## Instalación
 
 ```bash
-# From Claude Code CLI
-/install-plugin https://github.com/JaviMontano/jm-agentic-development-kit
+git clone https://github.com/JaviMontano/jm-adk.git && cd jm-adk
 ```
 
-Or clone locally:
+---
 
-```bash
-git clone https://github.com/JaviMontano/jm-agentic-development-kit.git
-```
+## Plugins incluidos
+
+| Plugin | Prefijo | Agentes | Skills | Comandos | Enfoque |
+|--------|---------|---------|--------|----------|---------|
+| **Sovereign Architect** | `/sa:` | 66 | 128 | 120 | Arquitectura, revisión de código, evolución, reparación |
+| **Plugin QA** | `/pqa:` | 4 | 20 | 31 | Ciclo de vida de desarrollo de plugins |
+| **SDD MetodologIA** | `/sdd:` | -- | 12 | 37 | Spec Driven Development, BDD, inteligencia ambiental |
+
+Todos gobernados por el **Intent Integrity Kit** — de la intención al código sin deriva.
 
 ---
 
-## Quick Start
+## Uso rápido
 
 ```bash
-# Architecture & Code
-/sa:analyze              # Full 5-phase technical analysis
-/sa:run-express          # Quick 80/20 diagnosis
-/sa:create               # Scaffold new projects
-/sa:review               # Review code quality
+# Arquitectura y código
+/sa:analyze              # Análisis técnico completo en 5 fases
+/sa:run-express          # Diagnóstico rápido 80/20
+/sa:create               # Scaffold de nuevos proyectos
 
-# Plugin Development
-/pqa:create              # Create a new Claude Code plugin
-/pqa:audit               # Full QA audit of a plugin
-/pqa:validate            # Quick structural check
+# Desarrollo de plugins
+/pqa:create              # Crear un nuevo plugin de Claude Code
+/pqa:audit               # Auditoría completa de calidad
 
 # Spec Driven Development
-/sdd:tour                # Guided onboarding (8 steps)
-/sdd:demo                # Generate demo project + dashboard
-/sdd:init                # Initialize SDD in any project
-/sdd:sentinel            # Ambient health monitoring
-/sdd:graph               # Knowledge graph (Constitution→Tasks)
-/sdd:menu                # All 37 commands
+/sdd:tour                # Onboarding guiado (8 pasos)
+/sdd:demo                # Generar proyecto demo + dashboard
+/sdd:menu                # Los 37 comandos disponibles
 ```
 
 ---
 
-## SDD v3.0 — What's New
+## Gobernanza
 
-SDD (Spec Driven Development, formerly AAD) is now a full operational platform:
+Cada afirmación etiquetada con evidencia: `[CÓDIGO]` `[CONFIG]` `[DOC]` `[INFERENCIA]` `[SUPUESTO]`
 
-| Feature | Description |
-|---------|-------------|
-| **Per-prompt heartbeat** | Ambient intelligence on every user prompt (< 100ms, zero LLM cost) |
-| **Knowledge graph** | Full traceability from constitution principles to tasks |
-| **Command Center** | Multi-HTML micro-frontend dashboard with 6 interconnected pages |
-| **Onboarding tour** | 8-step interactive walkthrough with Neo-Swiss glassmorphism |
-| **RAG memory** | Auto-capture session inputs with MIME detection and JSON indexing |
-| **37 commands** | 9-phase pipeline + intelligence + utility + experience commands |
-| **4 hooks** | UserPromptSubmit, PostToolUse, SessionStart, PreCompact |
+4 puertas de calidad (G0 pre-vuelo, G1 análisis, G2 arquitectura, G3 listo para deploy).
 
-[Full SDD documentation →](https://github.com/JaviMontano/sdd-metodologia)
+El Intent Integrity Kit asegura que los requisitos se trazan a través de specs, tests y código sin deriva.
 
 ---
 
-## Governance
-
-Every claim tagged with evidence: `[CODE]` `[CONFIG]` `[DOC]` `[INFERENCE]` `[ASSUMPTION]`
-
-4 quality gates (G0 pre-flight, G1 analysis, G2 architecture, G3 deploy-ready).
-
-Intent Integrity Kit ensures requirements trace through specs, tests, and code without drift.
-
----
-
-## Architecture
+## Arquitectura
 
 ```
 jm-agentic-development-kit/
-├── sovereign-architect/     # SA v4.0 — Architecture & Code
+├── sovereign-architect/     # SA — Arquitectura y código
 │   ├── agents/   (66)
 │   ├── skills/   (128)
 │   └── commands/ (120)
-├── plugin-qa/               # PQA v3.0 — Plugin Lifecycle
+├── plugin-qa/               # PQA — Ciclo de vida de plugins
 │   ├── agents/   (4)
 │   ├── skills/   (20)
 │   └── commands/ (31)
-├── sdd-metodologia/         # SDD v3.0 — Spec Driven Development
+├── sdd-metodologia/         # SDD — Spec Driven Development
 │   ├── .claude/skills/ (12)
 │   ├── commands/ (37)
 │   ├── scripts/  (21)
-│   └── hooks/    (4 events)
+│   └── hooks/    (4 eventos)
 ├── CONSTITUTION.md
 ├── FRAMEWORK-PRINCIPLES.md
-├── landing.html
 └── .specify/
 ```
 
 ---
 
-## Author
+## Parte del Ecosistema MetodologIA / JM Labs
 
-**Javier Montano** — PreSales Architect, MetodologIA founder, JM Labs.
+JM ADK orquesta e integra componentes de este ecosistema:
 
-- [metodologia.info](https://metodologia.info)
-- Made with Claude Code
+| Repositorio | Descripción |
+|-------------|-------------|
+| [jm-adk-alfa](https://github.com/JaviMontano/jm-adk-alfa) | Versión alfa con experimentos y extensiones |
+| [mao-discovery-framework](https://github.com/JaviMontano/mao-discovery-framework) | Framework de discovery y análisis organizacional |
+| [mao-sovereign-architect](https://github.com/JaviMontano/mao-sovereign-architect) | Arquitectura de software con agentes autónomos |
+| [mao-plugin-qa](https://github.com/JaviMontano/mao-plugin-qa) | Framework de calidad para plugins de Claude Code |
 
 ---
 
-## License
+## Licencia
 
-MIT (code) | GPL-3.0 (MetodologIA brand elements in SDD)
+Este proyecto está licenciado bajo **MIT**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
+
+---
+
+<p align="center">
+  Creado por <a href="https://github.com/JaviMontano">Javier Montaño</a> · JM Labs · MIT
+</p>
+
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:122562,100:BBA0CC&height=120&section=footer" alt="Footer" />
+</p>
